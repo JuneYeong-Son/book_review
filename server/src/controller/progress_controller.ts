@@ -13,9 +13,11 @@ import { requireAuth } from '../middleware/auth_middleware.ts';
 
 const router = Router();
 
-// 모든 사용자의 독서 기록 (다른 사람 기록도 볼 수 있음)
-router.get('/', async (_req, res) => {
-  return res.json(await listProgress());
+// 모든 사용자의 독서 기록 (skip/take로 페이지네이션)
+router.get('/', async (req, res) => {
+  const skip = req.query.skip ? Number(req.query.skip) : undefined;
+  const take = req.query.take ? Number(req.query.take) : undefined;
+  return res.json(await listProgress(skip, take));
 });
 
 // 내 독서 기록 전체

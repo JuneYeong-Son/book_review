@@ -8,18 +8,17 @@ import ReadingCalendar from '../component/reading_calendar.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
 
-type Tab = 'reviews' | 'books' | 'discussions' | 'calendar';
+type Tab = 'reviews' | 'books' | 'discussions';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'reviews', label: '내 서평' },
   { key: 'books', label: '내 책' },
-  { key: 'discussions', label: '내 토론' },
-  { key: 'calendar', label: '달력' }
+  { key: 'discussions', label: '내 토론' }
 ];
 
 const MyPage = () => {
   const { user } = useAuth();
   const [params, setParams] = useSearchParams();
-  const tab = (params.get('tab') as Tab) || 'books';
+  const tab = (params.get('tab') as Tab) || 'reviews';
   const [reviews, setReviews] = useState<Progress[]>([]);
   const [discussions, setDiscussions] = useState<DiscussionSummary[]>([]);
 
@@ -46,6 +45,9 @@ const MyPage = () => {
         <h1>마이페이지</h1>
         <p className="muted">{user.avatar} {user.name}님의 기록</p>
       </div>
+
+      {/* 마이페이지를 열면 달력이 바로 보임 */}
+      <ReadingCalendar records={reviews} />
 
       <div className="tabs">
         {TABS.map((t) => (
@@ -106,8 +108,6 @@ const MyPage = () => {
           </div>
         )
       )}
-
-      {tab === 'calendar' && <ReadingCalendar records={reviews} />}
 
       {tab === 'discussions' && (
         discussions.length === 0 ? (

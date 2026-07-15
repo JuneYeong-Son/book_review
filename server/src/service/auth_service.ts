@@ -9,11 +9,18 @@ import {
 } from '../repository/auth_repository.ts';
 
 // 로그인/회원가입 결과로 비밀번호 해시를 제외한 공개 정보만 반환
-const toPublicUser = (user: { id: string; username: string; name: string; avatar: string }) => ({
+const toPublicUser = (user: {
+  id: string;
+  username: string;
+  name: string;
+  avatar: string;
+  birthYear: number | null;
+}) => ({
   id: user.id,
   username: user.username,
   name: user.name,
-  avatar: user.avatar
+  avatar: user.avatar,
+  birthYear: user.birthYear
 });
 
 export const loginUser = async (username: string, password: string) => {
@@ -27,13 +34,14 @@ export const registerUser = async (
   username: string,
   name: string,
   password: string,
-  avatar: string
+  avatar: string,
+  birthYear: number | null
 ) => {
   const existing = await findUserByUsername(username);
   if (existing) return { error: '이미 존재하는 아이디입니다.' as const };
 
   const passwordHash = bcrypt.hashSync(password, 8);
-  const user = await insertUser({ username, name, passwordHash, avatar: avatar || '📚' });
+  const user = await insertUser({ username, name, passwordHash, avatar: avatar || '📚', birthYear });
   return { user: toPublicUser(user) };
 };
 
@@ -42,11 +50,17 @@ export const getUser = async (id: string) => {
   return user ? toPublicUser(user) : null;
 };
 
-// 프로필(이름·아바타) 수정
-export const updateProfile = async (id: string, name?: string, avatar?: string) => {
-  const data: { name?: string; avatar?: string } = {};
+// 프로필(이름·아바타·출생연도) 수정
+export const updateProfile = async (
+  id: string,
+  name?: string,
+  avatar?: string,
+  birthYear?: number | null
+) => {
+  const data: { name?: string; avatar?: string; birthYear?: number | null } = {};
   if (name) data.name = name;
   if (avatar) data.avatar = avatar;
+  if (birthYear !== undefined) data.birthYear = birthYear;
   const user = await updateUser(id, data);
   return toPublicUser(user);
 };

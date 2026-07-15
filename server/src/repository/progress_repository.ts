@@ -24,8 +24,18 @@ export const deleteLike = (userId: string, progressId: string) =>
 export const countLikes = (progressId: string) =>
   prisma.like.count({ where: { progressId } });
 
-export const findAllProgress = () =>
-  prisma.progress.findMany({ ...withRelations, orderBy: { createdAt: 'desc' } });
+export const findAllProgress = (skip?: number, take?: number) =>
+  prisma.progress.findMany({ ...withRelations, orderBy: { createdAt: 'desc' }, skip, take });
+
+// 연령대별 추천 집계용 (사용자 출생연도 포함, 내부용)
+export const findProgressWithUserAge = () =>
+  prisma.progress.findMany({
+    include: {
+      book: true,
+      user: { select: { id: true, birthYear: true } },
+      likes: { select: { userId: true } }
+    }
+  });
 
 export const findProgressByUser = (userId: string) =>
   prisma.progress.findMany({ where: { userId }, ...withRelations, orderBy: { createdAt: 'desc' } });

@@ -11,12 +11,14 @@ router.get('/', async (_req, res) => {
   return res.json(await listBooks());
 });
 
-// 추천 — method=content(읽은 책과 비슷) | popular(요즘 많이 사는 책), categoryId=장르 필터
+// 추천 — method=content | popular, categoryId=장르, ageGroup=연령대, start=베스트셀러 페이지
 router.get('/recommendations', async (req, res) => {
   const userId = req.cookies?.userId as string | undefined;
   const method = req.query.method === 'popular' ? 'popular' : 'content';
   const categoryId = typeof req.query.categoryId === 'string' ? req.query.categoryId : undefined;
-  return res.json(await recommend(method, userId, { categoryId }));
+  const ageGroup = req.query.ageGroup ? Number(req.query.ageGroup) : undefined;
+  const start = req.query.start ? Number(req.query.start) : undefined;
+  return res.json(await recommend(method, userId, { categoryId, ageGroup, start }));
 });
 
 // 알라딘에서 책 검색 (아직 저장 전 후보 목록)

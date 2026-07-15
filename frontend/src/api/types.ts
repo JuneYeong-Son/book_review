@@ -3,6 +3,7 @@ export type User = {
   username: string;
   name: string;
   avatar: string;
+  birthYear: number | null;
 };
 
 export type Book = {

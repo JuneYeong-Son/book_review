@@ -6,7 +6,7 @@ type AuthValue = {
   user: User | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, name: string, password: string, avatar: string) => Promise<void>;
+  register: (username: string, name: string, password: string, avatar: string, birthYear: number | null) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   clearUser: () => void;
@@ -30,8 +30,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(await apiPost<User>('/auth/login', { username, password }));
   };
 
-  const register = async (username: string, name: string, password: string, avatar: string) => {
-    setUser(await apiPost<User>('/auth/register', { username, name, password, avatar }));
+  const register = async (username: string, name: string, password: string, avatar: string, birthYear: number | null) => {
+    setUser(await apiPost<User>('/auth/register', { username, name, password, avatar, birthYear }));
   };
 
   const logout = async () => {

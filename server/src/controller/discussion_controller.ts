@@ -10,9 +10,11 @@ import { requireAuth } from '../middleware/auth_middleware.ts';
 
 const router = Router();
 
-// 토론 목록
-router.get('/', async (_req, res) => {
-  return res.json(await listDiscussions());
+// 토론 목록 (skip/take로 페이지네이션)
+router.get('/', async (req, res) => {
+  const skip = req.query.skip ? Number(req.query.skip) : undefined;
+  const take = req.query.take ? Number(req.query.take) : undefined;
+  return res.json(await listDiscussions(skip, take));
 });
 
 // 내가 참여한 토론 (':id'보다 먼저 등록해야 'me'가 id로 잡히지 않음)

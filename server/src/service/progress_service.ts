@@ -16,8 +16,8 @@ import { findBookById } from '../repository/book_repository.ts';
 import { findUserById } from '../repository/auth_repository.ts';
 import { createNotification } from './notification_service.ts';
 
-// 모든 사용자의 독서 기록 (다른 사람 기록도 볼 수 있음)
-export const listProgress = () => findAllProgress();
+// 모든 사용자의 독서 기록 (다른 사람 기록도 볼 수 있음, 페이지네이션 지원)
+export const listProgress = (skip?: number, take?: number) => findAllProgress(skip, take);
 
 export const listUserProgress = (userId: string) => findProgressByUser(userId);
 

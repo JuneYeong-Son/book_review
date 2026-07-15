@@ -13,6 +13,7 @@ model User {
   name         String
   passwordHash String
   avatar       String       @default("📚") // 회원가입 시 고른 이모지 아바타
+  birthYear    Int?         // 연령대별 추천 집계용 (선택 입력)
   createdAt    DateTime     @default(now())
   progresses   Progress[]
   interests    Interest[]

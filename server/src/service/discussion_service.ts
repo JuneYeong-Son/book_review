@@ -10,7 +10,7 @@ import { hasProgress } from '../repository/progress_repository.ts';
 import { findUserById } from '../repository/auth_repository.ts';
 import { createNotification } from './notification_service.ts';
 
-export const listDiscussions = () => findAllDiscussions();
+export const listDiscussions = (skip?: number, take?: number) => findAllDiscussions(skip, take);
 
 // 내가 참여한(연 토론 + 댓글 단) 토론 목록
 export const listMyDiscussions = (userId: string) => findDiscussionsByParticipant(userId);

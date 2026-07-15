@@ -13,12 +13,15 @@ const router = Router();
 
 // 회원가입
 router.post('/register', async (req, res) => {
-  const { username, name, password, avatar } = req.body ?? {};
+  const { username, name, password, avatar, birthYear } = req.body ?? {};
   if (!username || !name || !password) {
     return res.status(400).json({ message: '아이디, 이름, 비밀번호를 모두 입력하세요.' });
   }
 
-  const result = await registerUser(username, name, password, avatar ?? '📚');
+  const result = await registerUser(
+    username, name, password, avatar ?? '📚',
+    typeof birthYear === 'number' ? birthYear : null
+  );
   if (result.error) return res.status(409).json({ message: result.error });
 
   res.cookie('userId', result.user.id, { httpOnly: true, sameSite: 'lax' });
@@ -48,10 +51,11 @@ router.get('/me', requireAuth, async (_req, res) => {
   return res.json(user);
 });
 
-// 프로필(이름·아바타) 수정
+// 프로필(이름·아바타·출생연도) 수정
 router.patch('/me', requireAuth, async (req, res) => {
-  const { name, avatar } = req.body ?? {};
-  const user = await updateProfile(res.locals.userId, name, avatar);
+  const { name, avatar, birthYear } = req.body ?? {};
+  const by = birthYear === null ? null : typeof birthYear === 'number' ? birthYear : undefined;
+  const user = await updateProfile(res.locals.userId, name, avatar, by);
   return res.json(user);
 });
 

@@ -11,10 +11,13 @@ export const insertUser = (data: {
   name: string;
   passwordHash: string;
   avatar: string;
+  birthYear: number | null;
 }) => prisma.user.create({ data });
 
-export const updateUser = (id: string, data: { name?: string; avatar?: string }) =>
-  prisma.user.update({ where: { id }, data });
+export const updateUser = (
+  id: string,
+  data: { name?: string; avatar?: string; birthYear?: number | null }
+) => prisma.user.update({ where: { id }, data });
 
 export const updateUserPassword = (id: string, passwordHash: string) =>
   prisma.user.update({ where: { id }, data: { passwordHash } });

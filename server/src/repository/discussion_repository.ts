@@ -2,14 +2,16 @@ import prisma from '../lib/prisma.ts';
 
 const ownerSelect = { select: { id: true, username: true, name: true, avatar: true } } as const;
 
-export const findAllDiscussions = () =>
+export const findAllDiscussions = (skip?: number, take?: number) =>
   prisma.discussion.findMany({
     include: {
       book: true,
       owner: ownerSelect,
       _count: { select: { comments: true } }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take
   });
 
 // 내가 연(owner) 토론 + 내가 댓글 단 토론 = 참여한 토론

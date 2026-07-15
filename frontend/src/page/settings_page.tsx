@@ -11,6 +11,7 @@ const SettingsPage = () => {
 
   const [name, setName] = useState(user?.name ?? '');
   const [avatar, setAvatar] = useState(user?.avatar ?? '📚');
+  const [birthYear, setBirthYear] = useState(user?.birthYear ? String(user.birthYear) : '');
   const [profileMsg, setProfileMsg] = useState('');
 
   const [currentPassword, setCurrentPassword] = useState('');
@@ -26,7 +27,7 @@ const SettingsPage = () => {
   const saveProfile = async (e: FormEvent) => {
     e.preventDefault();
     setProfileMsg('');
-    await apiPatch('/auth/me', { name, avatar });
+    await apiPatch('/auth/me', { name, avatar, birthYear: birthYear ? Number(birthYear) : null });
     await refresh();
     setProfileMsg('저장되었습니다.');
   };
@@ -81,6 +82,10 @@ const SettingsPage = () => {
         <label>
           이름
           <input value={name} onChange={(e) => setName(e.target.value)} />
+        </label>
+        <label>
+          출생연도 <em className="optional">(연령대 추천에 사용)</em>
+          <input type="number" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} placeholder="예: 2000" />
         </label>
         {profileMsg && <p className="success">{profileMsg}</p>}
         <button type="submit" className="btn">저장</button>

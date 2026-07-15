@@ -101,9 +101,7 @@ const NavBar = () => {
                     <span className="dropdown-avatar">{user.avatar}</span>
                     <span className="dropdown-name">{user.name}</span>
                   </div>
-                  <button className="dropdown-item" onClick={() => go('/mypage?tab=reviews')}>내 서평</button>
-                  <button className="dropdown-item" onClick={() => go('/mypage?tab=books')}>내 책</button>
-                  <button className="dropdown-item" onClick={() => go('/mypage?tab=discussions')}>내 토론</button>
+                  <button className="dropdown-item" onClick={() => go('/mypage')}>마이페이지</button>
                   <button className="dropdown-item" onClick={() => go('/settings')}>내 정보 수정</button>
                   <button className="dropdown-item logout" onClick={handleLogout}>로그아웃</button>
                 </div>

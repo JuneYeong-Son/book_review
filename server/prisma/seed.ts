@@ -61,6 +61,7 @@ async function main() {
       username: 'reader',
       name: '독서가',
       avatar: '🦊',
+      birthYear: 1994,
       passwordHash: createHash('password')
     }
   });
@@ -70,6 +71,7 @@ async function main() {
       username: 'bookworm',
       name: '책벌레',
       avatar: '🐰',
+      birthYear: 2001,
       passwordHash: createHash('password')
     }
   });
