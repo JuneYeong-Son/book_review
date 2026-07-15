@@ -14,7 +14,8 @@ router.get('/', async (_req, res) => {
 // 추천 — method=content | popular, categoryId=장르, ageGroup=연령대, start=베스트셀러 페이지
 router.get('/recommendations', async (req, res) => {
   const userId = req.cookies?.userId as string | undefined;
-  const method = req.query.method === 'popular' ? 'popular' : 'content';
+  const m = req.query.method;
+  const method = m === 'popular' ? 'popular' : m === 'cf' ? 'cf' : 'content';
   const categoryId = typeof req.query.categoryId === 'string' ? req.query.categoryId : undefined;
   const ageGroup = req.query.ageGroup ? Number(req.query.ageGroup) : undefined;
   const start = req.query.start ? Number(req.query.start) : undefined;

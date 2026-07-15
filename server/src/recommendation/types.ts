@@ -16,4 +16,4 @@ export type RecoItem = {
   inLibrary: boolean; // 우리 DB에 이미 있는 책인지
 };
 
-export type RecoMethod = 'content' | 'popular';
+export type RecoMethod = 'content' | 'popular' | 'cf';

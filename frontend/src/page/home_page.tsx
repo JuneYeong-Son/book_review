@@ -63,8 +63,8 @@ const HomePage = () => {
 
   // --- 추천 (popular=알라딘은 페이지네이션, content/연령대는 단일) ---
   const loadReco = async (reset: boolean) => {
-    if (method === 'content') {
-      setRecommendations(await apiGet<Recommendation[]>('/books/recommendations?method=content').catch(() => []));
+    if (method === 'content' || method === 'cf') {
+      setRecommendations(await apiGet<Recommendation[]>(`/books/recommendations?method=${method}`).catch(() => []));
       setRecoEnd(true);
       return;
     }
@@ -195,15 +195,18 @@ const HomePage = () => {
       <p className="muted small reco-summary">
         {method === 'content'
           ? '읽은 책과 비슷한 책'
-          : ageGroup
-            ? `요즘 많이 사는 책 · ${AGE_GROUPS.find((a) => a.value === ageGroup)?.label}`
-            : `요즘 많이 사는 책 · ${GENRES.find((g) => g.id === genre)?.label ?? '전체'}`}
+          : method === 'cf'
+            ? '비슷한 취향의 독자 추천'
+            : ageGroup
+              ? `요즘 많이 사는 책 · ${AGE_GROUPS.find((a) => a.value === ageGroup)?.label}`
+              : `요즘 많이 사는 책 · ${GENRES.find((g) => g.id === genre)?.label ?? '전체'}`}
       </p>
       {filterOpen && (
         <div className="reco-filter-panel">
           <label>추천 방식
             <select value={method} onChange={(e) => setMethod(e.target.value as RecoMethod)}>
               <option value="content">읽은 책과 비슷한 책</option>
+              <option value="cf">비슷한 취향의 독자 추천</option>
               <option value="popular">요즘 많이 사는 책</option>
             </select>
           </label>

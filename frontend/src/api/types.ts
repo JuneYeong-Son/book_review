@@ -32,7 +32,7 @@ export type Recommendation = {
   inLibrary: boolean;
 };
 
-export type RecoMethod = 'content' | 'popular';
+export type RecoMethod = 'content' | 'popular' | 'cf';
 
 // 알라딘 검색 결과(아직 저장 전) 후보
 export type BookCandidate = {
