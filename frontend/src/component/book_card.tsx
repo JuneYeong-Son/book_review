@@ -58,7 +58,7 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
       </div>
 
       <div className="book-body">
-        {reason && <p className="reason">🤖 {reason}</p>}
+        {reason && <p className="reason">{reason}</p>}
         <h3>{book.title}</h3>
         <p className="author">{book.author}</p>
         <div className="tags">

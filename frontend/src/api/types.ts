@@ -14,12 +14,24 @@ export type Book = {
   category: string;
 };
 
-// 추천 결과 (콘텐츠 기반)
-export type Recommendation = {
-  book: Book;
-  score: number;
-  reason: string;
+// 추천 결과
+export type RecoBook = {
+  id: string | null; // 우리 DB에 있으면 book id, 없으면 null(외부 후보)
+  title: string;
+  author: string;
+  cover: string;
+  genre: string;
+  category: string;
+  isbn: string | null;
 };
+
+export type Recommendation = {
+  book: RecoBook;
+  reason: string;
+  inLibrary: boolean;
+};
+
+export type RecoMethod = 'content' | 'popular';
 
 // 알라딘 검색 결과(아직 저장 전) 후보
 export type BookCandidate = {

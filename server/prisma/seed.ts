@@ -65,6 +65,15 @@ async function main() {
     }
   });
 
+  const bookworm = await prisma.user.create({
+    data: {
+      username: 'bookworm',
+      name: '책벌레',
+      avatar: '🐰',
+      passwordHash: createHash('password')
+    }
+  });
+
   const seedBooks = [
     { id: 'b1', title: '작은 아씨들', author: '루이자 메이 올콧', genre: '고전소설', category: '해외문학', cover: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=400&q=80' },
     { id: 'b2', title: '데미안', author: '헤르만 헤세', genre: '성장소설', category: '해외문학', cover: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=400&q=80' },
@@ -88,11 +97,44 @@ async function main() {
     data: {
       userId: reader.id, bookId: 'b2',
       startPage: 60, endPage: 120,
-      note: '데미안과의 만남 이후 성장에 몰입', quote: '', rating: 5
+      note: '데미안과의 만남 이후 성장에 몰입', quote: '내 안에서 솟아 나오려는 것, 그것을 나는 살아보려 했다.', rating: 5
     }
   });
 
-  console.log('Seed 완료: user=reader / password=password');
+  // 책벌레: 작은 아씨들 기록
+  await prisma.progress.create({
+    data: {
+      userId: bookworm.id, bookId: 'b1',
+      startPage: 0, endPage: 90,
+      note: '네 자매의 일상이 따뜻하다', quote: '', rating: 4
+    }
+  });
+
+  // 토론 시드 (토론을 연 사람은 그 책의 기록이 있어야 함)
+  const d1 = await prisma.discussion.create({
+    data: {
+      bookId: 'b2', ownerId: reader.id,
+      title: '데미안, 알을 깨는 고통에 대하여',
+      description: '싱클레어의 성장에서 가장 인상 깊었던 장면을 나눠요.'
+    }
+  });
+  const d2 = await prisma.discussion.create({
+    data: {
+      bookId: 'b1', ownerId: bookworm.id,
+      title: '작은 아씨들 중 최애 캐릭터는?',
+      description: '조, 메그, 베스, 에이미 중 누구에게 가장 공감하나요?'
+    }
+  });
+
+  // 댓글 시드
+  await prisma.comment.create({
+    data: { discussionId: d1.id, userId: bookworm.id, text: '새가 알을 깨고 나오는 문장이 잊히지 않아요.' }
+  });
+  await prisma.comment.create({
+    data: { discussionId: d2.id, userId: reader.id, text: '저는 글을 쓰는 조에게 가장 공감했어요!' }
+  });
+
+  console.log('Seed 완료: user=reader / password=password (책벌레 bookworm/password)');
 }
 
 main()

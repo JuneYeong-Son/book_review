@@ -4,14 +4,16 @@ import { apiGet } from '../api/client.ts';
 import type { Book, DiscussionSummary, Progress } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
 import StarRating from '../component/star_rating.tsx';
+import ReadingCalendar from '../component/reading_calendar.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
 
-type Tab = 'reviews' | 'books' | 'discussions';
+type Tab = 'reviews' | 'books' | 'discussions' | 'calendar';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'reviews', label: '내 서평' },
   { key: 'books', label: '내 책' },
-  { key: 'discussions', label: '내 토론' }
+  { key: 'discussions', label: '내 토론' },
+  { key: 'calendar', label: '달력' }
 ];
 
 const MyPage = () => {
@@ -104,6 +106,8 @@ const MyPage = () => {
           </div>
         )
       )}
+
+      {tab === 'calendar' && <ReadingCalendar records={reviews} />}
 
       {tab === 'discussions' && (
         discussions.length === 0 ? (
