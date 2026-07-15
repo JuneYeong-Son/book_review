@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './lib/auth_context.tsx';
 import NavBar from './component/nav_bar.tsx';
+import AppFooter from './component/app_footer.tsx';
 import HomePage from './page/home_page.tsx';
 import LoginPage from './page/login_page.tsx';
 import RegisterPage from './page/register_page.tsx';
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <AppFooter />
     </>
   );
 };

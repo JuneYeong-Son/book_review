@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth_context.tsx';
 import { apiGet, apiPost } from '../api/client.ts';
 import type { Notification } from '../api/types.ts';
@@ -18,7 +18,6 @@ const NavBar = () => {
     apiGet<Notification[]>('/notifications').then(setNotifications).catch(() => setNotifications([]));
   };
 
-  // 로그인 상태에서 알림 로드 + 30초마다 갱신
   useEffect(() => {
     if (!user) {
       setNotifications([]);
@@ -29,7 +28,6 @@ const NavBar = () => {
     return () => clearInterval(timer);
   }, [user]);
 
-  // 바깥 클릭 시 드롭다운 닫기
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
@@ -43,6 +41,11 @@ const NavBar = () => {
     setMenuOpen(false);
     await logout();
     navigate('/login');
+  };
+
+  const go = (path: string) => {
+    setMenuOpen(false);
+    navigate(path);
   };
 
   const openNotification = async (noti: Notification) => {
@@ -59,11 +62,6 @@ const NavBar = () => {
   return (
     <header className="navbar">
       <Link to="/" className="brand">📖 책갈피</Link>
-      <nav className="nav-links">
-        <NavLink to="/">홈</NavLink>
-        <NavLink to="/records">독서 기록</NavLink>
-        <NavLink to="/discussions">토론</NavLink>
-      </nav>
       <div className="nav-user">
         {user ? (
           <>
@@ -103,8 +101,10 @@ const NavBar = () => {
                     <span className="dropdown-avatar">{user.avatar}</span>
                     <span className="dropdown-name">{user.name}</span>
                   </div>
-                  <button className="dropdown-item" onClick={() => { setMenuOpen(false); navigate('/mypage'); }}>마이페이지</button>
-                  <button className="dropdown-item" onClick={handleLogout}>로그아웃</button>
+                  <button className="dropdown-item" onClick={() => go('/mypage?tab=reviews')}>내 서평</button>
+                  <button className="dropdown-item" onClick={() => go('/mypage?tab=books')}>내 책</button>
+                  <button className="dropdown-item" onClick={() => go('/mypage?tab=discussions')}>내 토론</button>
+                  <button className="dropdown-item logout" onClick={handleLogout}>로그아웃</button>
                 </div>
               )}
             </div>
