@@ -164,20 +164,35 @@ const QuickActions = ({ onChange }: Props) => {
             </ul>
           )}
 
-          <h4 className="picker-subhead">내 서재의 책 (누르면 관심 지정 / 해제)</h4>
-          <ul className="interest-picker">
-            {books.map((b) => (
-              <li
-                key={b.id}
-                className={`interest-row ${interestedIds.has(b.id) ? 'interested' : ''}`}
-                onClick={() => toggleInterest(b.id)}
-              >
-                <img src={b.cover} alt={b.title} className="import-cover" />
-                <span className="interest-title">{b.title}</span>
-                {interestedIds.has(b.id) && <span className="interest-badge">관심</span>}
-              </li>
-            ))}
-          </ul>
+          <h4 className="picker-subhead">내 관심 책 (누르면 해제)</h4>
+          {books.filter((b) => interestedIds.has(b.id)).length === 0 ? (
+            <p className="muted small">아직 관심 책이 없어요.</p>
+          ) : (
+            <ul className="interest-picker">
+              {books.filter((b) => interestedIds.has(b.id)).map((b) => (
+                <li key={b.id} className="interest-row interested" onClick={() => toggleInterest(b.id)}>
+                  <img src={b.cover} alt={b.title} className="import-cover" />
+                  <span className="interest-title">{b.title}</span>
+                  <span className="interest-badge">관심 ✕</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <h4 className="picker-subhead">관심 추가 (누르면 관심 지정)</h4>
+          {books.filter((b) => !interestedIds.has(b.id)).length === 0 ? (
+            <p className="muted small">서재의 모든 책이 관심 책이에요.</p>
+          ) : (
+            <ul className="interest-picker">
+              {books.filter((b) => !interestedIds.has(b.id)).map((b) => (
+                <li key={b.id} className="interest-row" onClick={() => toggleInterest(b.id)}>
+                  <img src={b.cover} alt={b.title} className="import-cover" />
+                  <span className="interest-title">{b.title}</span>
+                  <span className="interest-add">＋ 관심</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Modal>
       )}
 

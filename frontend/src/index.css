@@ -212,6 +212,7 @@ a:hover { text-decoration: underline; }
   background: var(--accent); color: #fff; font-size: 0.72rem;
   border-radius: 999px; padding: 2px 10px;
 }
+.interest-add { color: var(--muted); font-size: 0.78rem; }
 
 /* 추천 필터 패널 */
 .reco-summary { margin: -6px 0 12px; }
