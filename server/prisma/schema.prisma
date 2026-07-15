@@ -29,6 +29,9 @@ model Book {
   cover       String
   genre       String       @default("") // 추천 시스템(콘텐츠 기반)용
   category    String       @default("") // 추천 시스템(콘텐츠 기반)용
+  isbn        String?      @unique       // 알라딘 등 외부 임포트 중복 방지 (수동 추가 책은 null)
+  publisher   String       @default("")
+  description String       @default("")
   createdAt   DateTime     @default(now())
   progresses  Progress[]
   interests   Interest[]

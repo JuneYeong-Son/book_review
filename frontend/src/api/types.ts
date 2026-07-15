@@ -14,6 +14,18 @@ export type Book = {
   category: string;
 };
 
+// 알라딘 검색 결과(아직 저장 전) 후보
+export type BookCandidate = {
+  title: string;
+  author: string;
+  cover: string;
+  genre: string;
+  category: string;
+  isbn: string;
+  publisher: string;
+  description: string;
+};
+
 export type Progress = {
   id: string;
   userId: string;

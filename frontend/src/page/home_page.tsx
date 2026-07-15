@@ -3,6 +3,7 @@ import { apiGet, apiPost } from '../api/client.ts';
 import type { Book, Interest, Progress } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
 import BookCard from '../component/book_card.tsx';
+import BookImportPanel from '../component/book_import_panel.tsx';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -62,6 +63,8 @@ const HomePage = () => {
           {user ? '읽은 만큼 기록하고 별점과 서평을 남겨보세요.' : '로그인하면 독서 기록과 서평을 남길 수 있어요.'}
         </p>
       </div>
+
+      {user && <BookImportPanel onImported={loadBooks} />}
 
       <div className="book-grid">
         {books.map((book) => (

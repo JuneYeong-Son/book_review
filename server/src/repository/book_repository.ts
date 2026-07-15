@@ -6,6 +6,20 @@ export const findAllBooks = () =>
 export const findBookById = (id: string) =>
   prisma.book.findUnique({ where: { id } });
 
+export const findBookByIsbn = (isbn: string) =>
+  prisma.book.findUnique({ where: { isbn } });
+
+export const createBook = (data: {
+  title: string;
+  author: string;
+  cover: string;
+  genre: string;
+  category: string;
+  isbn: string | null;
+  publisher: string;
+  description: string;
+}) => prisma.book.create({ data });
+
 export const findInterestsByUser = (userId: string) =>
   prisma.interest.findMany({ where: { userId }, include: { book: true } });
 
