@@ -41,5 +41,39 @@
 - 엔드포인트 `GET /books/recommendations?method=content|popular&categoryId=...`.
 - 향후: 협업 필터링 / 임베딩 기반 하이브리드.
 
-## 데이터
-- 토론 시드(사용자 bookworm/password + 토론·댓글) 추가.
+## 서평 상세/편집/댓글/URL (추가)
+- **서평 댓글**: 서평에도 댓글(ReviewComment). 남의 서평에 댓글 시 작성자에게 알림.
+- **서평 편집/삭제**: 본인 서평만 `PATCH/DELETE /progress/:id`. 서평 상세·마이페이지 책별 페이지에서.
+- **서평 URL 구조**: 책이 있어야 서평이 있으므로 `/books/:bookId/reviews/:bookSeq`.
+  `Progress.bookSeq`(책별 순번, 저장 시 count+1). 조회: `GET /progress/book/:bookId/seq/:seq`.
+
+## 책 단위 별점 (변경)
+- 별점을 **서평마다가 아니라 책 자체에** 매김. `Rating(userId, bookId, value)` @@unique.
+- `POST /books/:id/rating`, `GET /books/:id/rating`(평균·개수·내 별점). 서평 폼/표시에서 별점 제거.
+
+## 추천 (변경/추가)
+- **"읽은 책과 비슷한 책" = 아이템 기반 협업 필터링(CF)**: 책×사용자(읽음+좋아요) 코사인 유사도.
+  희소하면 콘텐츠 기반으로 보충. (`recommendation/item_cf.ts`) — 기존 content 옵션이 이걸로 대체.
+- **연령대 옵션은 UI에서 제거**(백엔드 age_group 코드는 유지, 나중에 복구).
+- **추천 제외 리스트**: `RecoExclusion(userId, bookId)`. 추천 카드 X → `POST /books/:id/reco-exclude`.
+  content/CF에서 제외. `GET/DELETE /books/:id/reco-exclude`.
+- **특정 책 제외**: `recommendation/exclusions.ts`(코드 기본 + env `RECO_EXCLUDE_TITLES`). 예) '82년생 김지영'.
+
+## 유저 프로필 / 신고 / 관리자 (추가)
+- **공개 프로필**: `GET /users/:id` → 그 유저의 서평·서재(관심)·토론.
+- **신고**: `POST /reports` (targetType: review | discussion | user), Report 모델.
+- **관리자**: env `ADMIN_USERNAMES`(기본 reader). `/api/admin` (requireAdmin):
+  - `GET /admin/stats` (오늘 접속자=User.lastSeenAt, 회원 수, 신고된 게시물 수)
+  - `GET /admin/reports` (신고 많은 순), `DELETE /admin/posts/:type/:id` (게시물·회원 삭제)
+
+## 책 중복/임포트 (변경)
+- 임포트 중복 판단: ISBN이 같거나 **(제목 + 작가(지은이))** 가 같으면 동일 책(옮긴이/판형 무시).
+  작가는 `primaryAuthor`로 정규화(옮긴이 제거).
+
+## 페이지네이션
+- `/progress`, `/discussions`에 `skip`/`take`. 알라딘 베스트셀러는 `start`(페이지). 무한 캐러셀에 사용.
+
+## 배포/DB
+- 로컬 SQLite, 배포 PostgreSQL. 빌드 시 `scripts/use-postgres.mjs`로 provider 자동 전환.
+- 배포 시 cross-site 쿠키(SameSite=None; Secure), CORS는 env `FRONTEND_URL`.
+- 시드 예시 확장(계정 5명: reader/bookworm/soyul/cheol/essay).

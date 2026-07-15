@@ -92,13 +92,21 @@
 
 ## 5. 데이터 모델 (현재)
 - `User(id, username, name, passwordHash, avatar)`
-- `Book(id, title, author, cover, genre, category)`
-- `Progress(id, userId, bookId, startPage, endPage, note, quote, rating, createdAt)` — 책당 여러 개(날짜별 이력)
+- `User(id, username, name, passwordHash, avatar, birthYear, lastSeenAt)`
+- `Book(id, title, author, cover, genre, category, isbn?, publisher, description)`
+- `Progress(id, userId, bookId, bookSeq, startPage, endPage, note, quote, createdAt)` — 서평, 책당 여러 개
+  - (별점 `rating`은 남아있으나 미사용 — 별점은 아래 Rating으로 이동)
+- `Rating(id, userId, bookId, value)` — **책 단위 별점** (@@unique[userId, bookId])
 - `Like(id, userId, progressId)` — 서평 좋아요 (@@unique[userId, progressId])
+- `ReviewComment(id, progressId, userId, text)` — 서평 댓글
+- `Interest(id, userId, bookId)` — 관심 책(내 서재)
+- `RecoExclusion(id, userId, bookId)` — 추천 안 받을 책
+- `Report(id, reporterId, targetType, targetId, reason)` — 신고(review|discussion|user)
 - `Notification(id, userId, type, message, link, read, createdAt)` — 알림
-- `Interest(id, userId, bookId)` — 관심 책
 - `Discussion(id, bookId, ownerId, title, description)`
-- `Comment(id, discussionId, userId, text)`
+- `Comment(id, discussionId, userId, text)` — 토론 댓글
+
+> 최신 전체 기능 목록은 루트 `README.md`, 세부 요청은 `docs/design/`·`docs/logic/`·`docs/todo.md` 참고.
 
 ## 6. 기타 메모
 - 기존 홈 디렉토리(`C:/Users/손`) 전체가 팀 저장소(`proteiin/nb04-seven-team1`)에 연결된
