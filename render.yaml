@@ -30,12 +30,11 @@ services:
       - key: FRONTEND_URL
         sync: false
 
-  # 프론트엔드 (React 정적 빌드)
+  # 프론트엔드 (React 정적 빌드) — 정적 사이트는 plan 필드 없음(항상 무료)
   - type: web
     name: book-review-frontend
     runtime: static
     rootDir: frontend
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     routes:
