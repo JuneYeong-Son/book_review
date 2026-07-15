@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { Book, Progress } from '../api/types.ts';
 import StarRating from './star_rating.tsx';
 
@@ -45,7 +46,7 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
   return (
     <article className="book-card">
       <div className="cover-wrap">
-        <img src={book.cover} alt={book.title} className="cover" />
+        <Link to={`/books/${book.id}`}><img src={book.cover} alt={book.title} className="cover" /></Link>
         {loggedIn && (
           <button
             className={`interest ${interested ? 'on' : ''}`}
@@ -59,7 +60,7 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
 
       <div className="book-body">
         {reason && <p className="reason">{reason}</p>}
-        <h3>{book.title}</h3>
+        <Link to={`/books/${book.id}`} className="book-title-link"><h3>{book.title}</h3></Link>
         <p className="author">{book.author}</p>
         <div className="tags">
           {book.genre && <span className="tag">{book.genre}</span>}

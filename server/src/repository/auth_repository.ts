@@ -24,9 +24,10 @@ export const deleteUserCascade = (id: string) =>
   prisma.$transaction([
     prisma.like.deleteMany({ where: { userId: id } }),
     prisma.comment.deleteMany({ where: { userId: id } }),
+    prisma.reviewComment.deleteMany({ where: { userId: id } }),
     prisma.notification.deleteMany({ where: { userId: id } }),
     prisma.interest.deleteMany({ where: { userId: id } }),
-    prisma.progress.deleteMany({ where: { userId: id } }), // 내 서평에 달린 좋아요는 cascade
+    prisma.progress.deleteMany({ where: { userId: id } }), // 내 서평의 좋아요·댓글은 cascade
     prisma.discussion.deleteMany({ where: { ownerId: id } }), // 내 토론의 댓글은 cascade
     prisma.user.delete({ where: { id } })
   ]);

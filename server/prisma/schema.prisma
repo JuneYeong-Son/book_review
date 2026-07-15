@@ -20,6 +20,7 @@ model User {
   comments     Comment[]
   likes        Like[]
   notifications Notification[]
+  reviewComments ReviewComment[]
 }
 
 model Book {
@@ -54,8 +55,20 @@ model Progress {
   user      User     @relation(fields: [userId], references: [id])
   book      Book     @relation(fields: [bookId], references: [id])
   likes     Like[]
+  comments  ReviewComment[]
 
   @@index([userId, bookId])
+}
+
+// 서평(Progress)에 달리는 댓글
+model ReviewComment {
+  id         String   @id @default(cuid())
+  progressId String
+  userId     String
+  text       String
+  createdAt  DateTime @default(now())
+  progress   Progress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
 }
 
 // 서평(Progress)에 대한 좋아요

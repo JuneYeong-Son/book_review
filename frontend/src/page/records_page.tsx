@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiGet, apiPost } from '../api/client.ts';
 import type { Progress } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
@@ -57,7 +58,7 @@ const RecordsPage = () => {
             <img src={record.book.cover} alt={record.book.title} className="record-cover" />
             <div className="record-main">
               <div className="record-top">
-                <strong>{record.book.title}</strong>
+                <Link to={`/reviews/${record.id}`}><strong>{record.book.title}</strong></Link>
                 <span className="muted"> · {record.user.avatar} {record.user.name}</span>
               </div>
               <div className="record-meta">

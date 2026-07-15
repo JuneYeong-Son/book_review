@@ -2,8 +2,11 @@ import {
   findAllProgress,
   findProgressByUser,
   findProgressByUserAndBook,
+  findProgressByBook,
   findProgressById,
+  findProgressDetail,
   insertProgress,
+  insertReviewComment,
   findLike,
   insertLike,
   deleteLike,
@@ -21,6 +24,31 @@ export const listUserProgress = (userId: string) => findProgressByUser(userId);
 // 한 책에 대해 내가 남긴 기록들(날짜별)
 export const listUserBookProgress = (userId: string, bookId: string) =>
   findProgressByUserAndBook(userId, bookId);
+
+// 한 책에 대한 모든 사용자의 서평
+export const listBookProgress = (bookId: string) => findProgressByBook(bookId);
+
+// 서평 상세
+export const getProgressDetail = (id: string) => findProgressDetail(id);
+
+// 서평에 댓글 달기 (남의 서평이면 작성자에게 알림)
+export const addReviewComment = async (progressId: string, userId: string, text: string) => {
+  const progress = await findProgressById(progressId);
+  if (!progress) return { error: '서평을 찾을 수 없습니다.' as const };
+
+  const comment = await insertReviewComment(progressId, userId, text);
+
+  if (progress.userId !== userId) {
+    const commenter = await findUserById(userId);
+    await createNotification(
+      progress.userId,
+      'comment',
+      `${commenter?.name ?? '누군가'}님이 '${progress.book.title}' 서평에 댓글을 남겼어요.`,
+      `/reviews/${progressId}`
+    );
+  }
+  return { comment };
+};
 
 // 오늘 무슨 책을 몇 페이지부터 몇 페이지까지 읽었는지 + 서평/별점/글귀 기록 (매번 새 항목)
 export const saveProgress = async (input: {

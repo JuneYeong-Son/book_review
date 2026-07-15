@@ -1,14 +1,14 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { apiGet, apiPost } from '../api/client.ts';
-import type { Book, Interest, Progress } from '../api/types.ts';
+import type { Book, BookCandidate, Interest, Progress } from '../api/types.ts';
 import StarRating from './star_rating.tsx';
 import Modal from './modal.tsx';
 
 type Props = {
-  onChange: () => void; // 작업 후 상위 데이터 새로고침
+  onChange: () => void;
 };
 
-type Which = 'review' | 'interest' | 'discussion' | null;
+type Which = 'review' | 'book' | 'discussion' | null;
 
 const QuickActions = ({ onChange }: Props) => {
   const [which, setWhich] = useState<Which>(null);
@@ -16,16 +16,19 @@ const QuickActions = ({ onChange }: Props) => {
   const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [interests, setInterests] = useState<Interest[]>([]);
 
+  const loadBooks = () => apiGet<Book[]>('/books').then(setBooks).catch(() => setBooks([]));
   const loadInterests = () =>
     apiGet<Interest[]>('/books/interests/me').then(setInterests).catch(() => setInterests([]));
 
   useEffect(() => {
-    apiGet<Book[]>('/books').then(setBooks).catch(() => setBooks([]));
+    loadBooks();
     apiGet<Progress[]>('/progress/me')
       .then((p) => setMyBooks([...new Map(p.map((r) => [r.bookId, r.book])).values()]))
       .catch(() => setMyBooks([]));
     loadInterests();
   }, [which]);
+
+  const interestedIds = new Set(interests.map((i) => i.bookId));
 
   // --- 서평 쓰기 ---
   const [rBook, setRBook] = useState('');
@@ -41,12 +44,8 @@ const QuickActions = ({ onChange }: Props) => {
     setRErr('');
     try {
       await apiPost('/progress', {
-        bookId: rBook,
-        startPage: Number(rStart),
-        endPage: Number(rEnd),
-        note: rNote,
-        quote: rQuote,
-        rating: rRating
+        bookId: rBook, startPage: Number(rStart), endPage: Number(rEnd),
+        note: rNote, quote: rQuote, rating: rRating
       });
       setWhich(null);
       setRBook(''); setRStart(0); setREnd(0); setRRating(0); setRNote(''); setRQuote('');
@@ -75,8 +74,35 @@ const QuickActions = ({ onChange }: Props) => {
     }
   };
 
-  // --- 관심 책 추가 ---
-  const interestedIds = new Set(interests.map((i) => i.bookId));
+  // --- 책 추가·관심 (알라딘 검색 임포트 + 관심 지정 통합) ---
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<BookCandidate[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searchErr, setSearchErr] = useState('');
+
+  const searchAladin = async (e: FormEvent) => {
+    e.preventDefault();
+    setSearchErr('');
+    setSearching(true);
+    try {
+      setResults(await apiGet<BookCandidate[]>(`/books/search/external?q=${encodeURIComponent(query)}`));
+    } catch (err) {
+      setSearchErr((err as Error).message);
+      setResults([]);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  // 검색 결과 추가 → 임포트 후 관심 책으로도 지정
+  const addAndInterest = async (candidate: BookCandidate) => {
+    const book = await apiPost<Book>('/books/import', candidate);
+    if (!interestedIds.has(book.id)) await apiPost(`/books/${book.id}/interest`);
+    await loadBooks();
+    await loadInterests();
+    onChange();
+  };
+
   const toggleInterest = async (bookId: string) => {
     await apiPost(`/books/${bookId}/interest`);
     await loadInterests();
@@ -86,7 +112,7 @@ const QuickActions = ({ onChange }: Props) => {
   return (
     <div className="quick-actions">
       <button className="btn" onClick={() => setWhich('review')}>✍️ 서평 쓰기</button>
-      <button className="btn ghost" onClick={() => setWhich('interest')}>♡ 관심 책 추가</button>
+      <button className="btn ghost" onClick={() => setWhich('book')}>📚 책 추가·관심</button>
       <button className="btn ghost" onClick={() => setWhich('discussion')}>💬 토론 열기</button>
 
       {which === 'review' && (
@@ -105,12 +131,8 @@ const QuickActions = ({ onChange }: Props) => {
                 <input type="number" min={0} value={rEnd} onChange={(e) => setREnd(Number(e.target.value))} />
               </span>
             </label>
-            <label>별점
-              <StarRating value={rRating} onChange={setRRating} size={24} />
-            </label>
-            <label>서평
-              <textarea value={rNote} onChange={(e) => setRNote(e.target.value)} rows={3} />
-            </label>
+            <label>별점 <StarRating value={rRating} onChange={setRRating} size={24} /></label>
+            <label>서평 <textarea value={rNote} onChange={(e) => setRNote(e.target.value)} rows={3} /></label>
             <label>인상깊은 글귀 <em className="optional">(선택)</em>
               <textarea value={rQuote} onChange={(e) => setRQuote(e.target.value)} rows={2} />
             </label>
@@ -120,17 +142,35 @@ const QuickActions = ({ onChange }: Props) => {
         </Modal>
       )}
 
-      {which === 'interest' && (
-        <Modal title="관심 책 추가" onClose={() => setWhich(null)}>
+      {which === 'book' && (
+        <Modal title="책 추가·관심" onClose={() => setWhich(null)}>
+          <form className="import-search" onSubmit={searchAladin}>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="알라딘에서 책 검색 (제목·저자)" />
+            <button type="submit" className="btn" disabled={searching}>{searching ? '검색 중' : '검색'}</button>
+          </form>
+          {searchErr && <p className="error">{searchErr}</p>}
+          {results.length > 0 && (
+            <ul className="import-results">
+              {results.map((b, i) => (
+                <li key={`${b.isbn}-${i}`} className="import-item">
+                  {b.cover && <img src={b.cover} alt={b.title} className="import-cover" />}
+                  <div className="import-info">
+                    <strong>{b.title}</strong>
+                    <p className="muted small">{b.author}</p>
+                  </div>
+                  <button className="btn small" onClick={() => addAndInterest(b)}>추가 + 관심</button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <h4 className="picker-subhead">내 서재의 책 (♥ 관심 지정)</h4>
           <ul className="interest-picker">
             {books.map((b) => (
               <li key={b.id}>
                 <img src={b.cover} alt={b.title} className="import-cover" />
                 <span className="interest-title">{b.title}</span>
-                <button
-                  className={`interest ${interestedIds.has(b.id) ? 'on' : ''}`}
-                  onClick={() => toggleInterest(b.id)}
-                >
+                <button className={`interest ${interestedIds.has(b.id) ? 'on' : ''}`} onClick={() => toggleInterest(b.id)}>
                   {interestedIds.has(b.id) ? '♥' : '♡'}
                 </button>
               </li>
@@ -151,12 +191,8 @@ const QuickActions = ({ onChange }: Props) => {
                   {myBooks.map((b) => <option key={b.id} value={b.id}>{b.title}</option>)}
                 </select>
               </label>
-              <label>제목
-                <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required />
-              </label>
-              <label>설명
-                <textarea value={dDesc} onChange={(e) => setDDesc(e.target.value)} rows={3} />
-              </label>
+              <label>제목 <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required /></label>
+              <label>설명 <textarea value={dDesc} onChange={(e) => setDDesc(e.target.value)} rows={3} /></label>
               {dErr && <p className="error">{dErr}</p>}
               <button type="submit" className="btn full">토론 열기</button>
             </form>

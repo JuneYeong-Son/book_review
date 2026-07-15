@@ -93,6 +93,10 @@ export type DiscussionSummary = {
   _count: { comments: number };
 };
 
+export type ReviewDetail = Progress & {
+  comments: Comment[];
+};
+
 export type DiscussionDetail = {
   id: string;
   title: string;

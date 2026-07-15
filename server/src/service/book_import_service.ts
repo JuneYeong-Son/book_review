@@ -80,9 +80,12 @@ export const searchExternalBooks = async (query: string) => {
   return callAladin(ALADIN_SEARCH, { Query: query, QueryType: 'Keyword' });
 };
 
-// 요즘 많이 사는 책 = 알라딘 베스트셀러
-export const fetchBestsellers = async () =>
-  callAladin(ALADIN_LIST, { QueryType: 'Bestseller' });
+// 요즘 많이 사는 책 = 알라딘 베스트셀러 (categoryId로 장르 필터 가능)
+export const fetchBestsellers = async (categoryId?: string) =>
+  callAladin(ALADIN_LIST, {
+    QueryType: 'Bestseller',
+    ...(categoryId ? { CategoryId: categoryId } : {})
+  });
 
 // 후보 하나를 우리 Book 테이블에 저장 (ISBN 중복 시 기존 책 반환)
 export const importBook = async (candidate: BookCandidate) => {
