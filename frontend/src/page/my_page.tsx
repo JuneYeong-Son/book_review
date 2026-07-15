@@ -74,74 +74,42 @@ const MyPage = () => {
         ))}
       </div>
 
+      {/* 내 서평 = 내가 기록한 책 (클릭 → 책별 서평 수정/삭제) */}
       {tab === 'reviews' && (
-        reviews.length === 0 ? (
+        bookGroups.length === 0 ? (
           <p className="muted">아직 남긴 서평이 없어요. <Link to="/">책을 기록해보세요.</Link></p>
         ) : (
-          <ul className="record-list">
-            {reviews.map((record) => (
-              <li key={record.id} className="record-item">
-                <img src={record.book.cover} alt={record.book.title} className="record-cover" />
-                <div className="record-main">
-                  <div className="record-top">
-                    <Link to={`/mypage/book/${record.bookId}`}><strong>{record.book.title}</strong></Link>
+          <div className="book-grid">
+            {bookGroups.map((group) => (
+              <Link key={group.book.id} to={`/mypage/book/${group.book.id}`} className="mybook-card">
+                <img src={group.book.cover} alt={group.book.title} className="cover" />
+                <div className="book-body">
+                  <h3>{group.book.title}</h3>
+                  <p className="author">{group.book.author}</p>
+                  <div className="my-progress">
+                    <StarRating value={group.latest.rating} size={16} />
+                    <span className="page-badge">서평 {group.count}개</span>
                   </div>
-                  <div className="record-meta">
-                    <StarRating value={record.rating} size={16} />
-                    <span className="page-badge">{record.startPage}~{record.endPage}쪽</span>
-                    <span className="muted small">{formatDate(record.createdAt)}</span>
-                  </div>
-                  {record.note && <p className="record-note">{record.note}</p>}
-                  {record.quote && <blockquote className="record-quote">“{record.quote}”</blockquote>}
                 </div>
-              </li>
+              </Link>
             ))}
-          </ul>
+          </div>
         )
       )}
 
+      {/* 내 책 = 관심 책 관리 (♥ 눌러 해제, ♡ 눌러 지정) */}
       {tab === 'books' && (
         <>
-          <h3 className="picker-subhead">내가 기록한 책 ({bookGroups.length})</h3>
-          {bookGroups.length === 0 ? (
-            <p className="muted small">아직 기록한 책이 없어요. <Link to="/">책을 기록해보세요.</Link></p>
-          ) : (
-            <div className="book-grid">
-              {bookGroups.map((group) => (
-                <Link key={group.book.id} to={`/mypage/book/${group.book.id}`} className="mybook-card">
-                  <div className="cover-wrap">
-                    <img src={group.book.cover} alt={group.book.title} className="cover" />
-                    <button
-                      className={`interest ${interestedIds.has(group.book.id) ? 'on' : ''}`}
-                      onClick={(e) => toggleInterest(e, group.book.id)}
-                      title="관심 책"
-                    >
-                      {interestedIds.has(group.book.id) ? '♥' : '♡'}
-                    </button>
-                  </div>
-                  <div className="book-body">
-                    <h3>{group.book.title}</h3>
-                    <p className="author">{group.book.author}</p>
-                    <div className="my-progress">
-                      <StarRating value={group.latest.rating} size={16} />
-                      <span className="page-badge">서평 {group.count}개</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          <h3 className="picker-subhead">관심 책 ({interests.length}) — ♥ 눌러서 해제</h3>
+          <p className="muted small">관심 있는 책을 여기서 관리하세요. ♥를 누르면 관심에서 빼요.</p>
           {interests.length === 0 ? (
-            <p className="muted small">아직 관심 책이 없어요. 책의 ♡를 눌러 지정해보세요.</p>
+            <p className="muted">아직 관심 책이 없어요. 홈이나 책 페이지에서 ♡를 눌러 지정해보세요.</p>
           ) : (
             <div className="book-grid">
               {interests.map((it) => (
                 <Link key={it.id} to={`/books/${it.bookId}`} className="mybook-card">
                   <div className="cover-wrap">
                     <img src={it.book.cover} alt={it.book.title} className="cover" />
-                    <button className="interest on" onClick={(e) => toggleInterest(e, it.bookId)} title="관심 해제">♥</button>
+                    <button className="remove-btn" onClick={(e) => toggleInterest(e, it.bookId)} title="관심에서 제거">✕ 제거</button>
                   </div>
                   <div className="book-body">
                     <h3>{it.book.title}</h3>
