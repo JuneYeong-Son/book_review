@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   listDiscussions,
+  listMyDiscussions,
   getDiscussion,
   openDiscussion,
   addComment
@@ -12,6 +13,11 @@ const router = Router();
 // 토론 목록
 router.get('/', async (_req, res) => {
   return res.json(await listDiscussions());
+});
+
+// 내가 참여한 토론 (':id'보다 먼저 등록해야 'me'가 id로 잡히지 않음)
+router.get('/me', requireAuth, async (_req, res) => {
+  return res.json(await listMyDiscussions(res.locals.userId));
 });
 
 // 토론 상세 (댓글 포함)

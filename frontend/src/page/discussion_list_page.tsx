@@ -53,8 +53,8 @@ const DiscussionListPage = () => {
             <>
               <select value={bookId} onChange={(e) => setBookId(e.target.value)} required>
                 <option value="">책 선택 (내가 읽은 책)</option>
-                {myProgress.map((p) => (
-                  <option key={p.bookId} value={p.bookId}>{p.book.title}</option>
+                {[...new Map(myProgress.map((p) => [p.bookId, p.book])).values()].map((book) => (
+                  <option key={book.id} value={book.id}>{book.title}</option>
                 ))}
               </select>
               <input placeholder="토론 제목" value={title} onChange={(e) => setTitle(e.target.value)} required />

@@ -6,5 +6,9 @@ export const findUserByUsername = (username: string) =>
 export const findUserById = (id: string) =>
   prisma.user.findUnique({ where: { id } });
 
-export const insertUser = (data: { username: string; name: string; passwordHash: string }) =>
-  prisma.user.create({ data });
+export const insertUser = (data: {
+  username: string;
+  name: string;
+  passwordHash: string;
+  avatar: string;
+}) => prisma.user.create({ data });

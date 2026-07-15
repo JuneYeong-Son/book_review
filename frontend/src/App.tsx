@@ -7,6 +7,8 @@ import RegisterPage from './page/register_page.tsx';
 import RecordsPage from './page/records_page.tsx';
 import DiscussionListPage from './page/discussion_list_page.tsx';
 import DiscussionDetailPage from './page/discussion_detail_page.tsx';
+import MyPage from './page/my_page.tsx';
+import MyBookPage from './page/my_book_page.tsx';
 
 const App = () => {
   const { loading } = useAuth();
@@ -23,6 +25,8 @@ const App = () => {
           <Route path="/records" element={<RecordsPage />} />
           <Route path="/discussions" element={<DiscussionListPage />} />
           <Route path="/discussions/:id" element={<DiscussionDetailPage />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/mypage/book/:bookId" element={<MyBookPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

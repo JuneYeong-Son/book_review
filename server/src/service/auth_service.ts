@@ -6,10 +6,11 @@ import {
 } from '../repository/auth_repository.ts';
 
 // 로그인/회원가입 결과로 비밀번호 해시를 제외한 공개 정보만 반환
-const toPublicUser = (user: { id: string; username: string; name: string }) => ({
+const toPublicUser = (user: { id: string; username: string; name: string; avatar: string }) => ({
   id: user.id,
   username: user.username,
-  name: user.name
+  name: user.name,
+  avatar: user.avatar
 });
 
 export const loginUser = async (username: string, password: string) => {
@@ -19,12 +20,17 @@ export const loginUser = async (username: string, password: string) => {
   return valid ? toPublicUser(user) : null;
 };
 
-export const registerUser = async (username: string, name: string, password: string) => {
+export const registerUser = async (
+  username: string,
+  name: string,
+  password: string,
+  avatar: string
+) => {
   const existing = await findUserByUsername(username);
   if (existing) return { error: '이미 존재하는 아이디입니다.' as const };
 
   const passwordHash = bcrypt.hashSync(password, 8);
-  const user = await insertUser({ username, name, passwordHash });
+  const user = await insertUser({ username, name, passwordHash, avatar: avatar || '📚' });
   return { user: toPublicUser(user) };
 };
 

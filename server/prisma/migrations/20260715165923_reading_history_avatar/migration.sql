@@ -4,6 +4,7 @@ CREATE TABLE "User" (
     "username" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
+    "avatar" TEXT NOT NULL DEFAULT '📚',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -13,6 +14,8 @@ CREATE TABLE "Book" (
     "title" TEXT NOT NULL,
     "author" TEXT NOT NULL,
     "cover" TEXT NOT NULL,
+    "genre" TEXT NOT NULL DEFAULT '',
+    "category" TEXT NOT NULL DEFAULT '',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -21,8 +24,10 @@ CREATE TABLE "Progress" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "bookId" TEXT NOT NULL,
-    "page" INTEGER NOT NULL,
+    "startPage" INTEGER NOT NULL DEFAULT 0,
+    "endPage" INTEGER NOT NULL DEFAULT 0,
     "note" TEXT NOT NULL DEFAULT '',
+    "quote" TEXT NOT NULL DEFAULT '',
     "rating" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -67,7 +72,7 @@ CREATE TABLE "Comment" (
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Progress_userId_bookId_key" ON "Progress"("userId", "bookId");
+CREATE INDEX "Progress_userId_bookId_idx" ON "Progress"("userId", "bookId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Interest_userId_bookId_key" ON "Interest"("userId", "bookId");

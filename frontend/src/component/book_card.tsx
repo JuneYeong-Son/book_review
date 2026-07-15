@@ -4,24 +4,37 @@ import StarRating from './star_rating.tsx';
 
 type Props = {
   book: Book;
-  myProgress?: Progress;
+  latest?: Progress; // 이 책에 대한 내 최신 기록
   interested: boolean;
   loggedIn: boolean;
   onToggleInterest: (bookId: string) => void;
-  onSaveProgress: (bookId: string, page: number, note: string, rating: number) => Promise<void>;
+  onSaveProgress: (
+    bookId: string,
+    startPage: number,
+    endPage: number,
+    note: string,
+    quote: string,
+    rating: number
+  ) => Promise<void>;
 };
 
-const BookCard = ({ book, myProgress, interested, loggedIn, onToggleInterest, onSaveProgress }: Props) => {
+const BookCard = ({ book, latest, interested, loggedIn, onToggleInterest, onSaveProgress }: Props) => {
   const [open, setOpen] = useState(false);
-  const [page, setPage] = useState(myProgress?.page ?? 0);
-  const [note, setNote] = useState(myProgress?.note ?? '');
-  const [rating, setRating] = useState(myProgress?.rating ?? 0);
+  // 이어 읽기 편하도록 시작 페이지는 최신 기록의 끝 페이지로 기본 설정
+  const [startPage, setStartPage] = useState(latest?.endPage ?? 0);
+  const [endPage, setEndPage] = useState(latest?.endPage ?? 0);
+  const [note, setNote] = useState('');
+  const [quote, setQuote] = useState('');
+  const [rating, setRating] = useState(latest?.rating ?? 0);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSaveProgress(book.id, Number(page), note, rating);
+      await onSaveProgress(book.id, Number(startPage), Number(endPage), note, quote, rating);
+      setNote('');
+      setQuote('');
+      setStartPage(Number(endPage));
       setOpen(false);
     } finally {
       setSaving(false);
@@ -51,24 +64,28 @@ const BookCard = ({ book, myProgress, interested, loggedIn, onToggleInterest, on
           {book.category && <span className="tag">{book.category}</span>}
         </div>
 
-        {myProgress && (
+        {latest && (
           <div className="my-progress">
-            <StarRating value={myProgress.rating} size={16} />
-            <span className="page-badge">{myProgress.page}쪽까지</span>
+            <StarRating value={latest.rating} size={16} />
+            <span className="page-badge">{latest.startPage}~{latest.endPage}쪽</span>
           </div>
         )}
 
         {loggedIn && (
           <button className="btn ghost small" onClick={() => setOpen((v) => !v)}>
-            {open ? '닫기' : myProgress ? '기록 수정' : '독서 기록·서평 쓰기'}
+            {open ? '닫기' : '독서 기록·서평 쓰기'}
           </button>
         )}
 
         {open && (
           <div className="record-form">
             <label className="row">
-              <span>어디까지 읽었나요? (쪽)</span>
-              <input type="number" min={0} value={page} onChange={(e) => setPage(Number(e.target.value))} />
+              <span>어디부터 어디까지 읽었나요? (쪽)</span>
+              <span className="page-range">
+                <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} />
+                <span>~</span>
+                <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} />
+              </span>
             </label>
             <label className="row">
               <span>별점</span>
@@ -78,8 +95,12 @@ const BookCard = ({ book, myProgress, interested, loggedIn, onToggleInterest, on
               <span>서평</span>
               <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="이 책에 대한 생각을 남겨보세요" />
             </label>
+            <label className="row">
+              <span>인상깊은 글귀 <em className="optional">(선택)</em></span>
+              <textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} placeholder="마음에 남은 문장을 적어보세요" />
+            </label>
             <button className="btn full" onClick={handleSave} disabled={saving}>
-              {saving ? '저장 중...' : '저장'}
+              {saving ? '저장 중...' : '기록 추가'}
             </button>
           </div>
         )}

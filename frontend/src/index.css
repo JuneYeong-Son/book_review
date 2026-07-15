@@ -49,6 +49,117 @@ a:hover { text-decoration: underline; }
 .nav-user { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .hello { font-weight: 500; }
 
+/* Like button */
+.like-btn {
+  margin-top: 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.like-btn:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
+.like-btn.liked { color: var(--danger); border-color: var(--danger); background: #fdecea; }
+.like-btn:disabled { cursor: default; opacity: 0.7; }
+
+/* Notification bell */
+.noti-menu { position: relative; }
+.icon-btn {
+  position: relative;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+.icon-btn:hover { background: var(--accent-soft); }
+.noti-badge {
+  position: absolute;
+  top: -2px; right: -2px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.68rem;
+  min-width: 18px; height: 18px;
+  border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+.noti-dropdown { min-width: 280px; max-height: 360px; overflow-y: auto; }
+.noti-empty { padding: 10px 12px; }
+.noti-item {
+  display: flex; gap: 8px; align-items: flex-start;
+  width: 100%; text-align: left;
+  background: none; border: none;
+  padding: 10px 12px; border-radius: 8px;
+  cursor: pointer; font-size: 0.85rem; color: var(--ink);
+}
+.noti-item:hover { background: var(--accent-soft); }
+.noti-item.unread { background: #fbf7ee; }
+.noti-icon { color: var(--danger); }
+.noti-text { flex: 1; }
+
+/* Avatar dropdown */
+.avatar-menu { position: relative; }
+.avatar-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 3px var(--accent-soft); }
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 180px;
+  padding: 6px;
+  z-index: 20;
+}
+.dropdown-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.dropdown-avatar { font-size: 1.4rem; }
+.dropdown-name { font-weight: 600; }
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  cursor: pointer;
+  color: var(--ink);
+}
+.dropdown-item:hover { background: var(--accent-soft); }
+
+/* Avatar picker (register) */
+.avatar-picker { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.picker-label { font-size: 0.9rem; align-self: flex-start; }
+.avatar-preview {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+}
+.avatar-options { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.avatar-option {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid transparent; background: #f0ece4;
+  font-size: 1.25rem; cursor: pointer;
+}
+.avatar-option.selected { border-color: var(--accent); background: var(--accent-soft); }
+
 /* Buttons */
 .btn {
   background: var(--accent);
@@ -68,6 +179,10 @@ a:hover { text-decoration: underline; }
 /* Page head */
 .page-head { margin-bottom: 20px; }
 .page-head h1 { margin: 0 0 4px; }
+.section-title { margin: 28px 0 12px; font-size: 1.15rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+/* Search */
+.search-input { width: 100%; margin-bottom: 18px; padding: 11px 14px; font-size: 0.95rem; }
 
 /* Auth card */
 .auth-card {
@@ -131,6 +246,41 @@ textarea { resize: vertical; }
 
 .record-form { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
 .record-form .row { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
+.page-range { display: flex; align-items: center; gap: 8px; }
+.page-range input { width: 90px; }
+.optional { color: var(--muted); font-style: normal; font-size: 0.8rem; }
+
+/* My-book cards & quote */
+.mybook-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+}
+.mybook-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); text-decoration: none; }
+.record-quote {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--gold);
+  background: #fbf7ee;
+  color: #5a4a2a;
+  border-radius: 0 8px 8px 0;
+}
+
+/* Timeline (per-book dated reviews) */
+.timeline { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.timeline-item {
+  display: flex; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+.timeline-date { min-width: 130px; color: var(--muted); font-size: 0.85rem; }
+.timeline-body { flex: 1; }
 
 /* Star rating */
 .star-rating { display: inline-flex; }

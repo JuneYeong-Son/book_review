@@ -2,6 +2,7 @@ export type User = {
   id: string;
   username: string;
   name: string;
+  avatar: string;
 };
 
 export type Book = {
@@ -17,12 +18,25 @@ export type Progress = {
   id: string;
   userId: string;
   bookId: string;
-  page: number;
+  startPage: number;
+  endPage: number;
   note: string;
+  quote: string;
   rating: number;
+  createdAt: string;
   updatedAt: string;
   book: Book;
   user: User;
+  likes: { userId: string }[];
+};
+
+export type Notification = {
+  id: string;
+  type: string;
+  message: string;
+  link: string;
+  read: boolean;
+  createdAt: string;
 };
 
 export type Interest = {

@@ -31,15 +31,26 @@ const HomePage = () => {
   }, [user]);
 
   const interestedIds = new Set(interests.map((i) => i.bookId));
-  const progressByBook = new Map(myProgress.map((p) => [p.bookId, p]));
+  // myProgress는 최신순 → 책별 첫 항목이 최신 기록
+  const latestByBook = new Map<string, Progress>();
+  for (const record of myProgress) {
+    if (!latestByBook.has(record.bookId)) latestByBook.set(record.bookId, record);
+  }
 
   const handleToggleInterest = async (bookId: string) => {
     await apiPost(`/books/${bookId}/interest`);
     loadMine();
   };
 
-  const handleSaveProgress = async (bookId: string, page: number, note: string, rating: number) => {
-    await apiPost('/progress', { bookId, page, note, rating });
+  const handleSaveProgress = async (
+    bookId: string,
+    startPage: number,
+    endPage: number,
+    note: string,
+    quote: string,
+    rating: number
+  ) => {
+    await apiPost('/progress', { bookId, startPage, endPage, note, quote, rating });
     loadMine();
   };
 
@@ -57,7 +68,7 @@ const HomePage = () => {
           <BookCard
             key={book.id}
             book={book}
-            myProgress={progressByBook.get(book.id)}
+            latest={latestByBook.get(book.id)}
             interested={interestedIds.has(book.id)}
             loggedIn={Boolean(user)}
             onToggleInterest={handleToggleInterest}

@@ -6,12 +6,12 @@ const router = Router();
 
 // 회원가입
 router.post('/register', async (req, res) => {
-  const { username, name, password } = req.body ?? {};
+  const { username, name, password, avatar } = req.body ?? {};
   if (!username || !name || !password) {
     return res.status(400).json({ message: '아이디, 이름, 비밀번호를 모두 입력하세요.' });
   }
 
-  const result = await registerUser(username, name, password);
+  const result = await registerUser(username, name, password, avatar ?? '📚');
   if (result.error) return res.status(409).json({ message: result.error });
 
   res.cookie('userId', result.user.id, { httpOnly: true, sameSite: 'lax' });

@@ -12,11 +12,14 @@ model User {
   username     String       @unique
   name         String
   passwordHash String
+  avatar       String       @default("📚") // 회원가입 시 고른 이모지 아바타
   createdAt    DateTime     @default(now())
   progresses   Progress[]
   interests    Interest[]
   discussions  Discussion[]
   comments     Comment[]
+  likes        Like[]
+  notifications Notification[]
 }
 
 model Book {
@@ -32,21 +35,50 @@ model Book {
   discussions Discussion[]
 }
 
-// 오늘 무슨 책을 어디까지 읽었는지에 대한 기록 + 서평(별점 포함)
-// (책 1권당 최신 진행도/서평 1개)
+// 독서 기록 + 서평. 기록할 때마다 새 항목이 쌓여 날짜별 이력이 된다.
+// (책 1권에 대해 사용자가 여러 번 기록 가능)
 model Progress {
   id        String   @id @default(cuid())
   userId    String
   bookId    String
-  page      Int
+  startPage Int      @default(0)  // 몇 페이지부터
+  endPage   Int      @default(0)  // 몇 페이지까지
   note      String   @default("") // 서평 내용
+  quote     String   @default("") // 인상깊은 글귀 (선택)
   rating    Int      @default(0)  // 별점 0(미평가)~5
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
   book      Book     @relation(fields: [bookId], references: [id])
+  likes     Like[]
 
-  @@unique([userId, bookId])
+  @@index([userId, bookId])
+}
+
+// 서평(Progress)에 대한 좋아요
+model Like {
+  id         String   @id @default(cuid())
+  userId     String
+  progressId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  progress   Progress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, progressId])
+}
+
+// 알림: 내 토론에 댓글이 달리거나 내 서평에 좋아요가 눌리면 생성
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   // 받는 사람
+  type      String   // 'comment' | 'like'
+  message   String
+  link      String   // 클릭 시 이동할 경로
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 // 관심 있는 책 지정

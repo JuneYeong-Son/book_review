@@ -27,6 +27,16 @@
 5. **토론**:
    - 사람들은 **자신이 읽었거나 읽는 중인 책**(= 진행 기록이 있는 책)에 대해서만 토론을 열 수 있다.
    - 토론이 열리면 **로그인한 누구나 댓글로 참여**할 수 있다.
+6. **마이페이지**: 자신이 남긴 서평(독서 기록)과 참여한 토론(내가 연 토론 + 댓글 단 토론)을 모아본다.
+   - 우상단 **아바타(이모지) 동그라미 버튼** 클릭 → 드롭다운(마이페이지/로그아웃).
+   - 아바타는 **회원가입 시 이모지 중에서 선택**.
+   - 마이페이지에서 책별로 눌러 **책별 상세 페이지**로 이동 → 그 책에 남긴 서평을 **날짜별**로 봄.
+7. **독서 기록 검색**: 독서 기록 페이지에서 책 제목·저자·작성자 이름으로 검색(프론트 필터).
+8. **독서 기록 형식**: "몇 페이지부터 몇 페이지까지"(startPage~endPage) + 서평(note) + **별점** +
+   **인상깊은 글귀(quote, 선택)**. 기록할 때마다 새 항목이 쌓여 날짜별 이력이 됨.
+9. **좋아요**: 서평(독서 기록)에 다른 사람들이 좋아요를 누를 수 있음.
+10. **알림**: 🔔 버튼. 내가 연 토론에 댓글이 달리거나, 내 서평에 좋아요가 눌리면 알림 목록에 쌓임.
+    알림 클릭 시 해당 페이지(토론/서평)로 이동. 안 읽은 알림 수 배지 표시.
 
 ## 4. 향후 기능 (나중에 구현)
 - **책 큐레이션 타이틀/컬렉션**: 책에 "서울대 추천도서 100선", "요즘 인기있는 도서" 같은
@@ -43,9 +53,11 @@
     또는 임베딩 기반 분류. 결과를 `UserTag { userId, tag }`로 저장하는 설계 제안.
 
 ## 5. 데이터 모델 (현재)
-- `User(id, username, name, passwordHash)`
-- `Book(id, title, author, cover)`
-- `Progress(id, userId, bookId, page, note, rating, updatedAt)` — 유저×책 1개(upsert)
+- `User(id, username, name, passwordHash, avatar)`
+- `Book(id, title, author, cover, genre, category)`
+- `Progress(id, userId, bookId, startPage, endPage, note, quote, rating, createdAt)` — 책당 여러 개(날짜별 이력)
+- `Like(id, userId, progressId)` — 서평 좋아요 (@@unique[userId, progressId])
+- `Notification(id, userId, type, message, link, read, createdAt)` — 알림
 - `Interest(id, userId, bookId)` — 관심 책
 - `Discussion(id, bookId, ownerId, title, description)`
 - `Comment(id, discussionId, userId, text)`
