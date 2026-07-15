@@ -11,7 +11,7 @@ const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
 type Tab = 'reviews' | 'books' | 'discussions';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'reviews', label: '내 서평' },
-  { key: 'books', label: '내 책' },
+  { key: 'books', label: '내 서재' },
   { key: 'discussions', label: '내 토론' }
 ];
 
@@ -100,7 +100,6 @@ const MyPage = () => {
       {/* 내 책 = 관심 책 관리 (♥ 눌러 해제, ♡ 눌러 지정) */}
       {tab === 'books' && (
         <>
-          <p className="muted small">관심 있는 책을 여기서 관리하세요. ♥를 누르면 관심에서 빼요.</p>
           {interests.length === 0 ? (
             <p className="muted">아직 관심 책이 없어요. 홈이나 책 페이지에서 ♡를 눌러 지정해보세요.</p>
           ) : (

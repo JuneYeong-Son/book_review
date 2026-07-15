@@ -3,11 +3,12 @@ import { apiPost } from '../api/client.ts';
 import { useAuth } from '../lib/auth_context.tsx';
 
 type Props = {
-  targetType: 'review' | 'discussion';
+  targetType: 'review' | 'discussion' | 'user';
   targetId: string;
+  label?: string;
 };
 
-const ReportButton = ({ targetType, targetId }: Props) => {
+const ReportButton = ({ targetType, targetId, label }: Props) => {
   const { user } = useAuth();
   const [done, setDone] = useState(false);
 
@@ -26,7 +27,7 @@ const ReportButton = ({ targetType, targetId }: Props) => {
 
   return (
     <button className="report-btn" onClick={handleReport} disabled={done} title="신고">
-      {done ? '신고됨' : '🚩 신고'}
+      {done ? '신고됨' : (label ?? '🚩 신고')}
     </button>
   );
 };

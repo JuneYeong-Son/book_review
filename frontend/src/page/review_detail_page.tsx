@@ -53,7 +53,12 @@ const ReviewDetailPage = () => {
         <div>
           <Link to={`/books/${review.book.id}`}><h1>{review.book.title}</h1></Link>
           <p className="muted">{review.book.author}</p>
-          <p className="muted small">{review.user.avatar} {review.user.name} · {formatDateTime(review.createdAt)}</p>
+          <p className="muted small">
+            {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{review.user.name}</Link> · {formatDateTime(review.createdAt)}
+            {review.user.id !== user?.id && (
+              <> · <ReportButton targetType="user" targetId={review.user.id} label="사용자 신고" /></>
+            )}
+          </p>
           <div className="record-meta">
             <StarRating value={review.rating} size={18} />
             <span className="page-badge">{review.startPage}~{review.endPage}쪽</span>

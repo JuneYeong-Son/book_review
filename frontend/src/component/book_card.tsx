@@ -47,15 +47,6 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
     <article className="book-card">
       <div className="cover-wrap">
         <Link to={`/books/${book.id}`}><img src={book.cover} alt={book.title} className="cover" /></Link>
-        {loggedIn && (
-          <button
-            className={`interest ${interested ? 'on' : ''}`}
-            onClick={() => onToggleInterest(book.id)}
-            title="관심 책"
-          >
-            {interested ? '♥' : '♡'}
-          </button>
-        )}
       </div>
 
       <div className="book-body">
@@ -74,7 +65,11 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
           </div>
         )}
 
-        {loggedIn && (
+        {/* 내 서재에 없으면 먼저 담기, 담은 뒤에야 서평 쓰기 노출 */}
+        {loggedIn && !interested && (
+          <button className="btn small" onClick={() => onToggleInterest(book.id)}>＋ 내 서재에 추가</button>
+        )}
+        {loggedIn && interested && (
           <button className="btn ghost small" onClick={() => setOpen((v) => !v)}>
             {open ? '닫기' : '독서 기록·서평 쓰기'}
           </button>

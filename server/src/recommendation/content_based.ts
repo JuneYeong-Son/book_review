@@ -1,5 +1,6 @@
 import { findAllBooks, findInterestsByUser } from '../repository/book_repository.ts';
 import { findAllProgress, findProgressByUser } from '../repository/progress_repository.ts';
+import { isExcludedTitle } from './exclusions.ts';
 import type { RecoBook, RecoItem } from './types.ts';
 
 // 콘텐츠 기반 추천 (읽었던 책과 비슷한 책).
@@ -34,7 +35,7 @@ const toRecoBook = (book: {
 });
 
 export const contentBasedRecommend = async (userId?: string): Promise<RecoItem[]> => {
-  const books = await findAllBooks();
+  const books = (await findAllBooks()).filter((b) => !isExcludedTitle(b.title));
   const allProgress = await findAllProgress();
 
   // 플랫폼 인기도: 읽은 사람 수 + 좋아요 수

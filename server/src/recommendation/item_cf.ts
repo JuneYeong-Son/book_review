@@ -1,5 +1,7 @@
 import { findAllBooks } from '../repository/book_repository.ts';
 import { findAllProgress } from '../repository/progress_repository.ts';
+import { contentBasedRecommend } from './content_based.ts';
+import { isExcludedTitle } from './exclusions.ts';
 import type { RecoBook, RecoItem } from './types.ts';
 
 // 아이템 기반 협업 필터링 (item-based collaborative filtering).
@@ -20,7 +22,7 @@ const toRecoBook = (b: {
 });
 
 export const itemCfRecommend = async (userId?: string): Promise<RecoItem[]> => {
-  const books = await findAllBooks();
+  const books = (await findAllBooks()).filter((b) => !isExcludedTitle(b.title));
   const progress = await findAllProgress();
 
   // 책별 상호작용 사용자 집합 (읽음 + 좋아요), 사용자별 소비한 책 집합
@@ -76,10 +78,14 @@ export const itemCfRecommend = async (userId?: string): Promise<RecoItem[]> => {
       inLibrary: true
     }));
 
-  // 협업 신호가 부족하면 인기순으로 보충
+  // 협업 신호가 부족하면 콘텐츠 기반(장르·작가 유사도)으로 보충
   if (scored.length < 4) {
-    const already = new Set([...mine, ...scored.map((r) => r.book.id!)]);
-    return [...scored, ...popularFallback(already)].slice(0, 8);
+    const already = new Set<string>([...mine, ...scored.map((r) => r.book.id!)]);
+    const content = (await contentBasedRecommend(userId)).filter(
+      (r) => r.book.id && !already.has(r.book.id)
+    );
+    const merged = [...scored, ...content];
+    return merged.length > 0 ? merged.slice(0, 8) : popularFallback(mine).slice(0, 8);
   }
   return scored;
 };

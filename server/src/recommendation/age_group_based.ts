@@ -1,4 +1,5 @@
 import { findProgressWithUserAge } from '../repository/progress_repository.ts';
+import { isExcludedTitle } from './exclusions.ts';
 import type { RecoBook, RecoItem } from './types.ts';
 
 // 연령대별 인기 추천 (우리 플랫폼 자체 데이터).
@@ -30,6 +31,7 @@ export const ageGroupBasedRecommend = async (ageGroup: number): Promise<RecoItem
   const agg = new Map<string, Agg>();
   for (const row of rows) {
     if (!inGroup(row.user.birthYear)) continue;
+    if (isExcludedTitle(row.book.title)) continue;
     if (!agg.has(row.bookId)) {
       agg.set(row.bookId, { book: toRecoBook(row.book), readers: new Set(), likes: 0 });
     }

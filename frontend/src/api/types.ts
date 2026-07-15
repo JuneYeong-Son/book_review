@@ -13,8 +13,15 @@ export type AdminStats = {
   reportedPosts: number;
 };
 
+export type UserProfile = {
+  user: { id: string; name: string; avatar: string };
+  reviews: Progress[];
+  interests: Interest[];
+  discussions: DiscussionSummary[];
+};
+
 export type ReportedPost = {
-  targetType: 'review' | 'discussion';
+  targetType: 'review' | 'discussion' | 'user';
   targetId: string;
   count: number;
   title: string;

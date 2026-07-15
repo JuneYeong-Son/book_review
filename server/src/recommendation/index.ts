@@ -1,4 +1,3 @@
-import { contentBasedRecommend } from './content_based.ts';
 import { popularityBasedRecommend } from './popularity_based.ts';
 import { ageGroupBasedRecommend } from './age_group_based.ts';
 import { itemCfRecommend } from './item_cf.ts';
@@ -19,8 +18,8 @@ export const recommend = (
     if (options?.ageGroup) return ageGroupBasedRecommend(options.ageGroup);
     return popularityBasedRecommend(options?.categoryId, options?.start);
   }
-  if (method === 'cf') return itemCfRecommend(userId);
-  return contentBasedRecommend(userId);
+  // '읽은 책과 비슷한 책' = CF 우선 + 콘텐츠 기반 보충 (content/cf 모두 동일)
+  return itemCfRecommend(userId);
 };
 
 export type { RecoItem, RecoMethod } from './types.ts';

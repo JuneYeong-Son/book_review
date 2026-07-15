@@ -59,7 +59,8 @@ const RecordsPage = () => {
             <div className="record-main">
               <div className="record-top">
                 <Link to={`/reviews/${record.id}`}><strong>{record.book.title}</strong></Link>
-                <span className="muted"> · {record.user.avatar} {record.user.name}</span>
+                <span className="muted"> · {record.user.avatar} </span>
+                <Link to={`/users/${record.user.id}`} className="user-link">{record.user.name}</Link>
               </div>
               <div className="record-meta">
                 <StarRating value={record.rating} size={16} />

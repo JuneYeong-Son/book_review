@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiGet, apiPost } from '../api/client.ts';
 import type { Book, DiscussionSummary, Interest, Progress, Recommendation, RecoMethod } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
@@ -20,18 +20,9 @@ const GENRES = [
   { label: '에세이', id: '55889' }
 ];
 
-// 연령대 필터 (우리 플랫폼 자체 집계) — 0 = 전체(알라딘 베스트셀러)
-const AGE_GROUPS = [
-  { label: '전체', value: 0 },
-  { label: '10대', value: 10 },
-  { label: '20대', value: 20 },
-  { label: '30대', value: 30 },
-  { label: '40대', value: 40 },
-  { label: '50대+', value: 50 }
-];
-
 const HomePage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [myProgress, setMyProgress] = useState<Progress[]>([]);
   const [interests, setInterests] = useState<Interest[]>([]);
   const [reviews, setReviews] = useState<Progress[]>([]);
@@ -42,7 +33,6 @@ const HomePage = () => {
   const [recoEnd, setRecoEnd] = useState(false);
   const [method, setMethod] = useState<RecoMethod>('content');
   const [genre, setGenre] = useState('');
-  const [ageGroup, setAgeGroup] = useState(0);
   const [filterOpen, setFilterOpen] = useState(false);
 
   // --- 서평 피드 (무한 로드) ---
@@ -61,15 +51,10 @@ const HomePage = () => {
     setDiscEnd(page.length < PAGE);
   };
 
-  // --- 추천 (popular=알라딘은 페이지네이션, content/연령대는 단일) ---
+  // --- 추천 (content=읽은 책과 비슷(CF); popular=알라딘 베스트셀러 페이지네이션) ---
   const loadReco = async (reset: boolean) => {
-    if (method === 'content' || method === 'cf') {
-      setRecommendations(await apiGet<Recommendation[]>(`/books/recommendations?method=${method}`).catch(() => []));
-      setRecoEnd(true);
-      return;
-    }
-    if (ageGroup) {
-      setRecommendations(await apiGet<Recommendation[]>(`/books/recommendations?method=popular&ageGroup=${ageGroup}`).catch(() => []));
+    if (method !== 'popular') {
+      setRecommendations(await apiGet<Recommendation[]>('/books/recommendations?method=content').catch(() => []));
       setRecoEnd(true);
       return;
     }
@@ -90,7 +75,7 @@ const HomePage = () => {
 
   useEffect(() => { loadReviews(true); loadDiscussions(true); }, []);
   useEffect(() => { loadMine(); }, [user]);
-  useEffect(() => { loadReco(true); }, [method, genre, ageGroup, user]);
+  useEffect(() => { loadReco(true); }, [method, genre, user]);
 
   const interestedIds = new Set(interests.map((i) => i.bookId));
   const latestByBook = new Map<string, Progress>();
@@ -120,11 +105,22 @@ const HomePage = () => {
     loadMine(); loadReviews(true); loadReco(true);
   };
   const handleImportReco = async (rec: Recommendation) => {
-    await apiPost('/books/import', {
+    // 임포트 후 내 서재(관심)에 담기 → 마이페이지 '내 서재'에 표시됨
+    const book = await apiPost<Book>('/books/import', {
       title: rec.book.title, author: rec.book.author, cover: rec.book.cover,
       genre: rec.book.genre, category: rec.book.category, isbn: rec.book.isbn ?? ''
     });
-    loadReco(true);
+    if (!interestedIds.has(book.id)) await apiPost(`/books/${book.id}/interest`);
+    loadMine(); loadReco(true);
+  };
+  // 외부(베스트셀러) 책: 클릭 시 우리 DB에 담고 그 책의 서평 페이지로 이동
+  const openExternal = async (rec: Recommendation) => {
+    if (rec.book.id) { navigate(`/books/${rec.book.id}`); return; }
+    const book = await apiPost<Book>('/books/import', {
+      title: rec.book.title, author: rec.book.author, cover: rec.book.cover,
+      genre: rec.book.genre, category: rec.book.category, isbn: rec.book.isbn ?? ''
+    });
+    navigate(`/books/${book.id}`);
   };
 
   return (
@@ -193,31 +189,19 @@ const HomePage = () => {
         <button className="btn ghost small" onClick={() => setFilterOpen((v) => !v)}>필터 ▾</button>
       </div>
       <p className="muted small reco-summary">
-        {method === 'content'
-          ? '읽은 책과 비슷한 책'
-          : method === 'cf'
-            ? '비슷한 취향의 독자 추천'
-            : ageGroup
-              ? `요즘 많이 사는 책 · ${AGE_GROUPS.find((a) => a.value === ageGroup)?.label}`
-              : `요즘 많이 사는 책 · ${GENRES.find((g) => g.id === genre)?.label ?? '전체'}`}
+        {method === 'popular'
+          ? `요즘 많이 사는 책 · ${GENRES.find((g) => g.id === genre)?.label ?? '전체'}`
+          : '읽은 책과 비슷한 책'}
       </p>
       {filterOpen && (
         <div className="reco-filter-panel">
           <label>추천 방식
             <select value={method} onChange={(e) => setMethod(e.target.value as RecoMethod)}>
               <option value="content">읽은 책과 비슷한 책</option>
-              <option value="cf">비슷한 취향의 독자 추천</option>
               <option value="popular">요즘 많이 사는 책</option>
             </select>
           </label>
           {method === 'popular' && (
-            <label>연령대
-              <select value={ageGroup} onChange={(e) => setAgeGroup(Number(e.target.value))}>
-                {AGE_GROUPS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
-              </select>
-            </label>
-          )}
-          {method === 'popular' && ageGroup === 0 && (
             <label>주제
               <select value={genre} onChange={(e) => setGenre(e.target.value)}>
                 {GENRES.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
@@ -230,7 +214,7 @@ const HomePage = () => {
       {recommendations.length === 0 ? (
         <p className="muted">
           {method === 'popular'
-            ? (ageGroup ? '아직 이 연령대의 데이터가 부족해요.' : '베스트셀러를 불러오지 못했어요. (알라딘 키를 확인해주세요)')
+            ? '베스트셀러를 불러오지 못했어요. (알라딘 키를 확인해주세요)'
             : '추천할 책이 아직 없어요. 책을 기록하면 취향에 맞는 책을 추천해드려요.'}
         </p>
       ) : (
@@ -253,10 +237,12 @@ const HomePage = () => {
               </div>
             ) : (
               <article key={`${rec.book.isbn}-${idx}`} className="book-card reco-slot">
-                <div className="cover-wrap"><img src={rec.book.cover} alt={rec.book.title} className="cover" /></div>
+                <button className="cover-wrap cover-link" onClick={() => openExternal(rec)} title="담고 서평 보러가기">
+                  <img src={rec.book.cover} alt={rec.book.title} className="cover" />
+                </button>
                 <div className="book-body">
                   <p className="reason">{rec.reason}</p>
-                  <h3>{rec.book.title}</h3>
+                  <button className="book-title-btn" onClick={() => openExternal(rec)}><h3>{rec.book.title}</h3></button>
                   <p className="author">{rec.book.author}</p>
                   <div className="tags">{rec.book.genre && <span className="tag">{rec.book.genre}</span>}</div>
                   {user && <button className="btn ghost small" onClick={() => handleImportReco(rec)}>내 서재에 추가</button>}

@@ -56,13 +56,19 @@ const AdminPage = () => {
             <li key={`${p.targetType}-${p.targetId}`} className="report-item">
               <span className="report-count">🚩 {p.count}</span>
               <div className="report-main">
-                <Link to={p.link} className="report-title">{p.title}</Link>
+                {p.link === '#' ? (
+                  <span className="report-title">{p.title}</span>
+                ) : (
+                  <Link to={p.link} className="report-title">{p.title}</Link>
+                )}
                 <p className="muted small">
-                  {p.targetType === 'review' ? '서평' : '토론'} · {p.author}
+                  {p.targetType === 'review' ? '서평' : p.targetType === 'discussion' ? '토론' : '사용자'} · {p.author}
                   {p.snippet && ` · ${p.snippet.slice(0, 40)}`}
                 </p>
               </div>
-              <button className="btn danger small" onClick={() => removePost(p)}>삭제</button>
+              <button className="btn danger small" onClick={() => removePost(p)}>
+                {p.targetType === 'user' ? '회원 삭제' : '삭제'}
+              </button>
             </li>
           ))}
         </ul>

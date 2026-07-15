@@ -14,6 +14,7 @@ import SettingsPage from './page/settings_page.tsx';
 import ReviewDetailPage from './page/review_detail_page.tsx';
 import BookReviewsPage from './page/book_reviews_page.tsx';
 import AdminPage from './page/admin_page.tsx';
+import UserProfilePage from './page/user_profile_page.tsx';
 
 const App = () => {
   const { loading } = useAuth();
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/reviews/:id" element={<ReviewDetailPage />} />
           <Route path="/books/:bookId" element={<BookReviewsPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/users/:id" element={<UserProfilePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

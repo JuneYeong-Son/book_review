@@ -1,6 +1,6 @@
 import { insertReport } from '../repository/report_repository.ts';
 
-const VALID = ['review', 'discussion'];
+const VALID = ['review', 'discussion', 'user'];
 
 // 서평/토론 신고
 export const submitReport = async (

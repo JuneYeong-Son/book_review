@@ -44,7 +44,7 @@ const DiscussionDetailPage = () => {
         <div>
           <h1>{discussion.title}</h1>
           <p className="muted">{discussion.book.title} · {discussion.book.author}</p>
-          <p className="muted small">{discussion.owner.name}님이 열었어요 · {formatDateTime(discussion.createdAt)}</p>
+          <p className="muted small"><Link to={`/users/${discussion.owner.id}`} className="user-link">{discussion.owner.name}</Link>님이 열었어요 · {formatDateTime(discussion.createdAt)}</p>
         </div>
       </div>
       {discussion.description && <p className="detail-desc">{discussion.description}</p>}
@@ -52,6 +52,7 @@ const DiscussionDetailPage = () => {
       {discussion.owner.id !== user?.id && (
         <div className="detail-actions">
           <ReportButton targetType="discussion" targetId={discussion.id} />
+          <ReportButton targetType="user" targetId={discussion.owner.id} label="사용자 신고" />
         </div>
       )}
 
@@ -60,7 +61,7 @@ const DiscussionDetailPage = () => {
         {discussion.comments.map((comment) => (
           <li key={comment.id} className="comment-item">
             <div className="comment-top">
-              <strong>{comment.user.name}</strong>
+              <Link to={`/users/${comment.user.id}`} className="user-link"><strong>{comment.user.name}</strong></Link>
               <span className="muted small">{formatDateTime(comment.createdAt)}</span>
             </div>
             <p>{comment.text}</p>

@@ -112,7 +112,7 @@ const QuickActions = ({ onChange }: Props) => {
   return (
     <div className="quick-actions">
       <button className="btn" onClick={() => setWhich('review')}>✍️ 서평 쓰기</button>
-      <button className="btn ghost" onClick={() => setWhich('book')}>📚 관심 책 추가</button>
+      <button className="btn ghost" onClick={() => setWhich('book')}>📚 내 서재에 추가</button>
       <button className="btn ghost" onClick={() => setWhich('discussion')}>💬 토론 열기</button>
 
       {which === 'review' && (
@@ -143,7 +143,7 @@ const QuickActions = ({ onChange }: Props) => {
       )}
 
       {which === 'book' && (
-        <Modal title="관심 책 추가" onClose={() => setWhich(null)}>
+        <Modal title="내 서재에 추가" onClose={() => setWhich(null)}>
           <form className="import-search" onSubmit={searchAladin}>
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="알라딘에서 책 검색 (제목·저자)" />
             <button type="submit" className="btn" disabled={searching}>{searching ? '검색 중' : '검색'}</button>
@@ -158,28 +158,28 @@ const QuickActions = ({ onChange }: Props) => {
                     <strong>{b.title}</strong>
                     <p className="muted small">{b.author}</p>
                   </div>
-                  <button className="btn small" onClick={() => addAndInterest(b)}>추가 + 관심</button>
+                  <button className="btn small" onClick={() => addAndInterest(b)}>내 서재에 담기</button>
                 </li>
               ))}
             </ul>
           )}
 
-          <h4 className="picker-subhead">내 관심 책 (누르면 해제)</h4>
+          <h4 className="picker-subhead">내 서재의 책 (누르면 제거)</h4>
           {books.filter((b) => interestedIds.has(b.id)).length === 0 ? (
-            <p className="muted small">아직 관심 책이 없어요.</p>
+            <p className="muted small">아직 서재에 담은 책이 없어요.</p>
           ) : (
             <ul className="interest-picker">
               {books.filter((b) => interestedIds.has(b.id)).map((b) => (
                 <li key={b.id} className="interest-row interested" onClick={() => toggleInterest(b.id)}>
                   <img src={b.cover} alt={b.title} className="import-cover" />
                   <span className="interest-title">{b.title}</span>
-                  <span className="interest-badge">관심 ✕</span>
+                  <span className="interest-badge">✕ 제거</span>
                 </li>
               ))}
             </ul>
           )}
 
-          <h4 className="picker-subhead">관심 추가 (누르면 관심 지정)</h4>
+          <h4 className="picker-subhead">서재에 담기 (누르면 추가)</h4>
           {books.filter((b) => !interestedIds.has(b.id)).length === 0 ? (
             <p className="muted small">서재의 모든 책이 관심 책이에요.</p>
           ) : (

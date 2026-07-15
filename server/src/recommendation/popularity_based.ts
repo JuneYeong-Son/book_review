@@ -1,5 +1,6 @@
 import { fetchBestsellers } from '../service/book_import_service.ts';
 import { findBookByIsbn } from '../repository/book_repository.ts';
+import { isExcludedTitle } from './exclusions.ts';
 import type { RecoItem } from './types.ts';
 
 // 요즘 많이 사는 책 = 알라딘 베스트셀러.
@@ -17,6 +18,7 @@ export const popularityBasedRecommend = async (
   let rank = start && start > 1 ? (start - 1) * 10 : 0;
   for (const c of result.candidates) {
     rank += 1;
+    if (isExcludedTitle(c.title)) continue;
     const existing = c.isbn ? await findBookByIsbn(c.isbn) : null;
     items.push({
       book: {

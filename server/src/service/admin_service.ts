@@ -1,4 +1,4 @@
-import { countUsers, countActiveSince } from '../repository/auth_repository.ts';
+import { countUsers, countActiveSince, findUserById, deleteUserCascade } from '../repository/auth_repository.ts';
 import { groupReports, deleteReportsForTarget, countReportedTargets } from '../repository/report_repository.ts';
 import { findProgressById, deleteProgressById } from '../repository/progress_repository.ts';
 import { findDiscussionById, deleteDiscussionById } from '../repository/discussion_repository.ts';
@@ -35,6 +35,20 @@ export const listReportedPosts = async () => {
             }
           : null;
       }
+      if (g.targetType === 'user') {
+        const u = await findUserById(g.targetId);
+        return u
+          ? {
+              targetType: 'user' as const,
+              targetId: g.targetId,
+              count,
+              title: `${u.name} (@${u.username})`,
+              author: u.name,
+              snippet: '신고된 사용자',
+              link: '#'
+            }
+          : null;
+      }
       const d = await findDiscussionById(g.targetId);
       return d
         ? {
@@ -60,6 +74,9 @@ export const deleteReportedPost = async (targetType: string, targetId: string) =
   } else if (targetType === 'discussion') {
     const d = await findDiscussionById(targetId);
     if (d) await deleteDiscussionById(targetId);
+  } else if (targetType === 'user') {
+    const u = await findUserById(targetId);
+    if (u) await deleteUserCascade(targetId);
   } else {
     return { error: '잘못된 대상입니다.' as const };
   }
