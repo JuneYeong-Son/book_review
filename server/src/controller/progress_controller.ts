@@ -5,6 +5,7 @@ import {
   listUserBookProgress,
   listBookProgress,
   getProgressDetail,
+  getProgressByBookSeq,
   saveProgress,
   toggleLike,
   addReviewComment,
@@ -35,6 +36,13 @@ router.get('/me/book/:bookId', requireAuth, async (req, res) => {
 // 한 책에 대한 모든 사용자의 서평
 router.get('/book/:bookId', async (req, res) => {
   return res.json(await listBookProgress(req.params.bookId));
+});
+
+// 책별 순번으로 서평 상세 (URL /books/:bookId/reviews/:seq 용)
+router.get('/book/:bookId/seq/:seq', async (req, res) => {
+  const detail = await getProgressByBookSeq(req.params.bookId, Number(req.params.seq));
+  if (!detail) return res.status(404).json({ message: '서평을 찾을 수 없습니다.' });
+  return res.json(detail);
 });
 
 // 서평 상세 (댓글 포함) — '/:id'는 구체적 경로들보다 뒤에

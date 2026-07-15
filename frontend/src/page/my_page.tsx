@@ -132,7 +132,7 @@ const MyPage = () => {
                 <li key={r.id} className="quote-card-item">
                   <blockquote className="record-quote">“{r.quote}”</blockquote>
                   <p className="muted small">
-                    <Link to={`/reviews/${r.id}`}>{r.book.title}</Link> · {formatDate(r.createdAt)}
+                    <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}>{r.book.title}</Link> · {formatDate(r.createdAt)}
                   </p>
                 </li>
               ))}

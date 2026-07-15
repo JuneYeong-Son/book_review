@@ -8,12 +8,13 @@ import ReportButton from '../component/report_button.tsx';
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
 
 const ReviewDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { bookId, seq } = useParams<{ bookId: string; seq: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [review, setReview] = useState<ReviewDetail | null>(null);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
+  const id = review?.id; // 좋아요/댓글/수정/삭제는 실제 서평 id로
 
   // 수정 모드
   const [editing, setEditing] = useState(false);
@@ -23,10 +24,10 @@ const ReviewDetailPage = () => {
   const [quote, setQuote] = useState('');
 
   const load = () => {
-    if (id) apiGet<ReviewDetail>(`/progress/${id}`).then(setReview).catch(() => setReview(null));
+    if (bookId && seq) apiGet<ReviewDetail>(`/progress/book/${bookId}/seq/${seq}`).then(setReview).catch(() => setReview(null));
   };
 
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => { load(); }, [bookId, seq]);
 
   const startEdit = () => {
     if (!review) return;

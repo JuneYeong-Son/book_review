@@ -58,7 +58,7 @@ const RecordsPage = () => {
             <img src={record.book.cover} alt={record.book.title} className="record-cover" />
             <div className="record-main">
               <div className="record-top">
-                <Link to={`/reviews/${record.id}`}><strong>{record.book.title}</strong></Link>
+                <Link to={`/books/${record.bookId}/reviews/${record.bookSeq}`}><strong>{record.book.title}</strong></Link>
                 <span className="muted"> · {record.user.avatar} </span>
                 <Link to={`/users/${record.user.id}`} className="user-link">{record.user.name}</Link>
               </div>

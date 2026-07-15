@@ -586,6 +586,11 @@ textarea { resize: vertical; }
 .discussion-detail .detail-head { display: flex; gap: 16px; margin: 12px 0; align-items: flex-start; }
 .detail-head h1 { margin: 0 0 4px; }
 .detail-desc { background: var(--accent-soft); border-radius: 10px; padding: 14px; }
+/* 서평/토론 본문과 댓글 사이 구분 */
+.review-detail h3, .discussion-detail h3 {
+  margin-top: 36px; padding-top: 24px; border-top: 2px solid var(--border);
+}
+.comment-list { margin-top: 4px; }
 .comment-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
 .comment-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
 .comment-form { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }

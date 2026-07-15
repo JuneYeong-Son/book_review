@@ -76,6 +76,7 @@ export type Progress = {
   id: string;
   userId: string;
   bookId: string;
+  bookSeq: number;
   startPage: number;
   endPage: number;
   note: string;

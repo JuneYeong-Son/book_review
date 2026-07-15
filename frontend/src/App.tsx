@@ -34,7 +34,7 @@ const App = () => {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/mypage/book/:bookId" element={<MyBookPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/reviews/:id" element={<ReviewDetailPage />} />
+          <Route path="/books/:bookId/reviews/:seq" element={<ReviewDetailPage />} />
           <Route path="/books/:bookId" element={<BookReviewsPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/users/:id" element={<UserProfilePage />} />

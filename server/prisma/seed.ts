@@ -54,8 +54,12 @@ async function main() {
 
   // 초기화: 외래키 제약을 위해 자식 테이블부터 삭제
   await prisma.notification.deleteMany();
+  await prisma.report.deleteMany();
+  await prisma.reviewComment.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
+  await prisma.rating.deleteMany();
+  await prisma.recoExclusion.deleteMany();
   await prisma.discussion.deleteMany();
   await prisma.interest.deleteMany();
   await prisma.progress.deleteMany();
@@ -96,14 +100,14 @@ async function main() {
   // 예시 기록: 독서가가 데미안을 날짜별로 두 번 기록
   await prisma.progress.create({
     data: {
-      userId: reader.id, bookId: 'b2',
+      userId: reader.id, bookId: 'b2', bookSeq: 1,
       startPage: 0, endPage: 60,
       note: '싱클레어의 어린 시절이 인상적', quote: '새는 알에서 나오려고 투쟁한다.', rating: 4
     }
   });
   await prisma.progress.create({
     data: {
-      userId: reader.id, bookId: 'b2',
+      userId: reader.id, bookId: 'b2', bookSeq: 2,
       startPage: 60, endPage: 120,
       note: '데미안과의 만남 이후 성장에 몰입', quote: '내 안에서 솟아 나오려는 것, 그것을 나는 살아보려 했다.', rating: 5
     }
@@ -112,7 +116,7 @@ async function main() {
   // 책벌레: 작은 아씨들 기록
   await prisma.progress.create({
     data: {
-      userId: bookworm.id, bookId: 'b1',
+      userId: bookworm.id, bookId: 'b1', bookSeq: 1,
       startPage: 0, endPage: 90,
       note: '네 자매의 일상이 따뜻하다', quote: '', rating: 4
     }

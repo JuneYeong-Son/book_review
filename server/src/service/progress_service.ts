@@ -5,6 +5,8 @@ import {
   findProgressByBook,
   findProgressById,
   findProgressDetail,
+  findProgressByBookSeq,
+  countProgressByBook,
   insertProgress,
   insertReviewComment,
   updateProgress,
@@ -32,6 +34,10 @@ export const listBookProgress = (bookId: string) => findProgressByBook(bookId);
 
 // 서평 상세
 export const getProgressDetail = (id: string) => findProgressDetail(id);
+
+// 책별 순번으로 서평 상세
+export const getProgressByBookSeq = (bookId: string, bookSeq: number) =>
+  findProgressByBookSeq(bookId, bookSeq);
 
 // 서평 수정 (본인만)
 export const editReview = async (
@@ -71,7 +77,7 @@ export const addReviewComment = async (progressId: string, userId: string, text:
       progress.userId,
       'comment',
       `${commenter?.name ?? '누군가'}님이 '${progress.book.title}' 서평에 댓글을 남겼어요.`,
-      `/reviews/${progressId}`
+      `/books/${progress.bookId}/reviews/${progress.bookSeq}`
     );
   }
   return { comment };
@@ -99,7 +105,8 @@ export const saveProgress = async (input: {
     return { error: '별점은 0~5 사이여야 합니다.' as const };
   }
 
-  const record = await insertProgress(input);
+  const bookSeq = (await countProgressByBook(input.bookId)) + 1; // 그 책의 다음 순번
+  const record = await insertProgress({ ...input, bookSeq });
   return { record };
 };
 

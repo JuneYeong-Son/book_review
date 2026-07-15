@@ -52,6 +52,7 @@ model Progress {
   id        String   @id @default(cuid())
   userId    String
   bookId    String
+  bookSeq   Int      @default(1)  // 그 책 안에서의 서평 순번 (URL /books/:bookId/reviews/:bookSeq)
   startPage Int      @default(0)  // 몇 페이지부터
   endPage   Int      @default(0)  // 몇 페이지까지
   note      String   @default("") // 서평 내용

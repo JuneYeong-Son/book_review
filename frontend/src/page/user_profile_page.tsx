@@ -35,7 +35,7 @@ const UserProfilePage = () => {
             <li key={r.id} className="record-item">
               <img src={r.book.cover} alt={r.book.title} className="record-cover" />
               <div className="record-main">
-                <Link to={`/reviews/${r.id}`}><strong>{r.book.title}</strong></Link>
+                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}><strong>{r.book.title}</strong></Link>
                 <div className="record-meta">
                   <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
                   <span className="like-count">♥ {r.likes.length}</span>

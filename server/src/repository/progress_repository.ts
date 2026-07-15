@@ -52,23 +52,29 @@ export const findProgressByUserAndBook = (userId: string, bookId: string) =>
     orderBy: { createdAt: 'desc' }
   });
 
+export const countProgressByBook = (bookId: string) =>
+  prisma.progress.count({ where: { bookId } });
+
 // 사용자가 그 책에 대한 기록을 하나라도 가지고 있는지 (토론 개설 자격 확인용)
 export const hasProgress = (userId: string, bookId: string) =>
   prisma.progress.findFirst({ where: { userId, bookId } });
 
 const userSelect = { select: { id: true, username: true, name: true, avatar: true } } as const;
 
+const detailInclude = {
+  book: true,
+  user: userSelect,
+  likes: { select: { userId: true } },
+  comments: { include: { user: userSelect }, orderBy: { createdAt: 'asc' } }
+} as const;
+
 // 서평 상세 (책·작성자·좋아요·댓글 포함)
 export const findProgressDetail = (id: string) =>
-  prisma.progress.findUnique({
-    where: { id },
-    include: {
-      book: true,
-      user: userSelect,
-      likes: { select: { userId: true } },
-      comments: { include: { user: userSelect }, orderBy: { createdAt: 'asc' } }
-    }
-  });
+  prisma.progress.findUnique({ where: { id }, include: detailInclude });
+
+// 책별 순번으로 서평 상세 조회
+export const findProgressByBookSeq = (bookId: string, bookSeq: number) =>
+  prisma.progress.findFirst({ where: { bookId, bookSeq }, include: detailInclude });
 
 // 서평 댓글 추가
 export const insertReviewComment = (progressId: string, userId: string, text: string) =>
@@ -90,6 +96,7 @@ export const deleteProgressById = (id: string) => prisma.progress.delete({ where
 export const insertProgress = (data: {
   userId: string;
   bookId: string;
+  bookSeq: number;
   startPage: number;
   endPage: number;
   note: string;

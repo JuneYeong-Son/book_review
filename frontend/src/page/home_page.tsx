@@ -159,7 +159,7 @@ const HomePage = () => {
       ) : (
         <Carousel onLoadMore={reviewsEnd ? undefined : () => loadReviews(false)}>
           {sortedReviews.map((r) => (
-            <Link key={r.id} to={`/reviews/${r.id}`} className="sq-card">
+            <Link key={r.id} to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-card">
               <img src={r.book.cover} alt={r.book.title} className="sq-cover" />
               <div className="sq-body">
                 <strong className="sq-title">{r.book.title}</strong>

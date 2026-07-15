@@ -82,7 +82,7 @@ const BookReviewsPage = () => {
           {reviews.map((r) => (
             <li key={r.id} className="record-item">
               <div className="record-main">
-                <Link to={`/reviews/${r.id}`} className="record-top">
+                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="record-top">
                   <strong>{r.user.avatar} {r.user.name}</strong>
                 </Link>
                 <div className="record-meta">
@@ -91,7 +91,7 @@ const BookReviewsPage = () => {
                   <span className="muted small">{formatDate(r.createdAt)}</span>
                 </div>
                 {r.note && <p className="record-note">{r.note}</p>}
-                <Link to={`/reviews/${r.id}`} className="muted small">서평 자세히 보기 →</Link>
+                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="muted small">서평 자세히 보기 →</Link>
               </div>
             </li>
           ))}
