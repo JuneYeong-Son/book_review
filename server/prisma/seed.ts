@@ -4,7 +4,9 @@ import prisma from '../src/lib/prisma.ts';
 const createHash = (password: string) => bcrypt.hashSync(password, 8);
 
 async function main() {
-  // 초기화: 관계 순서에 맞춰 삭제
+  // 초기화: 외래키 제약을 위해 자식 테이블부터 삭제
+  await prisma.notification.deleteMany();
+  await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.discussion.deleteMany();
   await prisma.interest.deleteMany();
