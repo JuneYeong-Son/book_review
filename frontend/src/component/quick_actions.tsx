@@ -162,35 +162,9 @@ const QuickActions = ({ onChange }: Props) => {
             </ul>
           )}
 
-          <h4 className="picker-subhead">내 서재의 책 (누르면 제거)</h4>
-          {books.filter((b) => interestedIds.has(b.id)).length === 0 ? (
-            <p className="muted small">아직 서재에 담은 책이 없어요.</p>
-          ) : (
-            <ul className="interest-picker">
-              {books.filter((b) => interestedIds.has(b.id)).map((b) => (
-                <li key={b.id} className="interest-row interested" onClick={() => toggleInterest(b.id)}>
-                  <img src={b.cover} alt={b.title} className="import-cover" />
-                  <span className="interest-title">{b.title}</span>
-                  <span className="interest-badge">✕ 제거</span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h4 className="picker-subhead">서재에 담기 (누르면 추가)</h4>
-          {books.filter((b) => !interestedIds.has(b.id)).length === 0 ? (
-            <p className="muted small">서재의 모든 책이 관심 책이에요.</p>
-          ) : (
-            <ul className="interest-picker">
-              {books.filter((b) => !interestedIds.has(b.id)).map((b) => (
-                <li key={b.id} className="interest-row" onClick={() => toggleInterest(b.id)}>
-                  <img src={b.cover} alt={b.title} className="import-cover" />
-                  <span className="interest-title">{b.title}</span>
-                  <span className="interest-add">＋ 관심</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <p className="muted small picker-hint">
+            검색해서 새 책을 서재에 담아보세요. 이미 담은 책은 마이페이지 &gt; 내 서재에서 관리할 수 있어요.
+          </p>
         </Modal>
       )}
 
