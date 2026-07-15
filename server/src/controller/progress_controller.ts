@@ -7,7 +7,9 @@ import {
   getProgressDetail,
   saveProgress,
   toggleLike,
-  addReviewComment
+  addReviewComment,
+  editReview,
+  removeReview
 } from '../service/progress_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 
@@ -60,6 +62,27 @@ router.post('/', requireAuth, async (req, res) => {
   });
   if (result.error) return res.status(400).json({ message: result.error });
   return res.status(201).json(result.record);
+});
+
+// 서평 수정 (본인)
+router.patch('/:id', requireAuth, async (req, res) => {
+  const { startPage, endPage, note, quote, rating } = req.body ?? {};
+  const fields: Record<string, unknown> = {};
+  if (typeof startPage === 'number') fields.startPage = startPage;
+  if (typeof endPage === 'number') fields.endPage = endPage;
+  if (typeof note === 'string') fields.note = note;
+  if (typeof quote === 'string') fields.quote = quote;
+  if (typeof rating === 'number') fields.rating = rating;
+  const result = await editReview(res.locals.userId, req.params.id, fields);
+  if ('error' in result) return res.status(400).json({ message: result.error });
+  return res.json(result.record);
+});
+
+// 서평 삭제 (본인)
+router.delete('/:id', requireAuth, async (req, res) => {
+  const result = await removeReview(res.locals.userId, req.params.id);
+  if ('error' in result) return res.status(400).json({ message: result.error });
+  return res.json({ message: '삭제되었습니다.' });
 });
 
 // 서평 좋아요 토글

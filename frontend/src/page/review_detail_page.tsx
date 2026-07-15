@@ -4,6 +4,7 @@ import { apiGet, apiPost } from '../api/client.ts';
 import type { ReviewDetail } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
 import StarRating from '../component/star_rating.tsx';
+import ReportButton from '../component/report_button.tsx';
 
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
 
@@ -63,9 +64,12 @@ const ReviewDetailPage = () => {
       {review.note && <p className="detail-desc">{review.note}</p>}
       {review.quote && <blockquote className="record-quote">“{review.quote}”</blockquote>}
 
-      <button className={`like-btn ${likedByMe ? 'liked' : ''}`} onClick={handleLike} disabled={!user}>
-        ♥ {review.likes.length}
-      </button>
+      <div className="detail-actions">
+        <button className={`like-btn ${likedByMe ? 'liked' : ''}`} onClick={handleLike} disabled={!user}>
+          ♥ {review.likes.length}
+        </button>
+        {review.user.id !== user?.id && <ReportButton targetType="review" targetId={review.id} />}
+      </div>
 
       <h3>댓글 {review.comments.length}</h3>
       <ul className="comment-list">

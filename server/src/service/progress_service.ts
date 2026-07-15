@@ -7,6 +7,8 @@ import {
   findProgressDetail,
   insertProgress,
   insertReviewComment,
+  updateProgress,
+  deleteProgressById,
   findLike,
   insertLike,
   deleteLike,
@@ -30,6 +32,31 @@ export const listBookProgress = (bookId: string) => findProgressByBook(bookId);
 
 // 서평 상세
 export const getProgressDetail = (id: string) => findProgressDetail(id);
+
+// 서평 수정 (본인만)
+export const editReview = async (
+  userId: string,
+  id: string,
+  fields: { startPage?: number; endPage?: number; note?: string; quote?: string; rating?: number }
+) => {
+  const progress = await findProgressById(id);
+  if (!progress) return { error: '서평을 찾을 수 없습니다.' as const };
+  if (progress.userId !== userId) return { error: '본인 서평만 수정할 수 있습니다.' as const };
+  if (fields.rating !== undefined && (fields.rating < 0 || fields.rating > 5)) {
+    return { error: '별점은 0~5 사이여야 합니다.' as const };
+  }
+  const record = await updateProgress(id, fields);
+  return { record };
+};
+
+// 서평 삭제 (본인만)
+export const removeReview = async (userId: string, id: string) => {
+  const progress = await findProgressById(id);
+  if (!progress) return { error: '서평을 찾을 수 없습니다.' as const };
+  if (progress.userId !== userId) return { error: '본인 서평만 삭제할 수 있습니다.' as const };
+  await deleteProgressById(id);
+  return { ok: true as const };
+};
 
 // 서평에 댓글 달기 (남의 서평이면 작성자에게 알림)
 export const addReviewComment = async (progressId: string, userId: string, text: string) => {

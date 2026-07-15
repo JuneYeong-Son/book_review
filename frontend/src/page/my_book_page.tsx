@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { apiGet } from '../api/client.ts';
-import type { Progress } from '../api/types.ts';
+import { apiGet, apiPatch, apiDelete, apiPost } from '../api/client.ts';
+import type { Interest, Progress } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
 import StarRating from '../component/star_rating.tsx';
 
@@ -12,19 +12,33 @@ const MyBookPage = () => {
   const { user } = useAuth();
   const [records, setRecords] = useState<Progress[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [interested, setInterested] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = () => {
     if (!user || !bookId) return;
-    apiGet<Progress[]>(`/progress/me/book/${bookId}`)
-      .then(setRecords)
-      .catch(() => setRecords([]))
-      .finally(() => setLoaded(true));
-  }, [user, bookId]);
+    apiGet<Progress[]>(`/progress/me/book/${bookId}`).then(setRecords).catch(() => setRecords([])).finally(() => setLoaded(true));
+    apiGet<Interest[]>('/books/interests/me')
+      .then((list) => setInterested(list.some((i) => i.bookId === bookId)))
+      .catch(() => setInterested(false));
+  };
+
+  useEffect(() => { load(); }, [user, bookId]);
 
   if (!user) return <Navigate to="/login" replace />;
   if (!loaded) return <p className="muted">불러오는 중...</p>;
 
   const book = records[0]?.book;
+
+  const toggleInterest = async () => {
+    await apiPost(`/books/${bookId}/interest`);
+    load();
+  };
+  const remove = async (id: string) => {
+    if (!window.confirm('이 서평을 삭제할까요?')) return;
+    await apiDelete(`/progress/${id}`);
+    load();
+  };
 
   return (
     <section>
@@ -36,10 +50,9 @@ const MyBookPage = () => {
           <div>
             <h1>{book.title}</h1>
             <p className="muted">{book.author}</p>
-            <div className="tags">
-              {book.genre && <span className="tag">{book.genre}</span>}
-              {book.category && <span className="tag">{book.category}</span>}
-            </div>
+            <button className={`btn ghost small ${interested ? 'interested-btn' : ''}`} onClick={toggleInterest}>
+              {interested ? '♥ 관심 책' : '♡ 관심 책으로'}
+            </button>
           </div>
         </div>
       ) : (
@@ -48,21 +61,66 @@ const MyBookPage = () => {
 
       <h2 className="section-title">날짜별 서평 ({records.length})</h2>
       <ul className="timeline">
-        {records.map((record) => (
-          <li key={record.id} className="timeline-item">
-            <div className="timeline-date">{formatDate(record.createdAt)}</div>
-            <div className="timeline-body">
-              <div className="record-meta">
-                <StarRating value={record.rating} size={16} />
-                <span className="page-badge">{record.startPage}~{record.endPage}쪽</span>
+        {records.map((r) =>
+          editing === r.id ? (
+            <li key={r.id} className="timeline-item">
+              <EditForm record={r} onDone={() => { setEditing(null); load(); }} onCancel={() => setEditing(null)} />
+            </li>
+          ) : (
+            <li key={r.id} className="timeline-item">
+              <div className="timeline-date">{formatDate(r.createdAt)}</div>
+              <div className="timeline-body">
+                <div className="record-meta">
+                  <StarRating value={r.rating} size={16} />
+                  <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
+                </div>
+                {r.note && <p className="record-note">{r.note}</p>}
+                {r.quote && <blockquote className="record-quote">“{r.quote}”</blockquote>}
+                <div className="edit-actions">
+                  <button className="btn ghost small" onClick={() => setEditing(r.id)}>수정</button>
+                  <button className="btn ghost small danger-text" onClick={() => remove(r.id)}>삭제</button>
+                </div>
               </div>
-              {record.note && <p className="record-note">{record.note}</p>}
-              {record.quote && <blockquote className="record-quote">“{record.quote}”</blockquote>}
-            </div>
-          </li>
-        ))}
+            </li>
+          )
+        )}
       </ul>
     </section>
+  );
+};
+
+// 서평 수정 인라인 폼
+const EditForm = ({ record, onDone, onCancel }: { record: Progress; onDone: () => void; onCancel: () => void }) => {
+  const [startPage, setStartPage] = useState(record.startPage);
+  const [endPage, setEndPage] = useState(record.endPage);
+  const [rating, setRating] = useState(record.rating);
+  const [note, setNote] = useState(record.note);
+  const [quote, setQuote] = useState(record.quote);
+
+  const save = async () => {
+    await apiPatch(`/progress/${record.id}`, {
+      startPage: Number(startPage), endPage: Number(endPage), rating, note, quote
+    });
+    onDone();
+  };
+
+  return (
+    <div className="record-form" style={{ flex: 1 }}>
+      <label className="row"><span>쪽</span>
+        <span className="page-range">
+          <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} />
+          <span>~</span>
+          <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} />
+        </span>
+      </label>
+      <label className="row"><span>별점</span><StarRating value={rating} onChange={setRating} size={22} /></label>
+      <label className="row"><span>서평</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} /></label>
+      <label className="row"><span>글귀</span><textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} /></label>
+      <div className="edit-actions">
+        <button className="btn small" onClick={save}>저장</button>
+        <button className="btn ghost small" onClick={onCancel}>취소</button>
+      </div>
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-import { apiGet } from '../api/client.ts';
-import type { Book, DiscussionSummary, Progress } from '../api/types.ts';
+import { apiGet, apiPost } from '../api/client.ts';
+import type { Book, DiscussionSummary, Interest, Progress } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
 import StarRating from '../component/star_rating.tsx';
 import ReadingCalendar from '../component/reading_calendar.tsx';
@@ -21,14 +21,27 @@ const MyPage = () => {
   const tab = (params.get('tab') as Tab) || 'reviews';
   const [reviews, setReviews] = useState<Progress[]>([]);
   const [discussions, setDiscussions] = useState<DiscussionSummary[]>([]);
+  const [interests, setInterests] = useState<Interest[]>([]);
+
+  const loadInterests = () =>
+    apiGet<Interest[]>('/books/interests/me').then(setInterests).catch(() => setInterests([]));
 
   useEffect(() => {
     if (!user) return;
     apiGet<Progress[]>('/progress/me').then(setReviews).catch(() => setReviews([]));
     apiGet<DiscussionSummary[]>('/discussions/me').then(setDiscussions).catch(() => setDiscussions([]));
+    loadInterests();
   }, [user]);
 
   if (!user) return <Navigate to="/login" replace />;
+
+  const interestedIds = new Set(interests.map((i) => i.bookId));
+  const toggleInterest = async (e: MouseEvent, bookId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await apiPost(`/books/${bookId}/interest`);
+    loadInterests();
+  };
 
   // 책별로 묶기 (reviews는 최신순 → 첫 항목이 최신)
   const groups = new Map<string, { book: Book; count: number; latest: Progress }>();
@@ -94,7 +107,16 @@ const MyPage = () => {
           <div className="book-grid">
             {bookGroups.map((group) => (
               <Link key={group.book.id} to={`/mypage/book/${group.book.id}`} className="mybook-card">
-                <img src={group.book.cover} alt={group.book.title} className="cover" />
+                <div className="cover-wrap">
+                  <img src={group.book.cover} alt={group.book.title} className="cover" />
+                  <button
+                    className={`interest ${interestedIds.has(group.book.id) ? 'on' : ''}`}
+                    onClick={(e) => toggleInterest(e, group.book.id)}
+                    title="관심 책"
+                  >
+                    {interestedIds.has(group.book.id) ? '♥' : '♡'}
+                  </button>
+                </div>
                 <div className="book-body">
                   <h3>{group.book.title}</h3>
                   <p className="author">{group.book.author}</p>

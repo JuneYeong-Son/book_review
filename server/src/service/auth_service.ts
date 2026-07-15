@@ -5,8 +5,10 @@ import {
   insertUser,
   updateUser,
   updateUserPassword,
-  deleteUserCascade
+  deleteUserCascade,
+  touchLastSeen
 } from '../repository/auth_repository.ts';
+import { isAdminUsername } from '../lib/admin.ts';
 
 // 로그인/회원가입 결과로 비밀번호 해시를 제외한 공개 정보만 반환
 const toPublicUser = (user: {
@@ -20,7 +22,8 @@ const toPublicUser = (user: {
   username: user.username,
   name: user.name,
   avatar: user.avatar,
-  birthYear: user.birthYear
+  birthYear: user.birthYear,
+  isAdmin: isAdminUsername(user.username)
 });
 
 export const loginUser = async (username: string, password: string) => {
@@ -47,7 +50,9 @@ export const registerUser = async (
 
 export const getUser = async (id: string) => {
   const user = await findUserById(id);
-  return user ? toPublicUser(user) : null;
+  if (!user) return null;
+  await touchLastSeen(id); // 오늘의 접속자 집계
+  return toPublicUser(user);
 };
 
 // 프로필(이름·아바타·출생연도) 수정

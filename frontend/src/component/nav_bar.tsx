@@ -103,6 +103,7 @@ const NavBar = () => {
                   </div>
                   <button className="dropdown-item" onClick={() => go('/mypage')}>마이페이지</button>
                   <button className="dropdown-item" onClick={() => go('/settings')}>내 정보 수정</button>
+                  {user.isAdmin && <button className="dropdown-item" onClick={() => go('/admin')}>관리자</button>}
                   <button className="dropdown-item logout" onClick={handleLogout}>로그아웃</button>
                 </div>
               )}

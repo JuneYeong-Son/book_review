@@ -22,6 +22,14 @@ export const updateUser = (
 export const updateUserPassword = (id: string, passwordHash: string) =>
   prisma.user.update({ where: { id }, data: { passwordHash } });
 
+export const touchLastSeen = (id: string) =>
+  prisma.user.update({ where: { id }, data: { lastSeenAt: new Date() } });
+
+export const countUsers = () => prisma.user.count();
+
+export const countActiveSince = (since: Date) =>
+  prisma.user.count({ where: { lastSeenAt: { gte: since } } });
+
 // 회원 탈퇴: 외래키 순서에 맞춰 사용자 관련 데이터를 모두 삭제
 export const deleteUserCascade = (id: string) =>
   prisma.$transaction([

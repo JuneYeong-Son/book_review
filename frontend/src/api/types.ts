@@ -4,6 +4,23 @@ export type User = {
   name: string;
   avatar: string;
   birthYear: number | null;
+  isAdmin: boolean;
+};
+
+export type AdminStats = {
+  members: number;
+  todayVisitors: number;
+  reportedPosts: number;
+};
+
+export type ReportedPost = {
+  targetType: 'review' | 'discussion';
+  targetId: string;
+  count: number;
+  title: string;
+  author: string;
+  snippet: string;
+  link: string;
 };
 
 export type Book = {

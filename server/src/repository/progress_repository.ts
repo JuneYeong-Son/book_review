@@ -77,6 +77,15 @@ export const insertReviewComment = (progressId: string, userId: string, text: st
     include: { user: userSelect }
   });
 
+// 서평 수정 (본인)
+export const updateProgress = (
+  id: string,
+  data: { startPage?: number; endPage?: number; note?: string; quote?: string; rating?: number }
+) => prisma.progress.update({ where: { id }, data, ...withRelations });
+
+// 서평 삭제 (좋아요·댓글은 cascade)
+export const deleteProgressById = (id: string) => prisma.progress.delete({ where: { id } });
+
 // 기록할 때마다 새 항목을 추가
 export const insertProgress = (data: {
   userId: string;

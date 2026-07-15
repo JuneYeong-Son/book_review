@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { apiGet, apiPost } from '../api/client.ts';
 import type { DiscussionDetail } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
+import ReportButton from '../component/report_button.tsx';
 
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
 
@@ -47,6 +48,12 @@ const DiscussionDetailPage = () => {
         </div>
       </div>
       {discussion.description && <p className="detail-desc">{discussion.description}</p>}
+
+      {discussion.owner.id !== user?.id && (
+        <div className="detail-actions">
+          <ReportButton targetType="discussion" targetId={discussion.id} />
+        </div>
+      )}
 
       <h3>댓글 {discussion.comments.length}</h3>
       <ul className="comment-list">

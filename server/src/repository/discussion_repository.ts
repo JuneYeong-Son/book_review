@@ -52,6 +52,10 @@ export const insertDiscussion = (data: {
     include: { book: true, owner: ownerSelect }
   });
 
+// 토론 삭제 (댓글은 cascade)
+export const deleteDiscussionById = (id: string) =>
+  prisma.discussion.delete({ where: { id } });
+
 export const insertComment = (discussionId: string, userId: string, text: string) =>
   prisma.comment.create({
     data: { discussionId, userId, text },

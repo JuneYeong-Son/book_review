@@ -14,6 +14,7 @@ model User {
   passwordHash String
   avatar       String       @default("📚") // 회원가입 시 고른 이모지 아바타
   birthYear    Int?         // 연령대별 추천 집계용 (선택 입력)
+  lastSeenAt   DateTime?    // 오늘의 접속자 집계용
   createdAt    DateTime     @default(now())
   progresses   Progress[]
   interests    Interest[]
@@ -22,6 +23,7 @@ model User {
   likes        Like[]
   notifications Notification[]
   reviewComments ReviewComment[]
+  reports      Report[]
 }
 
 model Book {
@@ -82,6 +84,19 @@ model Like {
   progress   Progress @relation(fields: [progressId], references: [id], onDelete: Cascade)
 
   @@unique([userId, progressId])
+}
+
+// 신고: 서평(review) 또는 토론(discussion)에 대한 신고
+model Report {
+  id         String   @id @default(cuid())
+  reporterId String
+  targetType String   // 'review' | 'discussion'
+  targetId   String
+  reason     String   @default("")
+  createdAt  DateTime @default(now())
+  reporter   User     @relation(fields: [reporterId], references: [id])
+
+  @@index([targetType, targetId])
 }
 
 // 알림: 내 토론에 댓글이 달리거나 내 서평에 좋아요가 눌리면 생성
