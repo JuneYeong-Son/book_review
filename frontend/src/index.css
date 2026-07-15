@@ -195,6 +195,10 @@ a:hover { text-decoration: underline; }
 .edit-actions { display: flex; gap: 8px; margin-top: 8px; }
 .interested-btn { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
+/* 내 글귀 */
+.quote-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.quote-card-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+
 /* Book detail (큰 이미지 + 오른쪽 정보) */
 .book-detail-head { display: flex; gap: 28px; margin: 16px 0 8px; flex-wrap: wrap; }
 .book-detail-cover {

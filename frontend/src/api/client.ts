@@ -5,6 +5,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? '';
 const request = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
   const response = await fetch(`${API_BASE}/api${path}`, {
     credentials: 'include',
+    cache: 'no-store', // 추천 목록 등이 브라우저 캐시로 옛 데이터를 주지 않도록
     headers: { 'Content-Type': 'application/json' },
     ...options
   });

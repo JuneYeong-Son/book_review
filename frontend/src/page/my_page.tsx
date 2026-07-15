@@ -8,10 +8,11 @@ import ReadingCalendar from '../component/reading_calendar.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
 
-type Tab = 'reviews' | 'books' | 'discussions';
+type Tab = 'reviews' | 'books' | 'quotes' | 'discussions';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'reviews', label: '내 서평' },
   { key: 'books', label: '내 서재' },
+  { key: 'quotes', label: '내 글귀' },
   { key: 'discussions', label: '내 토론' }
 ];
 
@@ -118,6 +119,26 @@ const MyPage = () => {
             </div>
           )}
         </>
+      )}
+
+      {tab === 'quotes' && (
+        (() => {
+          const quotes = reviews.filter((r) => r.quote.trim());
+          return quotes.length === 0 ? (
+            <p className="muted">아직 남긴 글귀가 없어요. 서평 쓸 때 인상깊은 글귀를 남겨보세요.</p>
+          ) : (
+            <ul className="quote-list">
+              {quotes.map((r) => (
+                <li key={r.id} className="quote-card-item">
+                  <blockquote className="record-quote">“{r.quote}”</blockquote>
+                  <p className="muted small">
+                    <Link to={`/reviews/${r.id}`}>{r.book.title}</Link> · {formatDate(r.createdAt)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          );
+        })()
       )}
 
       {tab === 'discussions' && (
