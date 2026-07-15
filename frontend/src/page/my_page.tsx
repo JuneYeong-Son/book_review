@@ -101,34 +101,57 @@ const MyPage = () => {
       )}
 
       {tab === 'books' && (
-        bookGroups.length === 0 ? (
-          <p className="muted">아직 기록한 책이 없어요. <Link to="/">책을 기록해보세요.</Link></p>
-        ) : (
-          <div className="book-grid">
-            {bookGroups.map((group) => (
-              <Link key={group.book.id} to={`/mypage/book/${group.book.id}`} className="mybook-card">
-                <div className="cover-wrap">
-                  <img src={group.book.cover} alt={group.book.title} className="cover" />
-                  <button
-                    className={`interest ${interestedIds.has(group.book.id) ? 'on' : ''}`}
-                    onClick={(e) => toggleInterest(e, group.book.id)}
-                    title="관심 책"
-                  >
-                    {interestedIds.has(group.book.id) ? '♥' : '♡'}
-                  </button>
-                </div>
-                <div className="book-body">
-                  <h3>{group.book.title}</h3>
-                  <p className="author">{group.book.author}</p>
-                  <div className="my-progress">
-                    <StarRating value={group.latest.rating} size={16} />
-                    <span className="page-badge">서평 {group.count}개</span>
+        <>
+          <h3 className="picker-subhead">내가 기록한 책 ({bookGroups.length})</h3>
+          {bookGroups.length === 0 ? (
+            <p className="muted small">아직 기록한 책이 없어요. <Link to="/">책을 기록해보세요.</Link></p>
+          ) : (
+            <div className="book-grid">
+              {bookGroups.map((group) => (
+                <Link key={group.book.id} to={`/mypage/book/${group.book.id}`} className="mybook-card">
+                  <div className="cover-wrap">
+                    <img src={group.book.cover} alt={group.book.title} className="cover" />
+                    <button
+                      className={`interest ${interestedIds.has(group.book.id) ? 'on' : ''}`}
+                      onClick={(e) => toggleInterest(e, group.book.id)}
+                      title="관심 책"
+                    >
+                      {interestedIds.has(group.book.id) ? '♥' : '♡'}
+                    </button>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )
+                  <div className="book-body">
+                    <h3>{group.book.title}</h3>
+                    <p className="author">{group.book.author}</p>
+                    <div className="my-progress">
+                      <StarRating value={group.latest.rating} size={16} />
+                      <span className="page-badge">서평 {group.count}개</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <h3 className="picker-subhead">관심 책 ({interests.length}) — ♥ 눌러서 해제</h3>
+          {interests.length === 0 ? (
+            <p className="muted small">아직 관심 책이 없어요. 책의 ♡를 눌러 지정해보세요.</p>
+          ) : (
+            <div className="book-grid">
+              {interests.map((it) => (
+                <Link key={it.id} to={`/books/${it.bookId}`} className="mybook-card">
+                  <div className="cover-wrap">
+                    <img src={it.book.cover} alt={it.book.title} className="cover" />
+                    <button className="interest on" onClick={(e) => toggleInterest(e, it.bookId)} title="관심 해제">♥</button>
+                  </div>
+                  <div className="book-body">
+                    <h3>{it.book.title}</h3>
+                    <p className="author">{it.book.author}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {tab === 'discussions' && (
