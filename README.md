@@ -3,6 +3,20 @@
 책을 읽고 어디까지 읽었는지 기록하고, 서평·별점·인상깊은 글귀를 남기고,
 읽은 책으로 토론을 열고, 취향에 맞는 책을 추천받는 웹사이트.
 
+## 🔄 다시 시작할 때 (Onboarding)
+
+나중에 이 프로젝트를 다시 열었을 때 빠르게 기억하기 위한 요약.
+
+- **먼저 읽기**: 이 README → 아래 "주요 기능" → 세부는 `docs/`.
+  - 내가 했던 **UI 요청** = `docs/design/ui-requests.md`, **백엔드 요청** = `docs/logic/backend-requests.md`
+  - **데이터 모델/개요** = `docs/requirements.md`, **남은 일** = `docs/todo.md`, **배포** = `docs/deploy.md`
+- **바로 실행**: 아래 "로컬 실행"대로 `server`·`frontend`에서 `npm install` → `npm run dev`. 로컬은 SQLite라 DB 설치 불필요.
+- **꼭 기억할 것(gotcha)**:
+  - 로컬은 **SQLite**(`server/prisma/dev.db`), 배포는 **PostgreSQL**. 빌드 때 `scripts/use-postgres.mjs`가 자동 전환하니 **`schema.prisma`의 provider는 `sqlite`로 두기**.
+  - 알라딘 기능엔 `server/.env`의 `ALADIN_TTB_KEY` 필요.
+  - GitHub 원격은 `JuneYeong-Son/book_review`. (이 PC엔 자격증명이 저장돼 있어 push 가능)
+  - 관리자 계정 = `reader`(env `ADMIN_USERNAMES`).
+
 ## 🌐 배포 (Live)
 
 - 프론트엔드: https://book-review-frontend-ov6h.onrender.com
