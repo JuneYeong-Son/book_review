@@ -75,15 +75,16 @@ const ReviewDetailPage = () => {
   return (
     <section className="review-detail">
       <Link to="/records" className="muted small">← 독서 기록</Link>
-      <div className="detail-head">
+      <div className="book-detail-head">
         <Link to={`/books/${review.book.id}`}>
-          <img src={review.book.cover} alt={review.book.title} className="record-cover" />
+          <img src={review.book.cover} alt={review.book.title} className="book-detail-cover" />
         </Link>
-        <div>
+        <div className="book-detail-info">
           <Link to={`/books/${review.book.id}`}><h1>{review.book.title}</h1></Link>
-          <p className="muted">{review.book.author}</p>
-          <p className="muted small">
-            {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{review.user.name}</Link> · {formatDateTime(review.createdAt)}
+          <p className="author">{review.book.author}</p>
+          <p className="muted small reviewer-line">
+            {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{review.user.name}</Link>님의 서평
+            · {formatDateTime(review.createdAt)}
             {!isMine && (
               <> · <ReportButton targetType="user" targetId={review.user.id} label="사용자 신고" /></>
             )}
