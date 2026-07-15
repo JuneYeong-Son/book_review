@@ -1,9 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { apiGet, apiPost } from '../api/client.ts';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../api/client.ts';
 import type { ReviewDetail } from '../api/types.ts';
 import { useAuth } from '../lib/auth_context.tsx';
-import StarRating from '../component/star_rating.tsx';
 import ReportButton from '../component/report_button.tsx';
 
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
@@ -11,15 +10,44 @@ const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
 const ReviewDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [review, setReview] = useState<ReviewDetail | null>(null);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
+
+  // 수정 모드
+  const [editing, setEditing] = useState(false);
+  const [startPage, setStartPage] = useState(0);
+  const [endPage, setEndPage] = useState(0);
+  const [note, setNote] = useState('');
+  const [quote, setQuote] = useState('');
 
   const load = () => {
     if (id) apiGet<ReviewDetail>(`/progress/${id}`).then(setReview).catch(() => setReview(null));
   };
 
   useEffect(() => { load(); }, [id]);
+
+  const startEdit = () => {
+    if (!review) return;
+    setStartPage(review.startPage);
+    setEndPage(review.endPage);
+    setNote(review.note);
+    setQuote(review.quote);
+    setEditing(true);
+  };
+
+  const saveEdit = async () => {
+    await apiPatch(`/progress/${id}`, { startPage: Number(startPage), endPage: Number(endPage), note, quote });
+    setEditing(false);
+    load();
+  };
+
+  const removeReview = async () => {
+    if (!window.confirm('이 서평을 삭제할까요?')) return;
+    await apiDelete(`/progress/${id}`);
+    navigate('/records');
+  };
 
   const handleLike = async () => {
     if (!user || !id) return;
@@ -42,6 +70,7 @@ const ReviewDetailPage = () => {
   if (!review) return <p className="muted">서평을 불러오는 중...</p>;
 
   const likedByMe = review.likes.some((l) => l.userId === user?.id);
+  const isMine = review.user.id === user?.id;
 
   return (
     <section className="review-detail">
@@ -55,24 +84,53 @@ const ReviewDetailPage = () => {
           <p className="muted">{review.book.author}</p>
           <p className="muted small">
             {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{review.user.name}</Link> · {formatDateTime(review.createdAt)}
-            {review.user.id !== user?.id && (
+            {!isMine && (
               <> · <ReportButton targetType="user" targetId={review.user.id} label="사용자 신고" /></>
             )}
           </p>
-          <div className="record-meta">
-            <span className="page-badge">{review.startPage}~{review.endPage}쪽</span>
-          </div>
+          {!editing && (
+            <div className="record-meta">
+              <span className="page-badge">{review.startPage}~{review.endPage}쪽</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {review.note && <p className="detail-desc">{review.note}</p>}
-      {review.quote && <blockquote className="record-quote">“{review.quote}”</blockquote>}
+      {editing ? (
+        <div className="record-form">
+          <label className="row">
+            <span>어디부터 어디까지 읽었나요? (쪽)</span>
+            <span className="page-range">
+              <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} />
+              <span>~</span>
+              <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} />
+            </span>
+          </label>
+          <label className="row"><span>서평</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} /></label>
+          <label className="row"><span>인상깊은 글귀 <em className="optional">(선택)</em></span><textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} /></label>
+          <div className="edit-actions">
+            <button className="btn small" onClick={saveEdit}>저장</button>
+            <button className="btn ghost small" onClick={() => setEditing(false)}>취소</button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {review.note && <p className="detail-desc">{review.note}</p>}
+          {review.quote && <blockquote className="record-quote">“{review.quote}”</blockquote>}
+        </>
+      )}
 
       <div className="detail-actions">
         <button className={`like-btn ${likedByMe ? 'liked' : ''}`} onClick={handleLike} disabled={!user}>
           ♥ {review.likes.length}
         </button>
-        {review.user.id !== user?.id && <ReportButton targetType="review" targetId={review.id} />}
+        {isMine && !editing && (
+          <>
+            <button className="btn ghost small" onClick={startEdit}>수정</button>
+            <button className="btn ghost small danger-text" onClick={removeReview}>삭제</button>
+          </>
+        )}
+        {!isMine && <ReportButton targetType="review" targetId={review.id} />}
       </div>
 
       <h3>댓글 {review.comments.length}</h3>
