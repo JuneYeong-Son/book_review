@@ -1,0 +1,47 @@
+# Render Blueprint — 백엔드(API) + 프론트(정적) + Postgres 한 번에 배포
+# 사용법: Render 대시보드 → New → Blueprint → 이 저장소 연결 → Apply
+# 배포 후 아래 sync:false 환경변수를 채워야 함:
+#   - book-review-api: ALADIN_TTB_KEY, FRONTEND_URL(프론트 배포 주소)
+#   - book-review-frontend: VITE_API_URL(백엔드 배포 주소)
+
+databases:
+  - name: book-review-db
+    plan: free
+
+services:
+  # 백엔드 API (Express + Prisma)
+  - type: web
+    name: book-review-api
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install && npm run build && SEED_SKIP_IF_DATA=1 npm run seed
+    startCommand: npm start
+    healthCheckPath: /api/books
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: book-review-db
+          property: connectionString
+      - key: ALADIN_TTB_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+
+  # 프론트엔드 (React 정적 빌드)
+  - type: web
+    name: book-review-frontend
+    runtime: static
+    rootDir: frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false

@@ -112,7 +112,7 @@ const QuickActions = ({ onChange }: Props) => {
   return (
     <div className="quick-actions">
       <button className="btn" onClick={() => setWhich('review')}>✍️ 서평 쓰기</button>
-      <button className="btn ghost" onClick={() => setWhich('book')}>📚 책 추가·관심</button>
+      <button className="btn ghost" onClick={() => setWhich('book')}>📚 관심 책 추가</button>
       <button className="btn ghost" onClick={() => setWhich('discussion')}>💬 토론 열기</button>
 
       {which === 'review' && (
@@ -143,7 +143,7 @@ const QuickActions = ({ onChange }: Props) => {
       )}
 
       {which === 'book' && (
-        <Modal title="책 추가·관심" onClose={() => setWhich(null)}>
+        <Modal title="관심 책 추가" onClose={() => setWhich(null)}>
           <form className="import-search" onSubmit={searchAladin}>
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="알라딘에서 책 검색 (제목·저자)" />
             <button type="submit" className="btn" disabled={searching}>{searching ? '검색 중' : '검색'}</button>
@@ -164,15 +164,17 @@ const QuickActions = ({ onChange }: Props) => {
             </ul>
           )}
 
-          <h4 className="picker-subhead">내 서재의 책 (♥ 관심 지정)</h4>
+          <h4 className="picker-subhead">내 서재의 책 (누르면 관심 지정 / 해제)</h4>
           <ul className="interest-picker">
             {books.map((b) => (
-              <li key={b.id}>
+              <li
+                key={b.id}
+                className={`interest-row ${interestedIds.has(b.id) ? 'interested' : ''}`}
+                onClick={() => toggleInterest(b.id)}
+              >
                 <img src={b.cover} alt={b.title} className="import-cover" />
                 <span className="interest-title">{b.title}</span>
-                <button className={`interest ${interestedIds.has(b.id) ? 'on' : ''}`} onClick={() => toggleInterest(b.id)}>
-                  {interestedIds.has(b.id) ? '♥' : '♡'}
-                </button>
+                {interestedIds.has(b.id) && <span className="interest-badge">관심</span>}
               </li>
             ))}
           </ul>

@@ -198,10 +198,30 @@ a:hover { text-decoration: underline; }
 .modal-body { padding: 20px; }
 .modal-form { display: flex; flex-direction: column; gap: 12px; }
 .modal-form label { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
-.interest-picker { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-.interest-picker li { display: flex; align-items: center; gap: 10px; }
-.interest-picker .interest { position: static; width: 34px; height: 34px; }
+.interest-picker { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .interest-title { flex: 1; }
+/* 관심 책 지정: 하트 대신 행 전체 클릭 + 관심이면 갈색빛 강조 */
+.interest-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px; border-radius: 10px; cursor: pointer;
+  border: 1px solid transparent; transition: background 0.15s, border-color 0.15s;
+}
+.interest-row:hover { background: #f6f1e9; }
+.interest-row.interested { background: var(--accent-soft); border-color: var(--accent); }
+.interest-badge {
+  background: var(--accent); color: #fff; font-size: 0.72rem;
+  border-radius: 999px; padding: 2px 10px;
+}
+
+/* 추천 필터 패널 */
+.reco-summary { margin: -6px 0 12px; }
+.reco-filter-panel {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px; margin-bottom: 16px;
+}
+.reco-filter-panel label { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
+.reco-filter-panel select { min-width: 160px; }
 
 /* Settings */
 .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 12px; max-width: 480px; }
@@ -246,10 +266,10 @@ a:hover { text-decoration: underline; }
 .carousel { position: relative; margin-bottom: 24px; }
 .carousel-track {
   display: flex; gap: 14px; overflow-x: auto; scroll-behavior: smooth;
-  padding: 4px 2px 12px; scrollbar-width: thin;
+  padding: 4px 2px 8px;
+  scrollbar-width: none; -ms-overflow-style: none; /* 스크롤바 숨김 (‹ › 버튼으로 이동) */
 }
-.carousel-track::-webkit-scrollbar { height: 8px; }
-.carousel-track::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+.carousel-track::-webkit-scrollbar { display: none; }
 .carousel-btn {
   position: absolute; top: 40%; transform: translateY(-50%);
   width: 40px; height: 40px; border-radius: 50%;

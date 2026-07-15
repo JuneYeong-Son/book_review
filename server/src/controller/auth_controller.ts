@@ -8,6 +8,7 @@ import {
   deleteAccount
 } from '../service/auth_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
+import { authCookieOptions } from '../lib/cookie.ts';
 
 const router = Router();
 
@@ -24,7 +25,7 @@ router.post('/register', async (req, res) => {
   );
   if (result.error) return res.status(409).json({ message: result.error });
 
-  res.cookie('userId', result.user.id, { httpOnly: true, sameSite: 'lax' });
+  res.cookie('userId', result.user.id, authCookieOptions);
   return res.status(201).json(result.user);
 });
 
@@ -34,13 +35,13 @@ router.post('/login', async (req, res) => {
   const user = await loginUser(username, password);
   if (!user) return res.status(401).json({ message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
 
-  res.cookie('userId', user.id, { httpOnly: true, sameSite: 'lax' });
+  res.cookie('userId', user.id, authCookieOptions);
   return res.json(user);
 });
 
 // 로그아웃
 router.post('/logout', (_req, res) => {
-  res.clearCookie('userId');
+  res.clearCookie('userId', authCookieOptions);
   return res.json({ message: '로그아웃 되었습니다.' });
 });
 
@@ -76,7 +77,7 @@ router.delete('/me', requireAuth, async (req, res) => {
   if (!password) return res.status(400).json({ message: '비밀번호를 입력하세요.' });
   const result = await deleteAccount(res.locals.userId, password);
   if ('error' in result) return res.status(400).json({ message: result.error });
-  res.clearCookie('userId');
+  res.clearCookie('userId', authCookieOptions);
   return res.json({ message: '회원 탈퇴가 완료되었습니다.' });
 });
 

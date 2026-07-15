@@ -1,6 +1,9 @@
+// 배포 시 백엔드 주소는 VITE_API_URL로 주입. 로컬은 비워두면 Vite 프록시(/api)를 사용.
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
+
 // 백엔드 API 호출 래퍼. credentials: 'include'로 쿠키 세션을 항상 함께 전송한다.
 const request = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${API_BASE}/api${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options

@@ -43,6 +43,7 @@ const HomePage = () => {
   const [method, setMethod] = useState<RecoMethod>('content');
   const [genre, setGenre] = useState('');
   const [ageGroup, setAgeGroup] = useState(0);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // --- 서평 피드 (무한 로드) ---
   const loadReviews = async (reset: boolean) => {
@@ -186,27 +187,41 @@ const HomePage = () => {
         </Carousel>
       )}
 
-      {/* 추천하는 책 */}
-      <div className="dash-head section-title"><h2>추천하는 책</h2></div>
-      <div className="reco-methods">
-        <button className={`chip ${method === 'content' ? 'active' : ''}`} onClick={() => setMethod('content')}>읽은 책과 비슷한 책</button>
-        <button className={`chip ${method === 'popular' ? 'active' : ''}`} onClick={() => setMethod('popular')}>요즘 많이 사는 책</button>
+      {/* 추천하는 책 — 필터 버튼 하나로 정리 */}
+      <div className="dash-head section-title">
+        <h2>추천하는 책</h2>
+        <button className="btn ghost small" onClick={() => setFilterOpen((v) => !v)}>필터 ▾</button>
       </div>
-      {method === 'popular' && (
-        <>
-          <div className="reco-methods genre-filter">
-            {AGE_GROUPS.map((a) => (
-              <button key={a.value} className={`chip small ${ageGroup === a.value ? 'active' : ''}`} onClick={() => setAgeGroup(a.value)}>{a.label}</button>
-            ))}
-          </div>
-          {ageGroup === 0 && (
-            <div className="reco-methods genre-filter">
-              {GENRES.map((g) => (
-                <button key={g.id} className={`chip small ${genre === g.id ? 'active' : ''}`} onClick={() => setGenre(g.id)}>{g.label}</button>
-              ))}
-            </div>
+      <p className="muted small reco-summary">
+        {method === 'content'
+          ? '읽은 책과 비슷한 책'
+          : ageGroup
+            ? `요즘 많이 사는 책 · ${AGE_GROUPS.find((a) => a.value === ageGroup)?.label}`
+            : `요즘 많이 사는 책 · ${GENRES.find((g) => g.id === genre)?.label ?? '전체'}`}
+      </p>
+      {filterOpen && (
+        <div className="reco-filter-panel">
+          <label>추천 방식
+            <select value={method} onChange={(e) => setMethod(e.target.value as RecoMethod)}>
+              <option value="content">읽은 책과 비슷한 책</option>
+              <option value="popular">요즘 많이 사는 책</option>
+            </select>
+          </label>
+          {method === 'popular' && (
+            <label>연령대
+              <select value={ageGroup} onChange={(e) => setAgeGroup(Number(e.target.value))}>
+                {AGE_GROUPS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
+              </select>
+            </label>
           )}
-        </>
+          {method === 'popular' && ageGroup === 0 && (
+            <label>주제
+              <select value={genre} onChange={(e) => setGenre(e.target.value)}>
+                {GENRES.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
+              </select>
+            </label>
+          )}
+        </div>
       )}
 
       {recommendations.length === 0 ? (

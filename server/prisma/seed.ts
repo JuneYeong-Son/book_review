@@ -46,6 +46,12 @@ const enrichFromAladin = async (seed: {
 };
 
 async function main() {
+  // 배포(재배포) 시 데이터가 이미 있으면 시드를 건너뜀 (데이터 보존)
+  if (process.env.SEED_SKIP_IF_DATA === '1' && (await prisma.user.count()) > 0) {
+    console.log('이미 데이터가 있어 시드를 건너뜁니다.');
+    return;
+  }
+
   // 초기화: 외래키 제약을 위해 자식 테이블부터 삭제
   await prisma.notification.deleteMany();
   await prisma.like.deleteMany();

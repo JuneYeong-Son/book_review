@@ -8,9 +8,15 @@ import discussionController from './controller/discussion_controller.ts';
 import notificationController from './controller/notification_controller.ts';
 
 const app = express();
-const PORT = 4000;
+const PORT = Number(process.env.PORT) || 4000;
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+// 배포 시 프론트 주소를 FRONTEND_URL 환경변수로 지정 (없으면 로컬 Vite)
+const allowedOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim());
+
+app.set('trust proxy', 1); // Render 등 프록시 뒤에서 secure 쿠키 동작
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 

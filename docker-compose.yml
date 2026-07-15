@@ -1,0 +1,19 @@
+# 로컬 개발용 Postgres (배포와 동일한 DB로 개발하려면)
+# 사용법: docker compose up -d
+# 그 후 server/.env 의 DATABASE_URL 을 아래 값으로 설정:
+#   DATABASE_URL="postgresql://book:book@localhost:5432/book_review?schema=public"
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: book
+      POSTGRES_PASSWORD: book
+      POSTGRES_DB: book_review
+    ports:
+      - "5432:5432"
+    volumes:
+      - book_review_pgdata:/var/lib/postgresql/data
+
+volumes:
+  book_review_pgdata:
