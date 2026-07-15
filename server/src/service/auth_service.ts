@@ -2,7 +2,10 @@ import bcrypt from 'bcryptjs';
 import {
   findUserByUsername,
   findUserById,
-  insertUser
+  insertUser,
+  updateUser,
+  updateUserPassword,
+  deleteUserCascade
 } from '../repository/auth_repository.ts';
 
 // 로그인/회원가입 결과로 비밀번호 해시를 제외한 공개 정보만 반환
@@ -37,4 +40,33 @@ export const registerUser = async (
 export const getUser = async (id: string) => {
   const user = await findUserById(id);
   return user ? toPublicUser(user) : null;
+};
+
+// 프로필(이름·아바타) 수정
+export const updateProfile = async (id: string, name?: string, avatar?: string) => {
+  const data: { name?: string; avatar?: string } = {};
+  if (name) data.name = name;
+  if (avatar) data.avatar = avatar;
+  const user = await updateUser(id, data);
+  return toPublicUser(user);
+};
+
+// 비밀번호 변경 (현재 비밀번호 확인)
+export const changePassword = async (id: string, currentPassword: string, newPassword: string) => {
+  const user = await findUserById(id);
+  if (!user) return { error: '사용자를 찾을 수 없습니다.' as const };
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) return { error: '현재 비밀번호가 올바르지 않습니다.' as const };
+  await updateUserPassword(id, bcrypt.hashSync(newPassword, 8));
+  return { ok: true as const };
+};
+
+// 회원 탈퇴 (비밀번호 확인 후 데이터 삭제)
+export const deleteAccount = async (id: string, password: string) => {
+  const user = await findUserById(id);
+  if (!user) return { error: '사용자를 찾을 수 없습니다.' as const };
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) return { error: '비밀번호가 올바르지 않습니다.' as const };
+  await deleteUserCascade(id);
+  return { ok: true as const };
 };

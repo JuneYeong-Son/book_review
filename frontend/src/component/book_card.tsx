@@ -7,6 +7,7 @@ type Props = {
   latest?: Progress; // 이 책에 대한 내 최신 기록
   interested: boolean;
   loggedIn: boolean;
+  reason?: string; // 추천 이유 (추천 섹션에서만 표시)
   onToggleInterest: (bookId: string) => void;
   onSaveProgress: (
     bookId: string,
@@ -18,7 +19,7 @@ type Props = {
   ) => Promise<void>;
 };
 
-const BookCard = ({ book, latest, interested, loggedIn, onToggleInterest, onSaveProgress }: Props) => {
+const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest, onSaveProgress }: Props) => {
   const [open, setOpen] = useState(false);
   // 이어 읽기 편하도록 시작 페이지는 최신 기록의 끝 페이지로 기본 설정
   const [startPage, setStartPage] = useState(latest?.endPage ?? 0);
@@ -57,6 +58,7 @@ const BookCard = ({ book, latest, interested, loggedIn, onToggleInterest, onSave
       </div>
 
       <div className="book-body">
+        {reason && <p className="reason">🤖 {reason}</p>}
         <h3>{book.title}</h3>
         <p className="author">{book.author}</p>
         <div className="tags">

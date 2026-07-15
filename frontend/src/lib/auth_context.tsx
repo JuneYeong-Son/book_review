@@ -8,6 +8,8 @@ type AuthValue = {
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, name: string, password: string, avatar: string) => Promise<void>;
   logout: () => Promise<void>;
+  refresh: () => Promise<void>;
+  clearUser: () => void;
 };
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -37,8 +39,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
+  // 프로필 변경 후 최신 사용자 정보 재조회
+  const refresh = async () => {
+    try {
+      setUser(await apiGet<User>('/auth/me'));
+    } catch {
+      setUser(null);
+    }
+  };
+
+  const clearUser = () => setUser(null);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refresh, clearUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -10,6 +10,7 @@ import DiscussionListPage from './page/discussion_list_page.tsx';
 import DiscussionDetailPage from './page/discussion_detail_page.tsx';
 import MyPage from './page/my_page.tsx';
 import MyBookPage from './page/my_book_page.tsx';
+import SettingsPage from './page/settings_page.tsx';
 
 const App = () => {
   const { loading } = useAuth();
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/discussions/:id" element={<DiscussionDetailPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/mypage/book/:bookId" element={<MyBookPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { listBooks, getBook, listInterests, toggleInterest } from '../service/book_service.ts';
 import { searchExternalBooks, importBook } from '../service/book_import_service.ts';
+import { recommendBooks } from '../service/recommendation_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 
 const router = Router();
@@ -8,6 +9,12 @@ const router = Router();
 // 전체 책 목록
 router.get('/', async (_req, res) => {
   return res.json(await listBooks());
+});
+
+// 머신러닝(콘텐츠 기반) 추천 — 로그인하면 개인화, 아니면 인기순
+router.get('/recommendations', async (req, res) => {
+  const userId = req.cookies?.userId as string | undefined;
+  return res.json(await recommendBooks(userId));
 });
 
 // 알라딘에서 책 검색 (아직 저장 전 후보 목록)

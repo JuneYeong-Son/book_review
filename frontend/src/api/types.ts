@@ -14,6 +14,13 @@ export type Book = {
   category: string;
 };
 
+// 추천 결과 (콘텐츠 기반)
+export type Recommendation = {
+  book: Book;
+  score: number;
+  reason: string;
+};
+
 // 알라딘 검색 결과(아직 저장 전) 후보
 export type BookCandidate = {
   title: string;
