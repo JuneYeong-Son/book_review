@@ -1,4 +1,11 @@
-import { findBookByIsbn, createBook } from '../repository/book_repository.ts';
+import { findBookByIsbn, findBooksByTitle, createBook } from '../repository/book_repository.ts';
+
+// "헤르만 헤세 (지은이), 전영애 (옮긴이)" → "헤르만 헤세" (옮긴이/역자 등 제거, 지은이만)
+const primaryAuthor = (author: string) => {
+  const marker = author.indexOf('(지은이)');
+  const head = marker >= 0 ? author.slice(0, marker) : author.split(',')[0];
+  return head.replace(/\([^)]*\)/g, '').trim();
+};
 
 // 알라딘 OpenAPI 연동. TTB 키는 .env의 ALADIN_TTB_KEY 로 주입.
 
@@ -88,15 +95,22 @@ export const fetchBestsellers = async (categoryId?: string, start?: number) =>
     ...(start && start > 1 ? { start: String(start) } : {})
   });
 
-// 후보 하나를 우리 Book 테이블에 저장 (ISBN 중복 시 기존 책 반환)
+// 후보 하나를 우리 Book 테이블에 저장.
+// 중복 판단: ISBN이 같거나, (제목 + 작가(지은이))가 같으면 기존 책으로 취급(옮긴이/판형 무시).
 export const importBook = async (candidate: BookCandidate) => {
+  const author = primaryAuthor(candidate.author);
+
   if (candidate.isbn) {
     const existing = await findBookByIsbn(candidate.isbn);
     if (existing) return { book: existing, created: false };
   }
+  const sameTitle = await findBooksByTitle(candidate.title);
+  const dup = sameTitle.find((b) => primaryAuthor(b.author) === author);
+  if (dup) return { book: dup, created: false };
+
   const book = await createBook({
     title: candidate.title,
-    author: candidate.author,
+    author,
     cover: candidate.cover,
     genre: candidate.genre,
     category: candidate.category,

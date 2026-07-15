@@ -34,6 +34,7 @@ const HomePage = () => {
   const [method, setMethod] = useState<RecoMethod>('content');
   const [genre, setGenre] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [dismissedExternal, setDismissedExternal] = useState<Set<string>>(new Set());
 
   // --- 서평 피드 (무한 로드) ---
   const loadReviews = async (reset: boolean) => {
@@ -113,6 +114,16 @@ const HomePage = () => {
     if (!interestedIds.has(book.id)) await apiPost(`/books/${book.id}/interest`);
     loadMine(); loadReco(true);
   };
+  // 추천 X: 라이브러리 책은 '추천 안 받을 책'에 영구 저장, 외부(베스트셀러)는 이번 세션에서 숨김
+  const handleDismissReco = async (rec: Recommendation) => {
+    if (rec.book.id) {
+      await apiPost(`/books/${rec.book.id}/reco-exclude`);
+      loadReco(true); // 제외 후 다른 추천으로 채워짐
+    } else {
+      setDismissedExternal((prev) => new Set(prev).add(rec.book.isbn || rec.book.title));
+      if (!recoEnd) loadReco(false);
+    }
+  };
   // 외부(베스트셀러) 책: 클릭 시 우리 DB에 담고 그 책의 서평 페이지로 이동
   const openExternal = async (rec: Recommendation) => {
     if (rec.book.id) { navigate(`/books/${rec.book.id}`); return; }
@@ -153,7 +164,6 @@ const HomePage = () => {
               <div className="sq-body">
                 <strong className="sq-title">{r.book.title}</strong>
                 <div className="record-meta">
-                  <StarRating value={r.rating} size={14} />
                   <span className="like-count">♥ {r.likes.length}</span>
                 </div>
                 <p className="muted small">{r.user.avatar} {r.user.name} · {r.startPage}~{r.endPage}쪽</p>
@@ -219,7 +229,9 @@ const HomePage = () => {
         </p>
       ) : (
         <Carousel onLoadMore={recoEnd ? undefined : () => loadReco(false)}>
-          {recommendations.map((rec, idx) =>
+          {recommendations
+            .filter((r) => r.book.id || !dismissedExternal.has(r.book.isbn || r.book.title))
+            .map((rec, idx) =>
             rec.inLibrary && rec.book.id ? (
               <div key={`${rec.book.id}-${idx}`} className="reco-slot">
                 <BookCard
@@ -231,6 +243,7 @@ const HomePage = () => {
                   interested={interestedIds.has(rec.book.id)}
                   loggedIn={Boolean(user)}
                   reason={rec.reason}
+                  onDismiss={user ? () => handleDismissReco(rec) : undefined}
                   onToggleInterest={handleToggleInterest}
                   onSaveProgress={handleSaveProgress}
                 />
@@ -239,6 +252,7 @@ const HomePage = () => {
               <article key={`${rec.book.isbn}-${idx}`} className="book-card reco-slot">
                 <button className="cover-wrap cover-link" onClick={() => openExternal(rec)} title="담고 서평 보러가기">
                   <img src={rec.book.cover} alt={rec.book.title} className="cover" />
+                  {user && <span className="dismiss-btn" onClick={(e) => { e.stopPropagation(); handleDismissReco(rec); }} title="추천 안 받기">✕</span>}
                 </button>
                 <div className="book-body">
                   <p className="reason">{rec.reason}</p>

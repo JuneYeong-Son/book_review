@@ -1,5 +1,15 @@
 import { Router } from 'express';
-import { listBooks, getBook, listInterests, toggleInterest } from '../service/book_service.ts';
+import {
+  listBooks,
+  getBook,
+  listInterests,
+  toggleInterest,
+  listRecoExclusions,
+  excludeFromReco,
+  includeInReco,
+  rateBook,
+  getBookRating
+} from '../service/book_service.ts';
 import { searchExternalBooks, importBook } from '../service/book_import_service.ts';
 import { recommend } from '../recommendation/index.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
@@ -43,6 +53,25 @@ router.get('/interests/me', requireAuth, async (_req, res) => {
   return res.json(await listInterests(res.locals.userId));
 });
 
+// 추천 안 받을 책 리스트 (내 것)
+router.get('/reco-exclusions/me', requireAuth, async (_req, res) => {
+  return res.json(await listRecoExclusions(res.locals.userId));
+});
+
+// 책 별점 정보 (평균/개수 + 내 별점) — '/:id'보다 먼저
+router.get('/:id/rating', async (req, res) => {
+  const userId = req.cookies?.userId as string | undefined;
+  return res.json(await getBookRating(req.params.id, userId));
+});
+
+// 책에 별점 매기기
+router.post('/:id/rating', requireAuth, async (req, res) => {
+  const { value } = req.body ?? {};
+  const result = await rateBook(res.locals.userId, req.params.id, Number(value));
+  if ('error' in result) return res.status(400).json({ message: result.error });
+  return res.json(result);
+});
+
 // 책 상세
 router.get('/:id', async (req, res) => {
   const book = await getBook(req.params.id);
@@ -55,6 +84,19 @@ router.post('/:id/interest', requireAuth, async (req, res) => {
   const result = await toggleInterest(res.locals.userId, req.params.id);
   if (result.error) return res.status(404).json({ message: result.error });
   return res.json(result);
+});
+
+// 추천 안 받을 책에 추가 (X)
+router.post('/:id/reco-exclude', requireAuth, async (req, res) => {
+  const result = await excludeFromReco(res.locals.userId, req.params.id);
+  if ('error' in result) return res.status(404).json({ message: result.error });
+  return res.json(result);
+});
+
+// 추천 제외 해제
+router.delete('/:id/reco-exclude', requireAuth, async (_req, res) => {
+  await includeInReco(res.locals.userId, _req.params.id);
+  return res.json({ ok: true });
 });
 
 export default router;

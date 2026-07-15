@@ -37,6 +37,8 @@ export type Book = {
   cover: string;
   genre: string;
   category: string;
+  publisher?: string;
+  description?: string;
 };
 
 // 추천 결과

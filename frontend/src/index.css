@@ -195,6 +195,24 @@ a:hover { text-decoration: underline; }
 .edit-actions { display: flex; gap: 8px; margin-top: 8px; }
 .interested-btn { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
+/* Book detail (큰 이미지 + 오른쪽 정보) */
+.book-detail-head { display: flex; gap: 28px; margin: 16px 0 8px; flex-wrap: wrap; }
+.book-detail-cover {
+  width: 220px; max-width: 40vw; height: 300px; object-fit: contain;
+  background: #f2ede4; border-radius: 12px; border: 1px solid var(--border);
+}
+.book-detail-info { flex: 1; min-width: 240px; }
+.book-detail-info h1 { margin: 0 0 6px; }
+.book-rating {
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  margin: 14px 0; padding: 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 12px;
+}
+.rating-avg { display: flex; align-items: center; gap: 8px; }
+.rating-num { font-size: 1.4rem; font-weight: 700; color: var(--gold); }
+.rating-mine { display: flex; align-items: center; gap: 8px; }
+.book-desc { margin-top: 12px; color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
 /* User profile */
 .profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
 .profile-avatar {
@@ -329,7 +347,7 @@ a:hover { text-decoration: underline; }
   display: flex; flex-direction: column;
 }
 .sq-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); text-decoration: none; }
-.sq-cover { width: 100%; height: 150px; object-fit: cover; }
+.sq-cover { width: 100%; height: 170px; object-fit: contain; background: #f2ede4; }
 .sq-body { padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .sq-title { font-size: 1rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sq-note { margin: 0; font-size: 0.83rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -369,7 +387,7 @@ a:hover { text-decoration: underline; }
 .cal-more { color: var(--muted); }
 .feed { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
 .feed-item { display: flex; gap: 10px; }
-.feed-cover { width: 40px; height: 56px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.feed-cover { width: 40px; height: 56px; object-fit: contain; background: #f2ede4; border-radius: 4px; flex-shrink: 0; }
 .feed-body { flex: 1; min-width: 0; }
 .feed-note { margin: 4px 0 0; font-size: 0.85rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
@@ -430,7 +448,7 @@ textarea { resize: vertical; }
 .import-search input { flex: 1; }
 .import-results { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .import-item { display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-.import-cover { width: 44px; height: 62px; object-fit: cover; border-radius: 4px; }
+.import-cover { width: 44px; height: 62px; object-fit: contain; background: #f2ede4; border-radius: 4px; }
 .import-info { flex: 1; }
 .import-info strong { display: block; }
 
@@ -472,6 +490,13 @@ textarea { resize: vertical; }
   font-size: 0.78rem; padding: 4px 10px; cursor: pointer;
 }
 .remove-btn:hover { background: var(--danger); }
+.dismiss-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: none; background: rgba(0,0,0,0.55); color: #fff;
+  font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.dismiss-btn:hover { background: var(--danger); }
 .book-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
 .book-body h3 { margin: 0; font-size: 1.05rem; }
 .author { margin: 0; color: var(--muted); font-size: 0.88rem; }
@@ -534,7 +559,7 @@ textarea { resize: vertical; }
   border-radius: 12px;
   padding: 14px;
 }
-.record-cover { width: 54px; height: 76px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.record-cover { width: 54px; height: 76px; object-fit: contain; background: #f2ede4; border-radius: 6px; flex-shrink: 0; }
 .record-main, .discussion-main { flex: 1; }
 .record-meta { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
 .record-note { margin: 6px 0 0; }

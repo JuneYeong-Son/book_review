@@ -9,6 +9,7 @@ type Props = {
   interested: boolean;
   loggedIn: boolean;
   reason?: string; // 추천 이유 (추천 섹션에서만 표시)
+  onDismiss?: () => void; // 추천 제외(X)
   onToggleInterest: (bookId: string) => void;
   onSaveProgress: (
     bookId: string,
@@ -20,20 +21,19 @@ type Props = {
   ) => Promise<void>;
 };
 
-const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest, onSaveProgress }: Props) => {
+const BookCard = ({ book, latest, interested, loggedIn, reason, onDismiss, onToggleInterest, onSaveProgress }: Props) => {
   const [open, setOpen] = useState(false);
   // 이어 읽기 편하도록 시작 페이지는 최신 기록의 끝 페이지로 기본 설정
   const [startPage, setStartPage] = useState(latest?.endPage ?? 0);
   const [endPage, setEndPage] = useState(latest?.endPage ?? 0);
   const [note, setNote] = useState('');
   const [quote, setQuote] = useState('');
-  const [rating, setRating] = useState(latest?.rating ?? 0);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSaveProgress(book.id, Number(startPage), Number(endPage), note, quote, rating);
+      await onSaveProgress(book.id, Number(startPage), Number(endPage), note, quote, 0);
       setNote('');
       setQuote('');
       setStartPage(Number(endPage));
@@ -47,6 +47,9 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
     <article className="book-card">
       <div className="cover-wrap">
         <Link to={`/books/${book.id}`}><img src={book.cover} alt={book.title} className="cover" /></Link>
+        {onDismiss && (
+          <button className="dismiss-btn" onClick={onDismiss} title="이 책 추천 안 받기">✕</button>
+        )}
       </div>
 
       <div className="book-body">
@@ -60,7 +63,6 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
 
         {latest && (
           <div className="my-progress">
-            <StarRating value={latest.rating} size={16} />
             <span className="page-badge">{latest.startPage}~{latest.endPage}쪽</span>
           </div>
         )}
@@ -84,10 +86,6 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onToggleInterest
                 <span>~</span>
                 <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} />
               </span>
-            </label>
-            <label className="row">
-              <span>별점</span>
-              <StarRating value={rating} onChange={setRating} size={24} />
             </label>
             <label className="row">
               <span>서평</span>

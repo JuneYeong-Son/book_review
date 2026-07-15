@@ -24,6 +24,8 @@ model User {
   notifications Notification[]
   reviewComments ReviewComment[]
   reports      Report[]
+  recoExclusions RecoExclusion[]
+  ratings      Rating[]
 }
 
 model Book {
@@ -40,6 +42,8 @@ model Book {
   progresses  Progress[]
   interests   Interest[]
   discussions Discussion[]
+  recoExclusions RecoExclusion[]
+  ratings     Rating[]
 }
 
 // 독서 기록 + 서평. 기록할 때마다 새 항목이 쌓여 날짜별 이력이 된다.
@@ -111,6 +115,32 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+// 책 별점 (사용자 1명당 책 1개, 서평이 아니라 책 자체에 매김)
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  value     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId])
+}
+
+// 추천 안 받을 책 리스트 (사용자별)
+model RecoExclusion {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId])
 }
 
 // 관심 있는 책 지정

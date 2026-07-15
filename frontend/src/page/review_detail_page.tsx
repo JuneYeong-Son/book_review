@@ -60,7 +60,6 @@ const ReviewDetailPage = () => {
             )}
           </p>
           <div className="record-meta">
-            <StarRating value={review.rating} size={18} />
             <span className="page-badge">{review.startPage}~{review.endPage}쪽</span>
           </div>
         </div>

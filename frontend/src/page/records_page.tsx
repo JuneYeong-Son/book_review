@@ -63,7 +63,6 @@ const RecordsPage = () => {
                 <Link to={`/users/${record.user.id}`} className="user-link">{record.user.name}</Link>
               </div>
               <div className="record-meta">
-                <StarRating value={record.rating} size={16} />
                 <span className="page-badge">{record.startPage}~{record.endPage}쪽</span>
                 <span className="muted small">{formatDate(record.createdAt)}</span>
               </div>

@@ -71,7 +71,6 @@ const MyBookPage = () => {
               <div className="timeline-date">{formatDate(r.createdAt)}</div>
               <div className="timeline-body">
                 <div className="record-meta">
-                  <StarRating value={r.rating} size={16} />
                   <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
                 </div>
                 {r.note && <p className="record-note">{r.note}</p>}
@@ -93,13 +92,12 @@ const MyBookPage = () => {
 const EditForm = ({ record, onDone, onCancel }: { record: Progress; onDone: () => void; onCancel: () => void }) => {
   const [startPage, setStartPage] = useState(record.startPage);
   const [endPage, setEndPage] = useState(record.endPage);
-  const [rating, setRating] = useState(record.rating);
   const [note, setNote] = useState(record.note);
   const [quote, setQuote] = useState(record.quote);
 
   const save = async () => {
     await apiPatch(`/progress/${record.id}`, {
-      startPage: Number(startPage), endPage: Number(endPage), rating, note, quote
+      startPage: Number(startPage), endPage: Number(endPage), note, quote
     });
     onDone();
   };
@@ -113,7 +111,6 @@ const EditForm = ({ record, onDone, onCancel }: { record: Progress; onDone: () =
           <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} />
         </span>
       </label>
-      <label className="row"><span>별점</span><StarRating value={rating} onChange={setRating} size={22} /></label>
       <label className="row"><span>서평</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} /></label>
       <label className="row"><span>글귀</span><textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} /></label>
       <div className="edit-actions">

@@ -34,7 +34,6 @@ const QuickActions = ({ onChange }: Props) => {
   const [rBook, setRBook] = useState('');
   const [rStart, setRStart] = useState(0);
   const [rEnd, setREnd] = useState(0);
-  const [rRating, setRRating] = useState(0);
   const [rNote, setRNote] = useState('');
   const [rQuote, setRQuote] = useState('');
   const [rErr, setRErr] = useState('');
@@ -45,10 +44,10 @@ const QuickActions = ({ onChange }: Props) => {
     try {
       await apiPost('/progress', {
         bookId: rBook, startPage: Number(rStart), endPage: Number(rEnd),
-        note: rNote, quote: rQuote, rating: rRating
+        note: rNote, quote: rQuote, rating: 0
       });
       setWhich(null);
-      setRBook(''); setRStart(0); setREnd(0); setRRating(0); setRNote(''); setRQuote('');
+      setRBook(''); setRStart(0); setREnd(0); setRNote(''); setRQuote('');
       onChange();
     } catch (err) {
       setRErr((err as Error).message);
@@ -131,7 +130,6 @@ const QuickActions = ({ onChange }: Props) => {
                 <input type="number" min={0} value={rEnd} onChange={(e) => setREnd(Number(e.target.value))} />
               </span>
             </label>
-            <label>별점 <StarRating value={rRating} onChange={setRRating} size={24} /></label>
             <label>서평 <textarea value={rNote} onChange={(e) => setRNote(e.target.value)} rows={3} /></label>
             <label>인상깊은 글귀 <em className="optional">(선택)</em>
               <textarea value={rQuote} onChange={(e) => setRQuote(e.target.value)} rows={2} />

@@ -37,7 +37,6 @@ const UserProfilePage = () => {
               <div className="record-main">
                 <Link to={`/reviews/${r.id}`}><strong>{r.book.title}</strong></Link>
                 <div className="record-meta">
-                  <StarRating value={r.rating} size={16} />
                   <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
                   <span className="like-count">♥ {r.likes.length}</span>
                 </div>

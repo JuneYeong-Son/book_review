@@ -87,7 +87,6 @@ const MyPage = () => {
                   <h3>{group.book.title}</h3>
                   <p className="author">{group.book.author}</p>
                   <div className="my-progress">
-                    <StarRating value={group.latest.rating} size={16} />
                     <span className="page-badge">서평 {group.count}개</span>
                   </div>
                 </div>
