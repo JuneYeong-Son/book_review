@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  username     String       @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  progresses   Progress[]
+  interests    Interest[]
+  discussions  Discussion[]
+  comments     Comment[]
+}
+
+model Book {
+  id          String       @id @default(cuid())
+  title       String
+  author      String
+  cover       String
+  genre       String       @default("") // 추천 시스템(콘텐츠 기반)용
+  category    String       @default("") // 추천 시스템(콘텐츠 기반)용
+  createdAt   DateTime     @default(now())
+  progresses  Progress[]
+  interests   Interest[]
+  discussions Discussion[]
+}
+
+// 오늘 무슨 책을 어디까지 읽었는지에 대한 기록 + 서평(별점 포함)
+// (책 1권당 최신 진행도/서평 1개)
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  page      Int
+  note      String   @default("") // 서평 내용
+  rating    Int      @default(0)  // 별점 0(미평가)~5
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId])
+}
+
+// 관심 있는 책 지정
+model Interest {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId])
+}
+
+// 자신이 읽거나 읽는 중인 책에 대해 여는 토론
+model Discussion {
+  id          String    @id @default(cuid())
+  bookId      String
+  ownerId     String
+  title       String
+  description String    @default("")
+  createdAt   DateTime  @default(now())
+  book        Book      @relation(fields: [bookId], references: [id])
+  owner       User      @relation(fields: [ownerId], references: [id])
+  comments    Comment[]
+}
+
+// 토론에 누구나 남길 수 있는 댓글
+model Comment {
+  id           String     @id @default(cuid())
+  discussionId String
+  userId       String
+  text         String
+  createdAt    DateTime   @default(now())
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id])
+}
