@@ -1,24 +1,24 @@
 :root {
   /* 디자인 시스템: Anthropic Claude — cream canvas + coral + dark navy (docs/DESIGN-claude.md) */
-  --bg: #faf9f5;             /* canvas: 따뜻한 크림 바탕 */
-  --surface: #efe9de;        /* surface-card: 캔버스보다 한 단계 진한 크림 카드 */
-  --surface-soft: #f5f0e8;   /* 아주 옅은 구분 밴드 */
-  --ink: #141413;            /* 제목·본문 잉크(따뜻한 블랙) */
-  --muted: #6c6a64;          /* 보조 텍스트 */
-  --accent: #cc785c;         /* primary: 시그니처 코랄 */
-  --accent-active: #a9583e;  /* 코랄 press */
-  --accent-ink: #ffffff;     /* on-primary: 코랄 위 텍스트 */
-  --accent-soft: #e8e0d2;    /* surface-cream-strong: 중립 크림(태그·hover·히어로) */
-  --gold: #e8a55a;           /* accent-amber: 별점·글귀 강조 */
-  --danger: #c64545;         /* error */
-  --border: #e6dfd8;         /* hairline */
-  /* 다크 네이비 서피스(푸터 등 — Anthropic의 시그니처 대비) */
-  --surface-dark: #181715;
-  --on-dark: #faf9f5;
-  --on-dark-soft: #a09d96;
-  /* 제목=세리프(한글 명조), 본문=휴머니스트 산세 — 문서의 serif-display/sans-body 철학 그대로 */
-  --font-display: 'Nanum Myeongjo', 'Batang', 'Apple SD Gothic Neo', Georgia, serif;
-  --font-body: 'Pretendard', -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  --bg: #f2ece0;             /* 종이/양피지 바탕 (밝은 크림보다 낮춰 종이 느낌) */
+  --surface: #ebe3d2;        /* 카드: 한 단계 진한 종이 */
+  --surface-soft: #eee7d8;   /* 옅은 구분 밴드 */
+  --ink: #272016;            /* 종이 위 잉크(따뜻한 세피아 다크) */
+  --muted: #6f6551;          /* 보조 텍스트(따뜻한 회갈) */
+  --accent: #a87132;         /* primary: 브론즈/오커 */
+  --accent-active: #895d28;  /* press(어둡게) */
+  --accent-ink: #fbf7ee;     /* on-primary: 브론즈 위 텍스트(순백 대신 크림) */
+  --accent-soft: #e4d9c1;    /* 따뜻한 크림(태그·hover·히어로) */
+  --gold: #c08a3a;           /* 앤티크 골드: 별점·글귀 강조 */
+  --danger: #c0392b;         /* 벽돌 레드 */
+  --border: #dccfb8;         /* 따뜻한 hairline */
+  /* 따뜻한 다크(에스프레소) 서피스 — 푸터 등 */
+  --surface-dark: #211b12;
+  --on-dark: #f2ece0;
+  --on-dark-soft: #a99f89;
+  /* 제목·본문 모두 을유1945(옛 활자/필기 느낌). 폴백은 명조 계열 → 종이톤과 통일감 */
+  --font-display: 'Eulyoo1945', 'Nanum Myeongjo', 'Batang', serif;
+  --font-body: 'Eulyoo1945', 'Nanum Myeongjo', 'Batang', serif;
   color-scheme: light;
 }
 
@@ -27,16 +27,36 @@
 /* 버튼류 더블탭 확대/지연 제거 */
 button { touch-action: manipulation; }
 
-/* 명조체 제목 + 로고 (고요한 서재) */
-h1, h2, h3, .brand { font-family: var(--font-display); letter-spacing: -0.01em; }
+/* 제목 + 로고 (을유1945). 획이 굵어 자간 0 + 넉넉한 행간 */
+h1, h2, h3, .brand { font-family: var(--font-display); letter-spacing: 0; line-height: 1.35; }
 
 body {
   margin: 0;
   font-family: var(--font-body);
-  background: var(--bg);
+  background-color: var(--bg);
+  /* 고화질 종이 사진을 질감으로. 위에 반투명 크림 베일을 덮어 톤·가독성 유지(베일 낮출수록 결이 선명) */
+  background-image:
+    linear-gradient(rgba(242, 236, 224, 0.32), rgba(242, 236, 224, 0.32)),
+    url("../../assets/textures/paper-bg.avif");
+  background-size: auto, cover;
+  background-repeat: repeat, no-repeat;
+  background-position: center center, center center;
+  background-attachment: fixed, fixed;
   color: var(--ink);
   line-height: 1.5;
 }
+
+/* 종이 결(fiber) 텍스처 — 전체 위에 아주 옅은 그레인 오버레이 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: reduce) { body::before { display: none; } }
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }

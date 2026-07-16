@@ -1,0 +1,18 @@
+/* 을유1945(Eulyoo1945) — 자체 호스팅 웹폰트. 종이톤 위 옛 활자/필기 느낌의 본문·제목 폰트.
+   파일: src/assets/fonts/eulyoo/ (woff2 우선, woff 폴백). Vite가 번들·해시 처리. */
+@font-face {
+  font-family: 'Eulyoo1945';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../assets/fonts/eulyoo/Eulyoo1945-Regular.woff2') format('woff2'),
+       url('../../assets/fonts/eulyoo/Eulyoo1945-Regular.woff') format('woff');
+}
+@font-face {
+  font-family: 'Eulyoo1945';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../assets/fonts/eulyoo/Eulyoo1945-SemiBold.woff2') format('woff2'),
+       url('../../assets/fonts/eulyoo/Eulyoo1945-SemiBold.woff') format('woff');
+}
