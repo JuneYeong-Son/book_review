@@ -34,13 +34,13 @@ const DiscussionDetailPage = () => {
     }
   };
 
-  if (!discussion) return <p className="muted">토론을 불러오는 중...</p>;
+  if (!discussion) return <p className="muted">토론을 불러오는 중…</p>;
 
   return (
     <section className="discussion-detail">
       <Link to="/discussions" className="muted small">← 토론 목록</Link>
       <div className="detail-head">
-        <img src={discussion.book.cover} alt={discussion.book.title} className="record-cover" />
+        <img src={discussion.book.cover} alt={discussion.book.title} className="record-cover" width={54} height={76} />
         <div>
           <h1>{discussion.title}</h1>
           <p className="muted">{discussion.book.title} · {discussion.book.author}</p>
@@ -56,7 +56,7 @@ const DiscussionDetailPage = () => {
         </div>
       )}
 
-      <h3>댓글 {discussion.comments.length}</h3>
+      <h2 className="comments-title">댓글 {discussion.comments.length}</h2>
       <ul className="comment-list">
         {discussion.comments.map((comment) => (
           <li key={comment.id} className="comment-item">
@@ -72,8 +72,8 @@ const DiscussionDetailPage = () => {
 
       {user ? (
         <form className="comment-form" onSubmit={handleComment}>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="댓글을 입력하세요" required />
-          {error && <p className="error">{error}</p>}
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="댓글을 입력하세요" required aria-label="댓글 입력" />
+          {error && <p className="error" role="alert">{error}</p>}
           <button type="submit" className="btn">댓글 달기</button>
         </form>
       ) : (

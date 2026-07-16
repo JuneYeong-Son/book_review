@@ -83,7 +83,7 @@ const MyPage = () => {
           <div className="book-grid">
             {bookGroups.map((group) => (
               <Link key={group.book.id} to={`/mypage/book/${group.book.id}`} className="mybook-card">
-                <img src={group.book.cover} alt={group.book.title} className="cover" />
+                <img src={group.book.cover} alt={group.book.title} className="cover" width={140} height={200} loading="lazy" />
                 <div className="book-body">
                   <h3>{group.book.title}</h3>
                   <p className="author">{group.book.author}</p>
@@ -107,7 +107,7 @@ const MyPage = () => {
               {interests.map((it) => (
                 <Link key={it.id} to={`/books/${it.bookId}`} className="mybook-card">
                   <div className="cover-wrap">
-                    <img src={it.book.cover} alt={it.book.title} className="cover" />
+                    <img src={it.book.cover} alt={it.book.title} className="cover" width={140} height={200} loading="lazy" />
                     <button className="remove-btn" onClick={(e) => toggleInterest(e, it.bookId)} title="관심에서 제거">✕ 제거</button>
                   </div>
                   <div className="book-body">
@@ -148,7 +148,7 @@ const MyPage = () => {
           <ul className="discussion-list">
             {discussions.map((d) => (
               <li key={d.id} className="discussion-item">
-                <img src={d.book.cover} alt={d.book.title} className="record-cover" />
+                <img src={d.book.cover} alt={d.book.title} className="record-cover" width={54} height={76} loading="lazy" />
                 <div className="discussion-main">
                   <Link to={`/discussions/${d.id}`} className="discussion-title">{d.title}</Link>
                   <p className="muted small">

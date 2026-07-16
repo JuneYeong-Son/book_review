@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiGet, apiPost } from '../api/client.ts';
 import type { Book, DiscussionSummary, Interest, Progress, Recommendation, RecoMethod } from '../api/types.ts';
@@ -78,22 +78,25 @@ const HomePage = () => {
   useEffect(() => { loadMine(); }, [user]);
   useEffect(() => { loadReco(true); }, [method, genre, user]);
 
-  const interestedIds = new Set(interests.map((i) => i.bookId));
-  const latestByBook = new Map<string, Progress>();
-  for (const record of myProgress) {
-    if (!latestByBook.has(record.bookId)) latestByBook.set(record.bookId, record);
-  }
+  const interestedIds = useMemo(() => new Set(interests.map((i) => i.bookId)), [interests]);
+  const latestByBook = useMemo(() => {
+    const map = new Map<string, Progress>();
+    for (const record of myProgress) {
+      if (!map.has(record.bookId)) map.set(record.bookId, record);
+    }
+    return map;
+  }, [myProgress]);
 
-  const myQuotes = myProgress.filter((p) => p.quote.trim()).slice(0, 2);
+  const myQuotes = useMemo(() => myProgress.filter((p) => p.quote.trim()).slice(0, 2), [myProgress]);
 
-  const sortedReviews = [...reviews].sort((a, b) => {
+  const sortedReviews = useMemo(() => [...reviews].sort((a, b) => {
     const d = (interestedIds.has(b.bookId) ? 1 : 0) - (interestedIds.has(a.bookId) ? 1 : 0);
     return d !== 0 ? d : b.likes.length - a.likes.length;
-  });
-  const sortedDiscussions = [...discussions].sort((a, b) => {
+  }), [reviews, interestedIds]);
+  const sortedDiscussions = useMemo(() => [...discussions].sort((a, b) => {
     const d = (interestedIds.has(b.book.id) ? 1 : 0) - (interestedIds.has(a.book.id) ? 1 : 0);
     return d !== 0 ? d : b._count.comments - a._count.comments;
-  });
+  }), [discussions, interestedIds]);
 
   const handleToggleInterest = async (bookId: string) => {
     await apiPost(`/books/${bookId}/interest`);
@@ -160,7 +163,7 @@ const HomePage = () => {
         <Carousel onLoadMore={reviewsEnd ? undefined : () => loadReviews(false)}>
           {sortedReviews.map((r) => (
             <Link key={r.id} to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-card">
-              <img src={r.book.cover} alt={r.book.title} className="sq-cover" />
+              <img src={r.book.cover} alt={r.book.title} className="sq-cover" width={220} height={170} loading="lazy" />
               <div className="sq-body">
                 <strong className="sq-title">{r.book.title}</strong>
                 <div className="record-meta">
@@ -182,7 +185,7 @@ const HomePage = () => {
         <Carousel onLoadMore={discEnd ? undefined : () => loadDiscussions(false)}>
           {sortedDiscussions.map((d) => (
             <Link key={d.id} to={`/discussions/${d.id}`} className="sq-card">
-              <img src={d.book.cover} alt={d.book.title} className="sq-cover" />
+              <img src={d.book.cover} alt={d.book.title} className="sq-cover" width={220} height={170} loading="lazy" />
               <div className="sq-body">
                 <strong className="sq-title">{d.title}</strong>
                 <p className="muted small">{d.book.title}</p>
@@ -250,10 +253,12 @@ const HomePage = () => {
               </div>
             ) : (
               <article key={`${rec.book.isbn}-${idx}`} className="book-card reco-slot">
-                <button className="cover-wrap cover-link" onClick={() => openExternal(rec)} title="담고 서평 보러가기">
-                  <img src={rec.book.cover} alt={rec.book.title} className="cover" />
-                  {user && <span className="dismiss-btn" onClick={(e) => { e.stopPropagation(); handleDismissReco(rec); }} title="추천 안 받기">✕</span>}
-                </button>
+                <div className="cover-wrap">
+                  <button className="cover-link" onClick={() => openExternal(rec)} aria-label={`${rec.book.title} 담고 서평 보러가기`}>
+                    <img src={rec.book.cover} alt={rec.book.title} className="cover" width={140} height={200} loading="lazy" />
+                  </button>
+                  {user && <button className="dismiss-btn" onClick={() => handleDismissReco(rec)} aria-label="추천 안 받기">✕</button>}
+                </div>
                 <div className="book-body">
                   <p className="reason">{rec.reason}</p>
                   <button className="book-title-btn" onClick={() => openExternal(rec)}><h3>{rec.book.title}</h3></button>

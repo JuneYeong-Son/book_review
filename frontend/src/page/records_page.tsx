@@ -42,9 +42,12 @@ const RecordsPage = () => {
 
       <input
         className="search-input"
+        type="search"
+        name="keyword"
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
         placeholder="책 제목, 저자, 작성자 이름으로 검색"
+        aria-label="독서 기록 검색 (책 제목, 저자, 작성자 이름)"
       />
 
       {records.length === 0 && <p className="muted">아직 기록이 없어요.</p>}
@@ -55,7 +58,7 @@ const RecordsPage = () => {
       <ul className="record-list">
         {filtered.map((record) => (
           <li key={record.id} className="record-item">
-            <img src={record.book.cover} alt={record.book.title} className="record-cover" />
+            <img src={record.book.cover} alt={record.book.title} className="record-cover" width={54} height={76} loading="lazy" />
             <div className="record-main">
               <div className="record-top">
                 <Link to={`/books/${record.bookId}/reviews/${record.bookSeq}`}><strong>{record.book.title}</strong></Link>

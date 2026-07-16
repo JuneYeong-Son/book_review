@@ -8,9 +8,13 @@
   --gold: #e6a817;
   --danger: #c0392b;
   --border: #e6e1d8;
+  color-scheme: light; /* 단일(라이트) 테마: 네이티브 폼 컨트롤이 시스템 다크로 뒤집히지 않도록 */
 }
 
 * { box-sizing: border-box; }
+
+/* 버튼류 더블탭 확대/지연 제거 */
+button { touch-action: manipulation; }
 
 body {
   margin: 0;
@@ -252,7 +256,7 @@ a:hover { text-decoration: underline; }
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
-.modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; }
+.modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
 .modal-head h3 { margin: 0; }
 .modal-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); }
@@ -436,8 +440,35 @@ input, textarea, select {
   background: #fff;
   color: var(--ink);
 }
-input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
 textarea { resize: vertical; }
+
+/* 커스텀(배경/테두리를 지운) 버튼들의 키보드 포커스 표시 */
+.btn:focus-visible, .btn.ghost:focus-visible, .chip:focus-visible, .tab:focus-visible,
+.dropdown-item:focus-visible, .noti-item:focus-visible, .icon-btn:focus-visible,
+.avatar-btn:focus-visible, .avatar-option:focus-visible, .carousel-btn:focus-visible,
+.star:focus-visible, .like-btn:focus-visible, .report-btn:focus-visible,
+.modal-close:focus-visible, .book-title-btn:focus-visible, .cover-link:focus-visible,
+.dismiss-btn:focus-visible, .remove-btn:focus-visible, .interest-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 숫자 정렬 안정화 */
+.rating-num, .like-count, .page-badge, .stat-num, .report-count, .noti-badge, .cal-record em {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 모션 최소화 선호 존중 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .carousel-track { scroll-behavior: auto; }
+}
 
 /* Book import panel */
 .import-panel { margin-bottom: 20px; }
@@ -579,7 +610,7 @@ textarea { resize: vertical; }
   flex-direction: column;
   gap: 10px;
 }
-.open-form h3 { margin: 0; }
+.open-form h2 { margin: 0; font-size: 1.1rem; }
 .discussion-title { font-size: 1.1rem; font-weight: 600; color: var(--ink); }
 .discussion-desc { margin: 6px 0 0; }
 
@@ -587,7 +618,8 @@ textarea { resize: vertical; }
 .detail-head h1 { margin: 0 0 4px; }
 .detail-desc { background: var(--accent-soft); border-radius: 10px; padding: 14px; }
 /* 서평/토론 본문과 댓글 사이 구분 */
-.review-detail h3, .discussion-detail h3 {
+.review-detail .comments-title, .discussion-detail .comments-title {
+  font-size: 1.15rem;
   margin-top: 36px; padding-top: 24px; border-top: 2px solid var(--border);
 }
 .comment-list { margin-top: 4px; }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Progress } from '../api/types.ts';
 
 type Props = {
@@ -15,13 +15,16 @@ const ReadingCalendar = ({ records }: Props) => {
   });
 
   // 날짜(YYYY-M-D) → 그날의 기록들
-  const byDay = new Map<string, Progress[]>();
-  for (const r of records) {
-    const d = new Date(r.createdAt);
-    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    if (!byDay.has(key)) byDay.set(key, []);
-    byDay.get(key)!.push(r);
-  }
+  const byDay = useMemo(() => {
+    const map = new Map<string, Progress[]>();
+    for (const r of records) {
+      const d = new Date(r.createdAt);
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(r);
+    }
+    return map;
+  }, [records]);
 
   const firstDay = new Date(cursor.year, cursor.month, 1).getDay();
   const daysInMonth = new Date(cursor.year, cursor.month + 1, 0).getDate();

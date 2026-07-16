@@ -5,8 +5,8 @@ import { useAuth } from '../lib/auth_context.tsx';
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [username, setUsername] = useState('reader');
-  const [password, setPassword] = useState('password');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (event: FormEvent) => {
@@ -26,13 +26,13 @@ const LoginPage = () => {
       <form onSubmit={handleSubmit}>
         <label>
           아이디
-          <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+          <input name="username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} />
         </label>
         <label>
           비밀번호
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+          <input name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
         </label>
-        {error && <p className="error">{error}</p>}
+        {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" className="btn full">로그인</button>
       </form>
       <p className="muted">계정이 없나요? <Link to="/register">회원가입</Link></p>

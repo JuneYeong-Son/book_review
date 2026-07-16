@@ -16,7 +16,7 @@ const AdminPage = () => {
 
   useEffect(() => { if (user?.isAdmin) load(); }, [user]);
 
-  if (loading) return <p className="muted">불러오는 중...</p>;
+  if (loading) return <p className="muted">불러오는 중…</p>;
   if (!user || !user.isAdmin) return <Navigate to="/" replace />;
 
   const removePost = async (p: ReportedPost) => {

@@ -44,21 +44,24 @@ const BookImportPanel = ({ onImported }: Props) => {
         <div className="import-body">
           <form className="import-search" onSubmit={handleSearch}>
             <input
+              type="search"
+              name="q"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="제목·저자·키워드로 알라딘 검색"
+              aria-label="제목·저자·키워드로 알라딘 검색"
             />
             <button type="submit" className="btn" disabled={loading}>
-              {loading ? '검색 중...' : '검색'}
+              {loading ? '검색 중…' : '검색'}
             </button>
           </form>
 
-          {error && <p className="error">{error}</p>}
+          {error && <p className="error" role="alert">{error}</p>}
 
           <ul className="import-results">
             {results.map((book, idx) => (
               <li key={`${book.isbn}-${idx}`} className="import-item">
-                {book.cover && <img src={book.cover} alt={book.title} className="import-cover" />}
+                {book.cover && <img src={book.cover} alt={book.title} className="import-cover" width={44} height={62} loading="lazy" />}
                 <div className="import-info">
                   <strong>{book.title}</strong>
                   <p className="muted small">{book.author}</p>

@@ -134,7 +134,7 @@ const QuickActions = ({ onChange }: Props) => {
             <label>인상깊은 글귀 <em className="optional">(선택)</em>
               <textarea value={rQuote} onChange={(e) => setRQuote(e.target.value)} rows={2} />
             </label>
-            {rErr && <p className="error">{rErr}</p>}
+            {rErr && <p className="error" role="alert">{rErr}</p>}
             <button type="submit" className="btn full">저장</button>
           </form>
         </Modal>
@@ -143,15 +143,15 @@ const QuickActions = ({ onChange }: Props) => {
       {which === 'book' && (
         <Modal title="내 서재에 추가" onClose={() => setWhich(null)}>
           <form className="import-search" onSubmit={searchAladin}>
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="알라딘에서 책 검색 (제목·저자)" />
+            <input type="search" name="q" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="알라딘에서 책 검색 (제목·저자)" aria-label="알라딘에서 책 검색" />
             <button type="submit" className="btn" disabled={searching}>{searching ? '검색 중' : '검색'}</button>
           </form>
-          {searchErr && <p className="error">{searchErr}</p>}
+          {searchErr && <p className="error" role="alert">{searchErr}</p>}
           {results.length > 0 && (
             <ul className="import-results">
               {results.map((b, i) => (
                 <li key={`${b.isbn}-${i}`} className="import-item">
-                  {b.cover && <img src={b.cover} alt={b.title} className="import-cover" />}
+                  {b.cover && <img src={b.cover} alt={b.title} className="import-cover" width={44} height={62} loading="lazy" />}
                   <div className="import-info">
                     <strong>{b.title}</strong>
                     <p className="muted small">{b.author}</p>
@@ -182,7 +182,7 @@ const QuickActions = ({ onChange }: Props) => {
               </label>
               <label>제목 <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required /></label>
               <label>설명 <textarea value={dDesc} onChange={(e) => setDDesc(e.target.value)} rows={3} /></label>
-              {dErr && <p className="error">{dErr}</p>}
+              {dErr && <p className="error" role="alert">{dErr}</p>}
               <button type="submit" className="btn full">토론 열기</button>
             </form>
           )}

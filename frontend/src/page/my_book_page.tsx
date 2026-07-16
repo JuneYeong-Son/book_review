@@ -26,7 +26,7 @@ const MyBookPage = () => {
   useEffect(() => { load(); }, [user, bookId]);
 
   if (!user) return <Navigate to="/login" replace />;
-  if (!loaded) return <p className="muted">불러오는 중...</p>;
+  if (!loaded) return <p className="muted">불러오는 중…</p>;
 
   const book = records[0]?.book;
 
@@ -46,7 +46,7 @@ const MyBookPage = () => {
 
       {book ? (
         <div className="detail-head">
-          <img src={book.cover} alt={book.title} className="record-cover" />
+          <img src={book.cover} alt={book.title} className="record-cover" width={54} height={76} />
           <div>
             <h1>{book.title}</h1>
             <p className="muted">{book.author}</p>

@@ -45,7 +45,7 @@ const BookReviewsPage = () => {
 
       {book && (
         <div className="book-detail-head">
-          <img src={book.cover} alt={book.title} className="book-detail-cover" />
+          <img src={book.cover} alt={book.title} className="book-detail-cover" width={220} height={300} fetchPriority="high" />
           <div className="book-detail-info">
             <h1>{book.title}</h1>
             <p className="author">{book.author}</p>

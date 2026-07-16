@@ -48,21 +48,21 @@ const RegisterPage = () => {
         </div>
         <label>
           아이디
-          <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+          <input name="username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} />
         </label>
         <label>
           이름
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <input name="name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
         </label>
         <label>
           비밀번호
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
+          <input name="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
         </label>
         <label>
           출생연도 <em className="optional">(선택 · 연령대 추천에 사용)</em>
-          <input type="number" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} placeholder="예: 2000" />
+          <input name="birthYear" type="number" inputMode="numeric" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} placeholder="예: 2000" />
         </label>
-        {error && <p className="error">{error}</p>}
+        {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" className="btn full">가입하기</button>
       </form>
       <p className="muted">이미 계정이 있나요? <Link to="/login">로그인</Link></p>

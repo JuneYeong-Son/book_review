@@ -46,9 +46,9 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onDismiss, onTog
   return (
     <article className="book-card">
       <div className="cover-wrap">
-        <Link to={`/books/${book.id}`}><img src={book.cover} alt={book.title} className="cover" /></Link>
+        <Link to={`/books/${book.id}`}><img src={book.cover} alt={book.title} className="cover" width={140} height={200} loading="lazy" /></Link>
         {onDismiss && (
-          <button className="dismiss-btn" onClick={onDismiss} title="이 책 추천 안 받기">✕</button>
+          <button className="dismiss-btn" onClick={onDismiss} aria-label="이 책 추천 안 받기">✕</button>
         )}
       </div>
 
@@ -96,7 +96,7 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onDismiss, onTog
               <textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} placeholder="마음에 남은 문장을 적어보세요" />
             </label>
             <button className="btn full" onClick={handleSave} disabled={saving}>
-              {saving ? '저장 중...' : '기록 추가'}
+              {saving ? '저장 중…' : '기록 추가'}
             </button>
           </div>
         )}

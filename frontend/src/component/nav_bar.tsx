@@ -66,8 +66,14 @@ const NavBar = () => {
         {user ? (
           <>
             <div className="noti-menu" ref={notiRef}>
-              <button className="icon-btn" onClick={() => setNotiOpen((v) => !v)} title="알림">
-                🔔
+              <button
+                className="icon-btn"
+                onClick={() => setNotiOpen((v) => !v)}
+                aria-label={unread > 0 ? `알림 ${unread}개` : '알림'}
+                aria-haspopup="menu"
+                aria-expanded={notiOpen}
+              >
+                <span aria-hidden="true">🔔</span>
                 {unread > 0 && <span className="noti-badge">{unread}</span>}
               </button>
               {notiOpen && (
@@ -92,8 +98,14 @@ const NavBar = () => {
             </div>
 
             <div className="avatar-menu" ref={menuRef}>
-              <button className="avatar-btn" onClick={() => setMenuOpen((v) => !v)} title={user.name}>
-                {user.avatar}
+              <button
+                className="avatar-btn"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label={`${user.name} 메뉴`}
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+              >
+                <span aria-hidden="true">{user.avatar}</span>
               </button>
               {menuOpen && (
                 <div className="dropdown">

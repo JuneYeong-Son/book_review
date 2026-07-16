@@ -68,7 +68,7 @@ const ReviewDetailPage = () => {
     }
   };
 
-  if (!review) return <p className="muted">서평을 불러오는 중...</p>;
+  if (!review) return <p className="muted">서평을 불러오는 중…</p>;
 
   const likedByMe = review.likes.some((l) => l.userId === user?.id);
   const isMine = review.user.id === user?.id;
@@ -78,7 +78,7 @@ const ReviewDetailPage = () => {
       <Link to="/records" className="muted small">← 독서 기록</Link>
       <div className="book-detail-head">
         <Link to={`/books/${review.book.id}`}>
-          <img src={review.book.cover} alt={review.book.title} className="book-detail-cover" />
+          <img src={review.book.cover} alt={review.book.title} className="book-detail-cover" width={220} height={300} fetchPriority="high" />
         </Link>
         <div className="book-detail-info">
           <Link to={`/books/${review.book.id}`}><h1>{review.book.title}</h1></Link>
@@ -135,7 +135,7 @@ const ReviewDetailPage = () => {
         {!isMine && <ReportButton targetType="review" targetId={review.id} />}
       </div>
 
-      <h3>댓글 {review.comments.length}</h3>
+      <h2 className="comments-title">댓글 {review.comments.length}</h2>
       <ul className="comment-list">
         {review.comments.map((c) => (
           <li key={c.id} className="comment-item">
@@ -151,8 +151,8 @@ const ReviewDetailPage = () => {
 
       {user ? (
         <form className="comment-form" onSubmit={handleComment}>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="이 서평에 댓글을 남겨보세요" required />
-          {error && <p className="error">{error}</p>}
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="이 서평에 댓글을 남겨보세요" required aria-label="댓글 입력" />
+          {error && <p className="error" role="alert">{error}</p>}
           <button type="submit" className="btn">댓글 달기</button>
         </form>
       ) : (

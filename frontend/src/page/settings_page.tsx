@@ -87,7 +87,7 @@ const SettingsPage = () => {
           출생연도 <em className="optional">(연령대 추천에 사용)</em>
           <input type="number" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} placeholder="예: 2000" />
         </label>
-        {profileMsg && <p className="success">{profileMsg}</p>}
+        {profileMsg && <p className="success" role="status">{profileMsg}</p>}
         <button type="submit" className="btn">저장</button>
       </form>
 
@@ -101,8 +101,8 @@ const SettingsPage = () => {
           새 비밀번호
           <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} autoComplete="new-password" />
         </label>
-        {pwErr && <p className="error">{pwErr}</p>}
-        {pwMsg && <p className="success">{pwMsg}</p>}
+        {pwErr && <p className="error" role="alert">{pwErr}</p>}
+        {pwMsg && <p className="success" role="status">{pwMsg}</p>}
         <button type="submit" className="btn">비밀번호 변경</button>
       </form>
 
@@ -113,7 +113,7 @@ const SettingsPage = () => {
           비밀번호 확인
           <input type="password" value={delPassword} onChange={(e) => setDelPassword(e.target.value)} autoComplete="current-password" />
         </label>
-        {delErr && <p className="error">{delErr}</p>}
+        {delErr && <p className="error" role="alert">{delErr}</p>}
         <button type="submit" className="btn danger">회원 탈퇴</button>
       </form>
     </section>
