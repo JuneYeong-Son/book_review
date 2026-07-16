@@ -20,6 +20,7 @@ const RegisterPage = () => {
   const [nickname, setNickname] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [avatar, setAvatar] = useState(AVATARS[0]);
   const [birthYear, setBirthYear] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -73,6 +74,7 @@ const RegisterPage = () => {
     setError('');
     if (nickCheck.ok === false) { setError(nickCheck.message ?? '닉네임을 확인해주세요.'); return; }
     if (emailCheck.ok === false) { setError(emailCheck.message ?? '이메일을 확인해주세요.'); return; }
+    if (password !== passwordConfirm) { setError('비밀번호가 일치하지 않습니다.'); return; }
     setSubmitting(true);
     try {
       const r = await startRegister({
@@ -174,6 +176,13 @@ const RegisterPage = () => {
           비밀번호
           <input name="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required minLength={8} aria-describedby="pw-hint" />
           <small id="pw-hint" className="muted">8자 이상, 영문과 숫자를 모두 포함해주세요.</small>
+        </label>
+        <label>
+          비밀번호 확인
+          <input name="confirm-password" type="password" value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} autoComplete="new-password" required aria-describedby="pw-confirm-hint" />
+          <small id="pw-confirm-hint" className={`field-hint ${passwordConfirm ? (password === passwordConfirm ? 'ok' : 'bad') : ''}`}>
+            {passwordConfirm ? (password === passwordConfirm ? '비밀번호가 일치해요.' : '비밀번호가 일치하지 않아요.') : '위에서 입력한 비밀번호를 다시 입력해주세요.'}
+          </small>
         </label>
         <label className="consent-row">
           <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} required />
