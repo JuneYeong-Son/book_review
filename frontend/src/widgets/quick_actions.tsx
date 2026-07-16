@@ -1,7 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, BookCandidate, Interest, Progress } from '@/shared/api/types.ts';
-import StarRating from '@/entities/star_rating.tsx';
 import Modal from '@/shared/ui/modal.tsx';
 
 type Props = {

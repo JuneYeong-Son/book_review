@@ -6,7 +6,6 @@ import { useAuth } from '@/shared/lib/auth_context.tsx';
 import BookCard from '@/entities/book_card.tsx';
 import QuickActions from '@/widgets/quick_actions.tsx';
 import Carousel from '@/widgets/carousel.tsx';
-import StarRating from '@/entities/star_rating.tsx';
 
 const PAGE = 8;
 

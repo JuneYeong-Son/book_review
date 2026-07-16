@@ -3,7 +3,6 @@ import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, DiscussionSummary, Interest, Progress } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
-import StarRating from '@/entities/star_rating.tsx';
 import ReadingCalendar from '@/widgets/reading_calendar.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');

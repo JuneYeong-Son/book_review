@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, DiscussionSummary, Progress } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
-import StarRating from '@/entities/star_rating.tsx';
+import { StarRatingDisplay, StarRatingInput } from '@/entities/star_rating.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
 
@@ -57,14 +57,14 @@ const BookReviewsPage = () => {
 
             <div className="book-rating">
               <div className="rating-avg">
-                <StarRating value={Math.round(rating.average)} size={20} />
+                <StarRatingDisplay value={Math.round(rating.average)} size={20} />
                 <span className="rating-num">{rating.average.toFixed(1)}</span>
                 <span className="muted small">({rating.count}명)</span>
               </div>
               {user && (
                 <div className="rating-mine">
                   <span className="muted small">내 별점</span>
-                  <StarRating value={rating.mine} onChange={rate} size={24} />
+                  <StarRatingInput value={rating.mine} onChange={rate} size={24} />
                 </div>
               )}
             </div>

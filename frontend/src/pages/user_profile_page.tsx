@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiGet } from '@/shared/api/client.ts';
 import type { UserProfile } from '@/shared/api/types.ts';
-import StarRating from '@/entities/star_rating.tsx';
 
 const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();

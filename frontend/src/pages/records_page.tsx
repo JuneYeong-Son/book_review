@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Progress } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
-import StarRating from '@/entities/star_rating.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
 
