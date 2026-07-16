@@ -34,3 +34,13 @@
 - **커밋 후:** 변경을 배포 사이트에 반영하려면 반드시 **`git push origin main`** 한다(그래야 Render가 재배포). 커밋만 하고 push를 빠뜨려 배포가 뒤처지지 않게 한다.
 - 무료 플랜이라 백엔드가 잠들어 있으면 첫 접속에 ~30초 콜드스타트가 있을 수 있다.
 - 배포 세부 절차는 [docs/deploy.md](docs/deploy.md), 요약은 [README.md](README.md) "배포" 참고.
+
+## 프론트엔드 작업 규칙 — Vercel 스킬 필수 참고 (모든 세션)
+
+프론트엔드(`frontend/`, React + Vite) 코드를 **작성·리뷰·리팩터**하거나 **UI/UX·CSS·접근성**을 다룰 때는, 아래 3개 스킬(`vercel-labs/agent-skills`)을 **참고·적용**한다. 관련 작업을 시작하기 전에 해당 스킬을 **Skill 도구로 불러** 그 지침대로 진행한다. 이 규칙은 이 저장소의 **모든 세션**에 적용된다.
+
+- **`vercel-react-best-practices`** — React/Next 성능, 데이터 패칭, 번들 최적화. 컴포넌트를 새로 쓰거나 리팩터·리뷰할 때.
+- **`vercel-composition-patterns`** — 컴포넌트 합성(compound·render props·context) 설계. boolean prop 남발을 정리하거나 재사용 API를 설계할 때.
+- **`web-design-guidelines`** — Web Interface Guidelines(접근성·UX) 준수 리뷰. UI 리뷰·접근성 점검·디자인 감사를 할 때.
+
+> 디자인 토큰·시각 규칙은 [docs/design.md](docs/design.md)를 따르고(§ "종이 위에 쓴 느낌"), 위 스킬은 그 위에서 구현 품질(성능·합성·접근성)을 보강하는 용도로 쓴다. 문서 편집·백엔드 전용 작업 등 프론트와 무관한 작업엔 강제하지 않는다.
