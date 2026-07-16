@@ -11,6 +11,7 @@
   - **UI 요청** = `docs/design/ui-requests.md`, **백엔드 요청** = `docs/logic/backend-requests.md`
   - **데이터 모델/개요** = `docs/progress/requirements.md`, **남은 일** = `docs/progress/todo.md`, **작업 로그** = `docs/progress/작업로그.md`
   - **배포** = `docs/logic/deploy.md`, **보안 감사·조치** = `docs/security/`, **안드로이드 앱·스토어** = `docs/android/`
+  - **DB 스키마** = `docs/database/`, **아키텍처(SOLID) 리뷰** = `docs/architecture/`
 - **바로 실행**: 아래 "로컬 실행"대로 `server`·`frontend`에서 `npm install` → `npm run dev`. 로컬은 SQLite라 DB 설치 불필요.
 - **꼭 기억할 것(gotcha)**:
   - 로컬은 **SQLite**(`server/prisma/dev.db`), 배포는 **PostgreSQL**. 빌드 때 `scripts/use-postgres.mjs`가 자동 전환하니 **`schema.prisma`의 provider는 `sqlite`로 두기**.
