@@ -31,6 +31,12 @@ button { touch-action: manipulation; }
 /* 제목 + 로고 (을유1945). 획이 굵어 자간 0 + 넉넉한 행간 */
 h1, h2, h3, .brand { font-family: var(--font-display); letter-spacing: 0; line-height: 1.35; }
 
+/* 스크롤바 자리를 항상 예약 → 페이지(탭) 전환으로 스크롤바가 생겼다 사라져도
+   뷰포트 폭이 변하지 않는다. (마이페이지 달력 등 1fr 그리드가 탭마다 리사이즈되던 문제 해결) */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);
