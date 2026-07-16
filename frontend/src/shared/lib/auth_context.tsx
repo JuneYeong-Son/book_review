@@ -1,7 +1,14 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { mutate } from 'swr';
-import { apiGet, apiPost } from '@/shared/api/client.ts';
+import { Capacitor } from '@capacitor/core';
+import { apiGet, apiPost, setAuthToken } from '@/shared/api/client.ts';
 import type { User } from '@/shared/api/types.ts';
+
+// 네이티브 앱이면 응답에 실려온 토큰을 저장(웹은 쿠키를 쓰므로 무시).
+const NATIVE = Capacitor.isNativePlatform();
+const storeTokenIfNative = (res: { token?: string } | null | undefined) => {
+  if (NATIVE && res?.token) setAuthToken(res.token);
+};
 
 // 로그인/가입/로그아웃 등 "누가 로그인했는지"가 바뀌면 SWR 캐시를 통째로 비운다.
 // (서재·서평 등 사용자별 캐시 키가 고정 문자열이라, 안 비우면 이전 사용자의 데이터가
@@ -47,7 +54,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const next = await apiPost<User>('/auth/login', { username, password });
+    const next = await apiPost<User & { token?: string }>('/auth/login', { username, password });
+    storeTokenIfNative(next);
     await clearSwrCache();
     setUser(next);
   };
@@ -55,10 +63,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 1단계: 정보 제출 → 인증 메일 발송 (아직 로그인 아님)
   // 인증 생략 모드(EMAIL_VERIFICATION=off)면 { skipped:true, user } 반환 → 바로 로그인 처리
   const startRegister = async (data: RegisterInput) => {
-    const res = await apiPost<{ dev?: boolean; devCode?: string; skipped?: boolean; user?: User }>(
+    const res = await apiPost<{ dev?: boolean; devCode?: string; skipped?: boolean; user?: User; token?: string }>(
       '/auth/register/start', data
     );
     if (res.skipped && res.user) {
+      storeTokenIfNative(res);
       await clearSwrCache();
       setUser(res.user);
     }
@@ -67,13 +76,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 2단계: 인증 코드 확인 → 가입 확정 + 로그인
   const verifyRegister = async (email: string, code: string) => {
-    const next = await apiPost<User>('/auth/register/verify', { email, code });
+    const next = await apiPost<User & { token?: string }>('/auth/register/verify', { email, code });
+    storeTokenIfNative(next);
     await clearSwrCache();
     setUser(next);
   };
 
   const logout = async () => {
     await apiPost('/auth/logout');
+    if (NATIVE) setAuthToken(null); // 앱: 저장된 토큰 제거
     await clearSwrCache();
     setUser(null);
   };

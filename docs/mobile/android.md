@@ -2,13 +2,12 @@
 
 책갈피 웹앱(React+Vite)을 **Capacitor**로 감싼 네이티브 안드로이드 앱.
 
-## 방식 (v1 — 원격 URL 래핑)
-- 앱이 배포된 사이트(`https://book-review-frontend-ov6h.onrender.com`)를 네이티브 WebView로 로드.
-- **장점:** 소셜 로그인(카카오/구글)·쿠키 세션·이메일 인증이 웹과 100% 동일하게 작동(백엔드 변경 0). 사이트를 배포하면 앱도 자동 최신.
-- **단점:** 인터넷 필요. 순수 WebView 래핑이라 Google Play 심사는 별도 고려 필요(개인 설치/사이드로드는 문제없음).
-- 설정: [../../frontend/capacitor.config.ts](../../frontend/capacitor.config.ts) — `appId: com.bookreview.app`, `appName: 책갈피`, `server.url`.
-
-> 나중에 dist를 앱에 **번들**(오프라인/스토어용)하려면: capacitor.config.ts의 `server` 블록 제거 → `npm run cap:sync`. 단, 번들 시 OAuth 리다이렉트/교차출처 쿠키 추가 설정 필요(딥링크 등).
+## 방식 (스토어 심사용 — 번들 + 토큰 인증)
+- **dist를 앱에 번들**(자체 실행). API는 백엔드(Render)로 직접 호출. → 순수 웹뷰 래퍼가 아니라 스토어 정책에 적합.
+- **인증:** 웹은 쿠키 세션, **앱은 토큰(Bearer)**. 로그인/회원가입 응답의 `token`을 localStorage에 저장하고 `Authorization` 헤더로 전송(앱 재시작해도 유지). 백엔드는 쿠키·토큰 둘 다 수용([server/src/lib/token.ts](../../server/src/lib/token.ts), `auth_middleware.ts`).
+- **백엔드 주소:** 빌드 시 `VITE_API_URL`, 없으면 `client.ts`가 배포 백엔드(`book-review-api-...onrender.com`)로 폴백.
+- **소셜 로그인:** 리다이렉트 기반이라 앱(번들)에선 **아직 미지원** → 앱에서는 버튼 숨김, **아이디 로그인/회원가입 사용**. (딥링크 방식은 다음 단계)
+- 설정: [../../frontend/capacitor.config.ts](../../frontend/capacitor.config.ts) — `appId: com.bookreview.app`, `appName: 책갈피`, `webDir: dist`.
 
 ## 빌드 준비물 (이 저장소엔 안 깔림 — 각자 PC에)
 1. **JDK 17** (Android Gradle Plugin 8 요구)
@@ -37,7 +36,12 @@ npm run android:open        # Android Studio로 android/ 열기
 ## iOS
 - macOS + Xcode 필요. `npx cap add ios` 후 동일 흐름(`npx cap open ios`). 이 저장소엔 android만 추가돼 있음.
 
+## 스토어(Google Play) 제출 체크리스트
+- 개발자 계정($25 1회), **서명 AAB**(Generate Signed Bundle/APK → 키스토어), 대상 API 레벨 준수.
+- **개인정보 처리방침 URL**(이메일·휴대폰 수집), **Data Safety 양식**, 콘텐츠 등급, 스크린샷/아이콘.
+
 ## 주의 / 트러블슈팅
-- **소셜 로그인 리다이렉트**: 원격 URL 방식이라 카카오/구글 콘솔에 등록된 기존 웹 Redirect URI 그대로 동작. 추가 등록 불필요.
-- **혼합 콘텐츠**: `cleartext: false` — 모든 통신 HTTPS. 로컬 개발 서버로 테스트하려면 `server.url`을 임시로 로컬 IP(http)로 바꾸고 `cleartext: true`.
-- 커밋에는 `android/build`, `.gradle`, `local.properties`, `*.apk` 등 산출물이 `android/.gitignore`로 제외됨.
+- **프론트 변경 반영:** 번들 방식이라 `npm run build && npx cap sync android` 후 다시 빌드해야 앱에 반영됨.
+- **소셜 로그인:** 앱에선 미지원(버튼 숨김). 필요 시 딥링크(커스텀 스킴) + 토큰 반환으로 확장(다음 단계).
+- **백엔드 주소 고정:** 다른 백엔드로 빌드하려면 `VITE_API_URL` 설정 후 build/sync.
+- 커밋에는 `android/build`, `.gradle`, `local.properties`, `*.apk`, 번들 웹자산(`assets/public`)이 gitignore로 제외됨.

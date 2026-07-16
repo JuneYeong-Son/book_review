@@ -6,9 +6,10 @@
 ## 진행 예정 / 요청됨
 - [ ] **공지사항 만들기**: 운영자가 공지를 올리고 사용자에게 노출(홈 배너/목록 등). 관리자 작성·수정·삭제.
       설계 초안: `Notice { id, title, body, pinned, createdAt }` + 관리자 CRUD API + 홈/전용 페이지 노출.
-- [~] **안드로이드 앱**: Capacitor **원격 URL 래핑**으로 스캐폴드 완료(`frontend/android/`, `capacitor.config.ts`). 소셜로그인·쿠키·이메일 웹과 동일 작동. **남은 것: 각자 PC에서 Android Studio로 APK 빌드**(가이드 [../mobile/android.md](../mobile/android.md)).
+- [~] **안드로이드 앱(스토어 목표)**: Capacitor **번들 + 토큰 인증**으로 전환 완료(`frontend/android/`). 아이디 로그인·회원가입 앱에서 작동(토큰). **남은 것:** ①Android Studio로 서명 AAB 빌드 ②개인정보 처리방침 + Data Safety ③스토어 등록. 가이드 [../mobile/android.md](../mobile/android.md).
+- [ ] **앱 소셜 로그인(딥링크)**: 카카오/구글을 앱에서 쓰려면 커스텀 스킴 딥링크 + 콜백 토큰 반환 필요(현재 앱은 버튼 숨김).
+- [ ] **개인정보 처리방침 페이지**: 스토어 제출 필수(이메일·휴대폰 수집 명시).
 - [ ] **iOS 앱**: macOS+Xcode 필요. `npx cap add ios`로 동일 확장.
-- [ ] (고도화) 앱 번들 방식(오프라인/스토어) 전환 시: 쿠키 세션 → 토큰(JWT) 병행 + OAuth 딥링크.
 - [ ] (선택) **첫 소셜 로그인 시 약관·닉네임 확인 화면**: 현재는 자동 가입+동의 자동 기록. 명시적 확인 단계 추가.
 
 ## 보안 후속 (감사 하드닝, 낮은 우선순위)

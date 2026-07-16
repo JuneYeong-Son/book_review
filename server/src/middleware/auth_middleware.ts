@@ -1,11 +1,14 @@
 import type { Request, Response, NextFunction } from 'express';
 import { findUserById } from '../repository/auth_repository.ts';
+import { verifyToken } from '../lib/token.ts';
 
-// 서명된 쿠키의 userId를 검사해 로그인 여부를 확인하는 미들웨어.
-// signedCookies는 cookie-parser가 SESSION_SECRET으로 서명을 검증한 값만 담는다(위조 불가).
+// 서명된 쿠키(userId) 또는 Authorization: Bearer 토큰으로 로그인 여부를 확인.
+// 웹은 쿠키, 네이티브 앱은 토큰을 사용한다. 둘 다 SESSION_SECRET로 서명돼 위조 불가.
 // 추가로 계정이 실제로 존재하고 정지되지 않았는지 확인한다(정지된 사용자는 즉시 차단).
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = req.signedCookies?.userId as string | undefined;
+  const authHeader = req.get('Authorization');
+  const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
+  const userId = verifyToken(bearer) ?? (req.signedCookies?.userId as string | undefined);
   if (!userId) {
     return res.status(401).json({ message: '로그인이 필요합니다.' });
   }

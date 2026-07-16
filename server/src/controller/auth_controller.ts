@@ -15,6 +15,7 @@ import { kakaoAuthorizeUrl, loginWithKakao, googleAuthorizeUrl, loginWithGoogle 
 import { randomBytes } from 'node:crypto';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 import { authCookieOptions } from '../lib/cookie.ts';
+import { signToken } from '../lib/token.ts';
 import type { Request, Response } from 'express';
 
 // 콜백 Redirect URI는 현재 요청 호스트에서 구성(로컬/배포 동일 코드, 카카오 등록값과 일치해야 함)
@@ -55,7 +56,7 @@ router.post('/register/start', authLimiter, async (req, res) => {
   // 인증 생략 모드: 바로 가입 확정 + 로그인
   if ('skipped' in result && result.user) {
     res.cookie('userId', result.user.id, authCookieOptions);
-    return res.status(201).json({ skipped: true, user: result.user });
+    return res.status(201).json({ skipped: true, user: result.user, token: signToken(result.user.id) });
   }
   return res.status(200).json({ ok: true, dev: result.dev, devCode: result.devCode });
 });
@@ -67,7 +68,7 @@ router.post('/register/verify', authLimiter, async (req, res) => {
   const result = await verifyRegistration(email, String(code));
   if ('error' in result) return res.status(400).json({ message: result.error });
   res.cookie('userId', result.user.id, authCookieOptions);
-  return res.status(201).json(result.user);
+  return res.status(201).json({ ...result.user, token: signToken(result.user.id) });
 });
 
 // 중복확인 엔드포인트 스로틀(대량 열거·수집 억제). 실사용(디바운스 입력)에는 충분히 넉넉.
@@ -103,7 +104,8 @@ router.post('/login', authLimiter, async (req, res) => {
   }
 
   res.cookie('userId', result.user.id, authCookieOptions);
-  return res.json(result.user);
+  // token: 네이티브 앱용(웹은 쿠키를 쓰므로 무시). 응답에 함께 실어 보낸다.
+  return res.json({ ...result.user, token: signToken(result.user.id) });
 });
 
 // --- 소셜 로그인 ---

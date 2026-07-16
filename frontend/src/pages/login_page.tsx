@@ -1,9 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 // 백엔드 소셜 로그인 진입점(전체 페이지 이동). 로컬은 Vite 프록시(/api) 사용.
 const API_BASE = import.meta.env.VITE_API_URL ?? '';
+// 소셜 로그인은 리다이렉트 기반이라 네이티브 앱(번들)에선 아직 미지원 → 버튼 숨김.
+const NATIVE = Capacitor.isNativePlatform();
 const OAUTH_ERRORS: Record<string, string> = {
   oauth: '소셜 로그인에 실패했어요. 다시 시도해주세요.',
   oauth_unconfigured: '소셜 로그인이 아직 설정되지 않았어요.',
@@ -51,13 +54,17 @@ const LoginPage = () => {
         <button type="submit" className="btn full" disabled={submitting}>{submitting ? '로그인 중…' : '로그인'}</button>
       </form>
 
-      <div className="oauth-divider"><span>또는</span></div>
-      <a className="btn full kakao-btn" href={`${API_BASE}/api/auth/oauth/kakao`}>
-        <span aria-hidden="true">💬</span> 카카오로 로그인
-      </a>
-      <a className="btn full google-btn" href={`${API_BASE}/api/auth/oauth/google`}>
-        <span aria-hidden="true">🔵</span> 구글로 로그인
-      </a>
+      {!NATIVE && (
+        <>
+          <div className="oauth-divider"><span>또는</span></div>
+          <a className="btn full kakao-btn" href={`${API_BASE}/api/auth/oauth/kakao`}>
+            <span aria-hidden="true">💬</span> 카카오로 로그인
+          </a>
+          <a className="btn full google-btn" href={`${API_BASE}/api/auth/oauth/google`}>
+            <span aria-hidden="true">🔵</span> 구글로 로그인
+          </a>
+        </>
+      )}
 
       <p className="muted">계정이 없나요? <Link to="/register">회원가입</Link></p>
     </div>
