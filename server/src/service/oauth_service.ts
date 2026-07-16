@@ -42,6 +42,43 @@ const uniqueNickname = async (base: string) => {
   return `${seed.slice(0, 8)}${randomBytes(3).toString('hex')}`;
 };
 
+// 소셜 프로필 → 우리 계정 연결/생성 (제공자 공통).
+// ①이미 연결된 소셜계정 → 로그인, ②같은 이메일 계정 → 연결, ③없으면 신규 생성.
+const resolveSocialUser = async (
+  provider: string,
+  providerId: string,
+  email: string | null,
+  nameHint: string
+) => {
+  const existing = await findUserByProvider(provider, providerId);
+  if (existing) {
+    if (existing.suspended) return { error: 'suspended' as const };
+    return { user: existing };
+  }
+  if (email) {
+    const byEmail = await findUserByEmail(email);
+    if (byEmail) {
+      if (byEmail.suspended) return { error: 'suspended' as const };
+      const linked = await linkProvider(byEmail.id, provider, providerId);
+      return { user: linked };
+    }
+  }
+  const nickname = await uniqueNickname(nameHint);
+  const user = await insertUser({
+    username: `${provider}_${providerId}`,
+    email,
+    name: nameHint || nickname,
+    nickname,
+    provider,
+    providerId,
+    agreedAt: new Date(), // 첫 소셜 로그인(제공자 동의 화면 경유) 시 동의 처리
+    passwordHash: bcrypt.hashSync(randomBytes(24).toString('hex'), 8),
+    avatar: '📚',
+    birthYear: null
+  });
+  return { user };
+};
+
 // 카카오 code → 로그인/가입 처리. 성공 시 { user }, 실패 시 { error }.
 export const loginWithKakao = async (code: string, redirectUri: string) => {
   const key = process.env.KAKAO_REST_API_KEY;
@@ -74,36 +111,52 @@ export const loginWithKakao = async (code: string, redirectUri: string) => {
   const email = me.kakao_account?.email ?? null;
   const kakaoNickname = me.kakao_account?.profile?.nickname ?? '';
 
-  // 3) 이미 연결된 소셜 계정?
-  const existing = await findUserByProvider('kakao', providerId);
-  if (existing) {
-    if (existing.suspended) return { error: 'suspended' as const };
-    return { user: existing };
-  }
+  return resolveSocialUser('kakao', providerId, email, kakaoNickname);
+};
 
-  // 4) 같은 이메일의 기존 계정이 있으면 연결
-  if (email) {
-    const byEmail = await findUserByEmail(email);
-    if (byEmail) {
-      if (byEmail.suspended) return { error: 'suspended' as const };
-      const linked = await linkProvider(byEmail.id, 'kakao', providerId);
-      return { user: linked };
-    }
-  }
+// --- 구글 ---
+const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
+const GOOGLE_ME_URL = 'https://www.googleapis.com/oauth2/v2/userinfo';
 
-  // 5) 신규 생성 (소셜 전용 — 비밀번호는 사용 불가한 랜덤 해시)
-  const nickname = await uniqueNickname(kakaoNickname);
-  const user = await insertUser({
-    username: `kakao_${providerId}`,
-    email,
-    name: kakaoNickname || nickname,
-    nickname,
-    provider: 'kakao',
-    providerId,
-    agreedAt: new Date(), // 첫 소셜 로그인(카카오 동의 화면 경유) 시 동의 처리
-    passwordHash: bcrypt.hashSync(randomBytes(24).toString('hex'), 8),
-    avatar: '📚',
-    birthYear: null
+export const googleAuthorizeUrl = (redirectUri: string): string | null => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) return null;
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid email profile',
+    access_type: 'online',
+    prompt: 'select_account'
   });
-  return { user };
+  return `${GOOGLE_AUTH_URL}?${params.toString()}`;
+};
+
+export const loginWithGoogle = async (code: string, redirectUri: string) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return { error: 'unconfigured' as const };
+
+  const tokenRes = await fetch(GOOGLE_TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      code
+    }).toString()
+  });
+  if (!tokenRes.ok) return { error: 'token' as const };
+  const token = (await tokenRes.json()) as { access_token?: string };
+  if (!token.access_token) return { error: 'token' as const };
+
+  const meRes = await fetch(GOOGLE_ME_URL, { headers: { Authorization: `Bearer ${token.access_token}` } });
+  if (!meRes.ok) return { error: 'profile' as const };
+  const me = (await meRes.json()) as { id?: string; email?: string; name?: string };
+  if (!me.id) return { error: 'profile' as const };
+
+  return resolveSocialUser('google', me.id, me.email ?? null, me.name ?? '');
 };

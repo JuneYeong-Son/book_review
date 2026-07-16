@@ -52,6 +52,9 @@ const LoginPage = () => {
       <a className="btn full kakao-btn" href={`${API_BASE}/api/auth/oauth/kakao`}>
         <span aria-hidden="true">💬</span> 카카오로 로그인
       </a>
+      <a className="btn full google-btn" href={`${API_BASE}/api/auth/oauth/google`}>
+        <span aria-hidden="true">🔵</span> 구글로 로그인
+      </a>
 
       <p className="muted">계정이 없나요? <Link to="/register">회원가입</Link></p>
     </div>
