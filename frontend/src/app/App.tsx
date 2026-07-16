@@ -19,6 +19,7 @@ const BookReviewsPage = lazy(() => import('@/pages/book_reviews_page.tsx'));
 const AdminPage = lazy(() => import('@/pages/admin_page.tsx'));
 const UserProfilePage = lazy(() => import('@/pages/user_profile_page.tsx'));
 const TermsPage = lazy(() => import('@/pages/terms_page.tsx'));
+const PrivacyPage = lazy(() => import('@/pages/privacy_page.tsx'));
 
 const App = () => {
   const { loading } = useAuth();
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/users/:id" element={<UserProfilePage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

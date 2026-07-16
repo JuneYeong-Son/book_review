@@ -9,6 +9,7 @@ const AppFooter = () => {
         <div className="footer-actions">
           <FeedbackWidget />
           <Link to="/terms" className="footer-link">이용 약관</Link>
+          <Link to="/privacy" className="footer-link">개인정보 처리방침</Link>
         </div>
         <div className="footer-info">
           <span>JuneYeongSon</span>
