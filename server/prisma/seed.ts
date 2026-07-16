@@ -72,6 +72,7 @@ async function main() {
       name: '독서가',
       avatar: '🦊',
       birthYear: 1994,
+      isAdmin: true, // 관리자 계정(서버 통제 컬럼). 유저명 매칭 대신 이 값으로 판정
       passwordHash: createHash('password')
     }
   });

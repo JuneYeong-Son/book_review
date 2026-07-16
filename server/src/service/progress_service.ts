@@ -114,6 +114,7 @@ export const saveProgress = async (input: {
 export const toggleLike = async (userId: string, progressId: string) => {
   const progress = await findProgressById(progressId);
   if (!progress) return { error: '서평을 찾을 수 없습니다.' as const };
+  if (progress.userId === userId) return { error: '자신의 서평에는 좋아요를 누를 수 없습니다.' as const };
 
   const existing = await findLike(userId, progressId);
   if (existing) {

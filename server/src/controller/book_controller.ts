@@ -23,7 +23,7 @@ router.get('/', async (_req, res) => {
 
 // 추천 — method=content | popular, categoryId=장르, ageGroup=연령대, start=베스트셀러 페이지
 router.get('/recommendations', async (req, res) => {
-  const userId = req.cookies?.userId as string | undefined;
+  const userId = req.signedCookies?.userId as string | undefined;
   const m = req.query.method;
   const method = m === 'popular' ? 'popular' : m === 'cf' ? 'cf' : 'content';
   const categoryId = typeof req.query.categoryId === 'string' ? req.query.categoryId : undefined;
@@ -60,7 +60,7 @@ router.get('/reco-exclusions/me', requireAuth, async (_req, res) => {
 
 // 책 별점 정보 (평균/개수 + 내 별점) — '/:id'보다 먼저
 router.get('/:id/rating', async (req, res) => {
-  const userId = req.cookies?.userId as string | undefined;
+  const userId = req.signedCookies?.userId as string | undefined;
   return res.json(await getBookRating(req.params.id, userId));
 });
 

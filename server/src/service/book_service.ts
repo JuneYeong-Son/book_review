@@ -52,7 +52,9 @@ export const includeInReco = async (userId: string, bookId: string) => {
 export const rateBook = async (userId: string, bookId: string, value: number) => {
   const book = await findBookById(bookId);
   if (!book) return { error: '책을 찾을 수 없습니다.' as const };
-  if (value < 1 || value > 5) return { error: '별점은 1~5 사이여야 합니다.' as const };
+  if (!Number.isInteger(value) || value < 1 || value > 5) {
+    return { error: '별점은 1~5 사이의 정수여야 합니다.' as const };
+  }
   await upsertRating(userId, bookId, value);
   return { ok: true as const };
 };

@@ -8,7 +8,10 @@ import {
   deleteUserCascade,
   touchLastSeen
 } from '../repository/auth_repository.ts';
-import { isAdminUsername } from '../lib/admin.ts';
+// bcrypt cost (권장 ≥10~12)
+const BCRYPT_COST = 12;
+// 존재하지 않는 사용자 로그인 시에도 동일한 시간이 걸리도록 비교할 더미 해시 (타이밍 기반 유저명 열거 방지)
+const DUMMY_HASH = bcrypt.hashSync('timing-safe-dummy-password', BCRYPT_COST);
 
 // 로그인/회원가입 결과로 비밀번호 해시를 제외한 공개 정보만 반환
 const toPublicUser = (user: {
@@ -17,20 +20,22 @@ const toPublicUser = (user: {
   name: string;
   avatar: string;
   birthYear: number | null;
+  isAdmin: boolean;
 }) => ({
   id: user.id,
   username: user.username,
   name: user.name,
   avatar: user.avatar,
   birthYear: user.birthYear,
-  isAdmin: isAdminUsername(user.username)
+  isAdmin: user.isAdmin
 });
 
 export const loginUser = async (username: string, password: string) => {
   const user = await findUserByUsername(username);
-  if (!user) return null;
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  return valid ? toPublicUser(user) : null;
+  // 사용자가 없어도 더미 해시로 bcrypt 비교를 수행해 응답 시간을 균일화한다.
+  const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
+  if (!user || !valid) return null;
+  return toPublicUser(user);
 };
 
 export const registerUser = async (
@@ -43,7 +48,7 @@ export const registerUser = async (
   const existing = await findUserByUsername(username);
   if (existing) return { error: '이미 존재하는 아이디입니다.' as const };
 
-  const passwordHash = bcrypt.hashSync(password, 8);
+  const passwordHash = bcrypt.hashSync(password, BCRYPT_COST);
   const user = await insertUser({ username, name, passwordHash, avatar: avatar || '📚', birthYear });
   return { user: toPublicUser(user) };
 };

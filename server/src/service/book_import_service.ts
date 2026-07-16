@@ -7,6 +7,17 @@ const primaryAuthor = (author: string) => {
   return head.replace(/\([^)]*\)/g, '').trim();
 };
 
+// 표지 URL은 http(s)만 허용. import 시 임의 URL(javascript:, data:, 트래킹 비콘 등)을 걸러낸다.
+const safeCoverUrl = (cover: unknown): string => {
+  if (typeof cover !== 'string') return '';
+  try {
+    const u = new URL(cover);
+    return u.protocol === 'http:' || u.protocol === 'https:' ? cover : '';
+  } catch {
+    return '';
+  }
+};
+
 // 알라딘 OpenAPI 연동. TTB 키는 .env의 ALADIN_TTB_KEY 로 주입.
 
 const ALADIN_SEARCH = 'http://www.aladin.co.kr/ttb/api/ItemSearch.aspx';
@@ -111,7 +122,7 @@ export const importBook = async (candidate: BookCandidate) => {
   const book = await createBook({
     title: candidate.title,
     author,
-    cover: candidate.cover,
+    cover: safeCoverUrl(candidate.cover),
     genre: candidate.genre,
     category: candidate.category,
     isbn: candidate.isbn || null,
