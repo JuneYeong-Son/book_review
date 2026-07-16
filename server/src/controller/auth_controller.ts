@@ -52,6 +52,11 @@ router.post('/register/start', authLimiter, async (req, res) => {
     agreed: agreed === true
   });
   if ('error' in result) return res.status(400).json({ message: result.error });
+  // 인증 생략 모드: 바로 가입 확정 + 로그인
+  if ('skipped' in result && result.user) {
+    res.cookie('userId', result.user.id, authCookieOptions);
+    return res.status(201).json({ skipped: true, user: result.user });
+  }
   return res.status(200).json({ ok: true, dev: result.dev, devCode: result.devCode });
 });
 

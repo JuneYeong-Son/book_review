@@ -82,6 +82,8 @@ const RegisterPage = () => {
         birthYear: birthYear ? Number(birthYear) : null,
         agreed
       });
+      // 인증 생략 모드: startRegister가 이미 로그인 처리 → 바로 홈으로
+      if (r.skipped) { navigate('/'); return; }
       setDevCode(r.dev ? r.devCode ?? null : null);
       setStep('verify');
     } catch (err) {

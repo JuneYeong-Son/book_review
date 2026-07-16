@@ -24,8 +24,8 @@ type AuthValue = {
   user: User | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  // 이메일 인증 2단계 회원가입
-  startRegister: (data: RegisterInput) => Promise<{ dev: boolean; devCode?: string }>;
+  // 이메일 인증 2단계 회원가입 (skipped=true면 인증 생략 모드로 바로 가입 완료)
+  startRegister: (data: RegisterInput) => Promise<{ dev?: boolean; devCode?: string; skipped?: boolean; user?: User }>;
   verifyRegister: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -53,8 +53,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // 1단계: 정보 제출 → 인증 메일 발송 (아직 로그인 아님)
-  const startRegister = (data: RegisterInput) =>
-    apiPost<{ dev: boolean; devCode?: string }>('/auth/register/start', data);
+  // 인증 생략 모드(EMAIL_VERIFICATION=off)면 { skipped:true, user } 반환 → 바로 로그인 처리
+  const startRegister = async (data: RegisterInput) => {
+    const res = await apiPost<{ dev?: boolean; devCode?: string; skipped?: boolean; user?: User }>(
+      '/auth/register/start', data
+    );
+    if (res.skipped && res.user) {
+      await clearSwrCache();
+      setUser(res.user);
+    }
+    return res;
+  };
 
   // 2단계: 인증 코드 확인 → 가입 확정 + 로그인
   const verifyRegister = async (email: string, code: string) => {

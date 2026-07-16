@@ -113,6 +113,18 @@ export const startRegistration = async (input: {
   if (weak) return { error: weak };
 
   const passwordHash = bcrypt.hashSync(password, BCRYPT_COST);
+
+  // 이메일 인증 생략 모드(EMAIL_VERIFICATION=off): 도메인 미보유 등으로 메일 발송이 불가할 때
+  // 코드 단계 없이 바로 가입을 확정한다. (휴대폰 번호는 계속 수집.)
+  if (process.env.EMAIL_VERIFICATION === 'off') {
+    const user = await insertUser({
+      username, email, name, nickname, phone,
+      agreedAt: new Date(), passwordHash,
+      avatar: avatar || '📚', birthYear
+    });
+    return { skipped: true as const, user: toPublicUser(user) };
+  }
+
   const code = genCode();
   await upsertEmailVerification({
     email, username, name, nickname, phone, passwordHash,
