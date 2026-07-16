@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { mutate } from 'swr';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
-import type { Book, DiscussionSummary, Interest, Progress, Recommendation, RecoMethod } from '@/shared/api/types.ts';
+import type { Book, DiscussionSummary, Progress, Recommendation, RecoMethod } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
+import { useMyProgress, useMyInterests, KEY } from '@/shared/api/hooks.ts';
 import BookCard from '@/entities/book_card.tsx';
 import QuickActions from '@/widgets/quick_actions.tsx';
 import Carousel from '@/widgets/carousel.tsx';
@@ -22,8 +24,9 @@ const GENRES = [
 const HomePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [myProgress, setMyProgress] = useState<Progress[]>([]);
-  const [interests, setInterests] = useState<Interest[]>([]);
+  // 공용 SWR 훅: /progress/me·/books/interests/me는 QuickActions·마이페이지와 캐시를 공유(중복 fetch 제거)
+  const { data: myProgress = [] } = useMyProgress();
+  const { data: interests = [] } = useMyInterests();
   const [reviews, setReviews] = useState<Progress[]>([]);
   const [reviewsEnd, setReviewsEnd] = useState(false);
   const [discussions, setDiscussions] = useState<DiscussionSummary[]>([]);
@@ -67,14 +70,7 @@ const HomePage = () => {
     setRecoEnd(page.length < 10);
   };
 
-  const loadMine = () => {
-    if (!user) { setMyProgress([]); setInterests([]); return; }
-    apiGet<Progress[]>('/progress/me').then(setMyProgress).catch(() => setMyProgress([]));
-    apiGet<Interest[]>('/books/interests/me').then(setInterests).catch(() => setInterests([]));
-  };
-
   useEffect(() => { loadReviews(true); loadDiscussions(true); }, []);
-  useEffect(() => { loadMine(); }, [user]);
   useEffect(() => { loadReco(true); }, [method, genre, user]);
 
   const interestedIds = useMemo(() => new Set(interests.map((i) => i.bookId)), [interests]);
@@ -99,13 +95,13 @@ const HomePage = () => {
 
   const handleToggleInterest = async (bookId: string) => {
     await apiPost(`/books/${bookId}/interest`);
-    loadMine(); loadReviews(true);
+    mutate(KEY.interestsMe); loadReviews(true);
   };
   const handleSaveProgress = async (
     bookId: string, startPage: number, endPage: number, note: string, quote: string, rating: number
   ) => {
     await apiPost('/progress', { bookId, startPage, endPage, note, quote, rating });
-    loadMine(); loadReviews(true); loadReco(true);
+    mutate(KEY.progressMe); mutate(KEY.interestsMe); loadReviews(true); loadReco(true);
   };
   const handleImportReco = async (rec: Recommendation) => {
     // 임포트 후 내 서재(관심)에 담기 → 마이페이지 '내 서재'에 표시됨
@@ -114,7 +110,7 @@ const HomePage = () => {
       genre: rec.book.genre, category: rec.book.category, isbn: rec.book.isbn ?? ''
     });
     if (!interestedIds.has(book.id)) await apiPost(`/books/${book.id}/interest`);
-    loadMine(); loadReco(true);
+    mutate(KEY.interestsMe); loadReco(true);
   };
   // 추천 X: 라이브러리 책은 '추천 안 받을 책'에 영구 저장, 외부(베스트셀러)는 이번 세션에서 숨김
   const handleDismissReco = async (rec: Recommendation) => {
@@ -143,7 +139,7 @@ const HomePage = () => {
         <p className="muted">
           {user ? `${user.name}님, 오늘은 어디까지 읽으셨나요?` : '로그인하면 독서 기록과 서평을 남길 수 있어요.'}
         </p>
-        {user && <QuickActions onChange={() => { loadMine(); loadReviews(true); loadDiscussions(true); loadReco(true); }} />}
+        {user && <QuickActions onChange={() => { loadReviews(true); loadDiscussions(true); loadReco(true); }} />}
       </div>
 
       {myQuotes.length > 0 && (
@@ -245,7 +241,6 @@ const HomePage = () => {
                   }}
                   latest={latestByBook.get(rec.book.id)}
                   interested={interestedIds.has(rec.book.id)}
-                  loggedIn={Boolean(user)}
                   reason={rec.reason}
                   onDismiss={user ? () => handleDismissReco(rec) : undefined}
                   onToggleInterest={handleToggleInterest}

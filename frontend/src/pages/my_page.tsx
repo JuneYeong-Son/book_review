@@ -1,8 +1,10 @@
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useMemo, type MouseEvent } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-import { apiGet, apiPost } from '@/shared/api/client.ts';
-import type { Book, DiscussionSummary, Interest, Progress } from '@/shared/api/types.ts';
+import { mutate } from 'swr';
+import { apiPost } from '@/shared/api/client.ts';
+import type { Book, Progress } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
+import { useMyProgress, useMyInterests, useMyDiscussions, KEY } from '@/shared/api/hooks.ts';
 import ReadingCalendar from '@/widgets/reading_calendar.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
@@ -19,38 +21,30 @@ const MyPage = () => {
   const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const tab = (params.get('tab') as Tab) || 'reviews';
-  const [reviews, setReviews] = useState<Progress[]>([]);
-  const [discussions, setDiscussions] = useState<DiscussionSummary[]>([]);
-  const [interests, setInterests] = useState<Interest[]>([]);
+  // 공용 SWR 훅 — 홈·QuickActions와 /progress/me·/books/interests/me 캐시를 공유(중복 fetch 제거).
+  const { data: reviews = [] } = useMyProgress();
+  const { data: discussions = [] } = useMyDiscussions();
+  const { data: interests = [] } = useMyInterests();
 
-  const loadInterests = () =>
-    apiGet<Interest[]>('/books/interests/me').then(setInterests).catch(() => setInterests([]));
-
-  useEffect(() => {
-    if (!user) return;
-    apiGet<Progress[]>('/progress/me').then(setReviews).catch(() => setReviews([]));
-    apiGet<DiscussionSummary[]>('/discussions/me').then(setDiscussions).catch(() => setDiscussions([]));
-    loadInterests();
-  }, [user]);
+  // 책별로 묶기 (reviews는 최신순 → 첫 항목이 최신). 렌더마다 재계산되지 않게 메모.
+  const bookGroups = useMemo(() => {
+    const groups = new Map<string, { book: Book; count: number; latest: Progress }>();
+    for (const record of reviews) {
+      const existing = groups.get(record.bookId);
+      if (existing) existing.count += 1;
+      else groups.set(record.bookId, { book: record.book, count: 1, latest: record });
+    }
+    return [...groups.values()];
+  }, [reviews]);
 
   if (!user) return <Navigate to="/login" replace />;
 
-  const interestedIds = new Set(interests.map((i) => i.bookId));
   const toggleInterest = async (e: MouseEvent, bookId: string) => {
     e.preventDefault();
     e.stopPropagation();
     await apiPost(`/books/${bookId}/interest`);
-    loadInterests();
+    mutate(KEY.interestsMe);
   };
-
-  // 책별로 묶기 (reviews는 최신순 → 첫 항목이 최신)
-  const groups = new Map<string, { book: Book; count: number; latest: Progress }>();
-  for (const record of reviews) {
-    const existing = groups.get(record.bookId);
-    if (existing) existing.count += 1;
-    else groups.set(record.bookId, { book: record.book, count: 1, latest: record });
-  }
-  const bookGroups = [...groups.values()];
 
   return (
     <section>

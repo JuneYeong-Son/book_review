@@ -12,7 +12,8 @@
     "@fontsource/nanum-myeongjo": "^5.2.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "swr": "^2.4.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

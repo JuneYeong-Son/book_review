@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Book, Progress } from '@/shared/api/types.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 type Props = {
   book: Book;
   latest?: Progress; // 이 책에 대한 내 최신 기록
   interested: boolean;
-  loggedIn: boolean;
   reason?: string; // 추천 이유 (추천 섹션에서만 표시)
   onDismiss?: () => void; // 추천 제외(X)
   onToggleInterest: (bookId: string) => void;
@@ -20,7 +20,9 @@ type Props = {
   ) => Promise<void>;
 };
 
-const BookCard = ({ book, latest, interested, loggedIn, reason, onDismiss, onToggleInterest, onSaveProgress }: Props) => {
+const BookCard = ({ book, latest, interested, reason, onDismiss, onToggleInterest, onSaveProgress }: Props) => {
+  // 로그인 여부는 컨텍스트에서 직접 읽는다(부모의 loggedIn prop drilling 제거).
+  const loggedIn = Boolean(useAuth().user);
   const [open, setOpen] = useState(false);
   // 이어 읽기 편하도록 시작 페이지는 최신 기록의 끝 페이지로 기본 설정
   const [startPage, setStartPage] = useState(latest?.endPage ?? 0);
@@ -81,9 +83,9 @@ const BookCard = ({ book, latest, interested, loggedIn, reason, onDismiss, onTog
             <label className="row">
               <span>어디부터 어디까지 읽었나요? (쪽)</span>
               <span className="page-range">
-                <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} />
+                <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} aria-label="시작 쪽" />
                 <span>~</span>
-                <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} />
+                <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} aria-label="끝 쪽" />
               </span>
             </label>
             <label className="row">

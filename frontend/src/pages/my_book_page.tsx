@@ -105,9 +105,9 @@ const EditForm = ({ record, onDone, onCancel }: { record: Progress; onDone: () =
     <div className="record-form" style={{ flex: 1 }}>
       <label className="row"><span>쪽</span>
         <span className="page-range">
-          <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} />
+          <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} aria-label="시작 쪽" />
           <span>~</span>
-          <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} />
+          <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} aria-label="끝 쪽" />
         </span>
       </label>
       <label className="row"><span>서평</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} /></label>

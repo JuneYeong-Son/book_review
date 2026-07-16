@@ -22,6 +22,10 @@ const request = async <T>(path: string, options: RequestInit = {}): Promise<T> =
 
 export const apiGet = <T>(path: string) => request<T>(path);
 
+// SWR 전역 fetcher — useSWR의 key(경로 문자열)로 GET 요청.
+// 여러 화면이 같은 key를 쓰면 SWR이 요청을 자동 dedup하고 캐시를 공유한다.
+export const swrFetcher = (path: string) => request(path);
+
 export const apiPost = <T>(path: string, body?: unknown) =>
   request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined });
 

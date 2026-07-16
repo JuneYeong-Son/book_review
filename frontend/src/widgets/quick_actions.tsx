@@ -1,6 +1,8 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
+import { mutate } from 'swr';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
-import type { Book, BookCandidate, Interest, Progress } from '@/shared/api/types.ts';
+import type { Book, BookCandidate } from '@/shared/api/types.ts';
+import { useMyProgress, useMyInterests, useBooks, KEY } from '@/shared/api/hooks.ts';
 import Modal from '@/shared/ui/modal.tsx';
 
 type Props = {
@@ -11,23 +13,15 @@ type Which = 'review' | 'book' | 'discussion' | null;
 
 const QuickActions = ({ onChange }: Props) => {
   const [which, setWhich] = useState<Which>(null);
-  const [books, setBooks] = useState<Book[]>([]);
-  const [myBooks, setMyBooks] = useState<Book[]>([]);
-  const [interests, setInterests] = useState<Interest[]>([]);
-
-  const loadBooks = () => apiGet<Book[]>('/books').then(setBooks).catch(() => setBooks([]));
-  const loadInterests = () =>
-    apiGet<Interest[]>('/books/interests/me').then(setInterests).catch(() => setInterests([]));
-
-  useEffect(() => {
-    loadBooks();
-    apiGet<Progress[]>('/progress/me')
-      .then((p) => setMyBooks([...new Map(p.map((r) => [r.bookId, r.book])).values()]))
-      .catch(() => setMyBooks([]));
-    loadInterests();
-  }, [which]);
-
-  const interestedIds = new Set(interests.map((i) => i.bookId));
+  // 공용 SWR 훅(홈·마이페이지와 캐시 공유). 모달을 열고 닫을 때마다 전체를 재fetch하던 문제 제거.
+  const { data: books = [] } = useBooks();
+  const { data: interests = [] } = useMyInterests();
+  const { data: myProgress = [] } = useMyProgress();
+  const myBooks = useMemo(
+    () => [...new Map(myProgress.map((r) => [r.bookId, r.book])).values()],
+    [myProgress]
+  );
+  const interestedIds = useMemo(() => new Set(interests.map((i) => i.bookId)), [interests]);
 
   // --- 서평 쓰기 ---
   const [rBook, setRBook] = useState('');
@@ -47,6 +41,7 @@ const QuickActions = ({ onChange }: Props) => {
       });
       setWhich(null);
       setRBook(''); setRStart(0); setREnd(0); setRNote(''); setRQuote('');
+      mutate(KEY.progressMe); mutate(KEY.interestsMe);
       onChange();
     } catch (err) {
       setRErr((err as Error).message);
@@ -66,6 +61,7 @@ const QuickActions = ({ onChange }: Props) => {
       await apiPost('/discussions', { bookId: dBook, title: dTitle, description: dDesc });
       setWhich(null);
       setDBook(''); setDTitle(''); setDDesc('');
+      mutate(KEY.discussionsMe);
       onChange();
     } catch (err) {
       setDErr((err as Error).message);
@@ -96,14 +92,13 @@ const QuickActions = ({ onChange }: Props) => {
   const addAndInterest = async (candidate: BookCandidate) => {
     const book = await apiPost<Book>('/books/import', candidate);
     if (!interestedIds.has(book.id)) await apiPost(`/books/${book.id}/interest`);
-    await loadBooks();
-    await loadInterests();
+    await Promise.all([mutate(KEY.books), mutate(KEY.interestsMe)]);
     onChange();
   };
 
   const toggleInterest = async (bookId: string) => {
     await apiPost(`/books/${bookId}/interest`);
-    await loadInterests();
+    await mutate(KEY.interestsMe);
     onChange();
   };
 
@@ -124,9 +119,9 @@ const QuickActions = ({ onChange }: Props) => {
             </label>
             <label>어디부터 어디까지 읽었나요? (쪽)
               <span className="page-range">
-                <input type="number" min={0} value={rStart} onChange={(e) => setRStart(Number(e.target.value))} />
+                <input type="number" min={0} value={rStart} onChange={(e) => setRStart(Number(e.target.value))} aria-label="시작 쪽" />
                 <span>~</span>
-                <input type="number" min={0} value={rEnd} onChange={(e) => setREnd(Number(e.target.value))} />
+                <input type="number" min={0} value={rEnd} onChange={(e) => setREnd(Number(e.target.value))} aria-label="끝 쪽" />
               </span>
             </label>
             <label>서평 <textarea value={rNote} onChange={(e) => setRNote(e.target.value)} rows={3} /></label>
