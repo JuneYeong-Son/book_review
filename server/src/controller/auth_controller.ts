@@ -94,8 +94,8 @@ const finishOauth = (
   result: { user: { id: string } } | { error: string }
 ) => {
   if ('error' in result) {
-    const reason = result.error === 'suspended' ? 'suspended' : 'oauth';
-    return res.redirect(`${frontendUrl()}/login?error=${reason}`);
+    // 실패 단계를 그대로 전달(token/profile/unconfigured/suspended)해 진단 쉽게
+    return res.redirect(`${frontendUrl()}/login?error=${result.error}`);
   }
   res.cookie('userId', result.user.id, authCookieOptions);
   return res.redirect(`${frontendUrl()}/`);

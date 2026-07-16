@@ -7,6 +7,9 @@ const API_BASE = import.meta.env.VITE_API_URL ?? '';
 const OAUTH_ERRORS: Record<string, string> = {
   oauth: '소셜 로그인에 실패했어요. 다시 시도해주세요.',
   oauth_unconfigured: '소셜 로그인이 아직 설정되지 않았어요.',
+  unconfigured: '소셜 로그인 키가 서버에 설정되지 않았어요. (관리자: 환경변수 확인)',
+  token: '소셜 인증(토큰 교환)에 실패했어요. 리다이렉트 URI/키 설정을 확인해주세요.',
+  profile: '소셜 프로필 조회에 실패했어요. 동의 항목을 확인해주세요.',
   suspended: '활동이 정지된 계정입니다. 관리자에게 문의하세요.'
 };
 

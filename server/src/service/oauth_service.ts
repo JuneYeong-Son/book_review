@@ -96,13 +96,19 @@ export const loginWithKakao = async (code: string, redirectUri: string) => {
       ...(process.env.KAKAO_CLIENT_SECRET ? { client_secret: process.env.KAKAO_CLIENT_SECRET } : {})
     }).toString()
   });
-  if (!tokenRes.ok) return { error: 'token' as const };
+  if (!tokenRes.ok) {
+    console.error('[kakao] token exchange failed', tokenRes.status, await tokenRes.text().catch(() => ''));
+    return { error: 'token' as const };
+  }
   const token = (await tokenRes.json()) as { access_token?: string };
   if (!token.access_token) return { error: 'token' as const };
 
   // 2) 프로필 조회
   const meRes = await fetch(KAKAO_ME_URL, { headers: { Authorization: `Bearer ${token.access_token}` } });
-  if (!meRes.ok) return { error: 'profile' as const };
+  if (!meRes.ok) {
+    console.error('[kakao] profile fetch failed', meRes.status, await meRes.text().catch(() => ''));
+    return { error: 'profile' as const };
+  }
   const me = (await meRes.json()) as {
     id: number;
     kakao_account?: { email?: string; profile?: { nickname?: string } };
@@ -149,12 +155,18 @@ export const loginWithGoogle = async (code: string, redirectUri: string) => {
       code
     }).toString()
   });
-  if (!tokenRes.ok) return { error: 'token' as const };
+  if (!tokenRes.ok) {
+    console.error('[google] token exchange failed', tokenRes.status, await tokenRes.text().catch(() => ''));
+    return { error: 'token' as const };
+  }
   const token = (await tokenRes.json()) as { access_token?: string };
   if (!token.access_token) return { error: 'token' as const };
 
   const meRes = await fetch(GOOGLE_ME_URL, { headers: { Authorization: `Bearer ${token.access_token}` } });
-  if (!meRes.ok) return { error: 'profile' as const };
+  if (!meRes.ok) {
+    console.error('[google] profile fetch failed', meRes.status, await meRes.text().catch(() => ''));
+    return { error: 'profile' as const };
+  }
   const me = (await meRes.json()) as { id?: string; email?: string; name?: string };
   if (!me.id) return { error: 'profile' as const };
 
