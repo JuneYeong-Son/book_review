@@ -172,8 +172,12 @@ export const verifyRegistration = async (email: string, code: string) => {
   return { user: toPublicUser(user) };
 };
 
-export const getUser = async (id: string) => {
-  const user = await findUserById(id);
+// preloaded: requireAuth가 이미 조회해 둔 유저 행이 있으면 재조회를 생략(핫패스 /me 쿼리 절감).
+export const getUser = async (
+  id: string,
+  preloaded?: NonNullable<Awaited<ReturnType<typeof findUserById>>>
+) => {
+  const user = preloaded ?? (await findUserById(id));
   if (!user) return null;
   await touchLastSeen(id); // 오늘의 접속자 집계
   return toPublicUser(user);

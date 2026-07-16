@@ -1,12 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Capacitor } from '@capacitor/core';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
-
-// 백엔드 소셜 로그인 진입점(전체 페이지 이동). 로컬은 Vite 프록시(/api) 사용.
-const API_BASE = import.meta.env.VITE_API_URL ?? '';
-// 소셜 로그인은 리다이렉트 기반이라 네이티브 앱(번들)에선 아직 미지원 → 버튼 숨김.
-const NATIVE = Capacitor.isNativePlatform();
+// 소셜 로그인 진입점은 백엔드 절대 주소(API_BASE)로, 앱(NATIVE)에선 리다이렉트 방식이라 버튼 숨김.
+import { NATIVE, API_BASE } from '@/shared/api/client.ts';
 const OAUTH_ERRORS: Record<string, string> = {
   oauth: '소셜 로그인에 실패했어요. 다시 시도해주세요.',
   oauth_unconfigured: '소셜 로그인이 아직 설정되지 않았어요.',

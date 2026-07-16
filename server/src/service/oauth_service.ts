@@ -81,47 +81,60 @@ const resolveSocialUser = async (
   return { user };
 };
 
+// 제공자 공통 HTTP 단계 (카카오·구글이 동일 — 태그/URL만 다름)
+// code → access_token. 실패 시 null(+로그).
+const exchangeCodeForToken = async (
+  tag: string,
+  tokenUrl: string,
+  params: Record<string, string>
+): Promise<string | null> => {
+  const res = await fetch(tokenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(params).toString()
+  });
+  if (!res.ok) {
+    console.error(`[${tag}] token exchange failed`, res.status, await res.text().catch(() => ''));
+    return null;
+  }
+  const json = (await res.json()) as { access_token?: string };
+  return json.access_token ?? null;
+};
+
+// access_token → 프로필 JSON. 실패 시 null(+로그).
+const fetchProfileJson = async <T>(tag: string, meUrl: string, accessToken: string): Promise<T | null> => {
+  const res = await fetch(meUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (!res.ok) {
+    console.error(`[${tag}] profile fetch failed`, res.status, await res.text().catch(() => ''));
+    return null;
+  }
+  return (await res.json()) as T;
+};
+
 // 카카오 code → 로그인/가입 처리. 성공 시 { user }, 실패 시 { error }.
 export const loginWithKakao = async (code: string, redirectUri: string) => {
   const key = process.env.KAKAO_REST_API_KEY;
   if (!key) return { error: 'unconfigured' as const };
 
-  // 1) code → access_token
-  const tokenRes = await fetch(KAKAO_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: key,
-      redirect_uri: redirectUri,
-      code,
-      ...(process.env.KAKAO_CLIENT_SECRET ? { client_secret: process.env.KAKAO_CLIENT_SECRET } : {})
-    }).toString()
+  const accessToken = await exchangeCodeForToken('kakao', KAKAO_TOKEN_URL, {
+    grant_type: 'authorization_code',
+    client_id: key,
+    redirect_uri: redirectUri,
+    code,
+    ...(process.env.KAKAO_CLIENT_SECRET ? { client_secret: process.env.KAKAO_CLIENT_SECRET } : {})
   });
-  if (!tokenRes.ok) {
-    console.error('[kakao] token exchange failed', tokenRes.status, await tokenRes.text().catch(() => ''));
-    return { error: 'token' as const };
-  }
-  const token = (await tokenRes.json()) as { access_token?: string };
-  if (!token.access_token) return { error: 'token' as const };
+  if (!accessToken) return { error: 'token' as const };
 
-  // 2) 프로필 조회
-  const meRes = await fetch(KAKAO_ME_URL, { headers: { Authorization: `Bearer ${token.access_token}` } });
-  if (!meRes.ok) {
-    console.error('[kakao] profile fetch failed', meRes.status, await meRes.text().catch(() => ''));
-    return { error: 'profile' as const };
-  }
-  const me = (await meRes.json()) as {
+  const me = await fetchProfileJson<{
     id: number;
     kakao_account?: { email?: string; is_email_verified?: boolean; profile?: { nickname?: string } };
-  };
-  const providerId = String(me.id);
-  // 검증된 이메일만 계정 연결에 사용(미검증 이메일로 남의 계정에 연결되는 탈취 방지)
-  const account = me.kakao_account;
-  const email = account?.is_email_verified === true ? (account.email ?? null) : null;
-  const kakaoNickname = account?.profile?.nickname ?? '';
+  }>('kakao', KAKAO_ME_URL, accessToken);
+  if (!me) return { error: 'profile' as const };
 
-  return resolveSocialUser('kakao', providerId, email, kakaoNickname);
+  const account = me.kakao_account;
+  // 검증된 이메일만 계정 연결에 사용(미검증 이메일로 남의 계정에 연결되는 탈취 방지)
+  const email = account?.is_email_verified === true ? (account.email ?? null) : null;
+  return resolveSocialUser('kakao', String(me.id), email, account?.profile?.nickname ?? '');
 };
 
 // --- 구글 ---
@@ -149,31 +162,19 @@ export const loginWithGoogle = async (code: string, redirectUri: string) => {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   if (!clientId || !clientSecret) return { error: 'unconfigured' as const };
 
-  const tokenRes = await fetch(GOOGLE_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: redirectUri,
-      code
-    }).toString()
+  const accessToken = await exchangeCodeForToken('google', GOOGLE_TOKEN_URL, {
+    grant_type: 'authorization_code',
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    code
   });
-  if (!tokenRes.ok) {
-    console.error('[google] token exchange failed', tokenRes.status, await tokenRes.text().catch(() => ''));
-    return { error: 'token' as const };
-  }
-  const token = (await tokenRes.json()) as { access_token?: string };
-  if (!token.access_token) return { error: 'token' as const };
+  if (!accessToken) return { error: 'token' as const };
 
-  const meRes = await fetch(GOOGLE_ME_URL, { headers: { Authorization: `Bearer ${token.access_token}` } });
-  if (!meRes.ok) {
-    console.error('[google] profile fetch failed', meRes.status, await meRes.text().catch(() => ''));
-    return { error: 'profile' as const };
-  }
-  const me = (await meRes.json()) as { id?: string; email?: string; verified_email?: boolean; name?: string };
-  if (!me.id) return { error: 'profile' as const };
+  const me = await fetchProfileJson<{ id?: string; email?: string; verified_email?: boolean; name?: string }>(
+    'google', GOOGLE_ME_URL, accessToken
+  );
+  if (!me?.id) return { error: 'profile' as const };
 
   // 검증된 이메일만 계정 연결에 사용
   const email = me.verified_email === true ? (me.email ?? null) : null;

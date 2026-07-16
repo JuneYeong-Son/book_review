@@ -1,11 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { mutate } from 'swr';
-import { Capacitor } from '@capacitor/core';
-import { apiGet, apiPost, setAuthToken } from '@/shared/api/client.ts';
+import { apiGet, apiPost, setAuthToken, NATIVE } from '@/shared/api/client.ts';
 import type { User } from '@/shared/api/types.ts';
 
 // 네이티브 앱이면 응답에 실려온 토큰을 저장(웹은 쿠키를 쓰므로 무시).
-const NATIVE = Capacitor.isNativePlatform();
 const storeTokenIfNative = (res: { token?: string } | null | undefined) => {
   if (NATIVE && res?.token) setAuthToken(res.token);
 };
@@ -53,11 +51,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (username: string, password: string) => {
-    const next = await apiPost<User & { token?: string }>('/auth/login', { username, password });
-    storeTokenIfNative(next);
+  // 로그인/가입 성공 시 공통: (앱)토큰 저장 → 캐시 클리어(이전 사용자 데이터 잔존 방지) → setUser
+  const applyAuth = async (u: User & { token?: string }) => {
+    storeTokenIfNative(u);
     await clearSwrCache();
-    setUser(next);
+    setUser(u);
+  };
+
+  const login = async (username: string, password: string) => {
+    await applyAuth(await apiPost<User & { token?: string }>('/auth/login', { username, password }));
   };
 
   // 1단계: 정보 제출 → 인증 메일 발송 (아직 로그인 아님)
@@ -66,20 +68,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const res = await apiPost<{ dev?: boolean; devCode?: string; skipped?: boolean; user?: User; token?: string }>(
       '/auth/register/start', data
     );
-    if (res.skipped && res.user) {
-      storeTokenIfNative(res);
-      await clearSwrCache();
-      setUser(res.user);
-    }
+    if (res.skipped && res.user) await applyAuth({ ...res.user, token: res.token });
     return res;
   };
 
   // 2단계: 인증 코드 확인 → 가입 확정 + 로그인
   const verifyRegister = async (email: string, code: string) => {
-    const next = await apiPost<User & { token?: string }>('/auth/register/verify', { email, code });
-    storeTokenIfNative(next);
-    await clearSwrCache();
-    setUser(next);
+    await applyAuth(await apiPost<User & { token?: string }>('/auth/register/verify', { email, code }));
   };
 
   const logout = async () => {

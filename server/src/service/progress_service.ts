@@ -23,6 +23,14 @@ import { createNotification } from './notification_service.ts';
 // 서평(note)을 적을 경우 요구되는 최소 길이 (과하게 짧은 글 방지)
 const MIN_NOTE_LEN = 10;
 
+// 서평이 비어있지 않은데 너무 짧으면 안내 메시지, 아니면 null. (작성·수정 공용)
+const noteTooShortError = (note: string): string | null => {
+  const t = note.trim();
+  return t.length > 0 && t.length < MIN_NOTE_LEN
+    ? `서평이 너무 짧아요. ${MIN_NOTE_LEN}자 이상 적어주세요.`
+    : null;
+};
+
 // 모든 사용자의 독서 기록 (다른 사람 기록도 볼 수 있음, 페이지네이션 지원)
 export const listProgress = (skip?: number, take?: number) => findAllProgress(skip, take);
 
@@ -55,10 +63,8 @@ export const editReview = async (
     return { error: '별점은 0~5 사이여야 합니다.' as const };
   }
   if (fields.note !== undefined) {
-    const t = fields.note.trim();
-    if (t.length > 0 && t.length < MIN_NOTE_LEN) {
-      return { error: `서평이 너무 짧아요. ${MIN_NOTE_LEN}자 이상 적어주세요.` as const };
-    }
+    const noteErr = noteTooShortError(fields.note);
+    if (noteErr) return { error: noteErr };
   }
   const record = await updateProgress(id, fields);
   return { record };
@@ -114,10 +120,8 @@ export const saveProgress = async (input: {
     return { error: '별점은 0~5 사이여야 합니다.' as const };
   }
   // 과하게 짧은 서평 방지: 글을 적었다면 10자 이상. (빈 값은 페이지만 남기는 독서 기록으로 허용)
-  const trimmedNote = input.note.trim();
-  if (trimmedNote.length > 0 && trimmedNote.length < MIN_NOTE_LEN) {
-    return { error: `서평이 너무 짧아요. ${MIN_NOTE_LEN}자 이상 적어주세요.` as const };
-  }
+  const noteErr = noteTooShortError(input.note);
+  if (noteErr) return { error: noteErr };
 
   // 그 책의 다음 순번 = 현재 최대 순번 + 1.
   // count가 아니라 max로 매겨야 서평 삭제 후에도 순번이 재사용(충돌)되지 않아,

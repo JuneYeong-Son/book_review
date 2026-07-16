@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import type { Request } from 'express';
 import { SESSION_SECRET } from './cookie.ts';
 
 // 네이티브 앱(안드로이드)용 인증 토큰.
@@ -10,6 +11,14 @@ const sign = (payload: string) => b64(crypto.createHmac('sha256', SESSION_SECRET
 export const signToken = (userId: string, days = 30): string => {
   const payload = b64(Buffer.from(JSON.stringify({ uid: userId, exp: Date.now() + days * 86400000 })));
   return `${payload}.${sign(payload)}`;
+};
+
+// 쿠키(웹) 또는 Authorization: Bearer(앱)에서 userId를 얻는다.
+// 없으면 null — 401을 던지지 않는 "선택적 인증"용(requireAuth·피드백 등에서 공용).
+export const resolveUserId = (req: Request): string | null => {
+  const authHeader = req.get('Authorization');
+  const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
+  return verifyToken(bearer) ?? (req.signedCookies?.userId as string | undefined) ?? null;
 };
 
 export const verifyToken = (token: string | undefined): string | null => {

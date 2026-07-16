@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import rateLimit from 'express-rate-limit';
 import {
   loginUser,
   startRegistration,
@@ -16,6 +15,7 @@ import { randomBytes } from 'node:crypto';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 import { authCookieOptions } from '../lib/cookie.ts';
 import { signToken } from '../lib/token.ts';
+import { makeRateLimiter } from '../lib/rate_limit.ts';
 import type { Request, Response } from 'express';
 
 // 콜백 Redirect URI는 현재 요청 호스트에서 구성(로컬/배포 동일 코드, 카카오 등록값과 일치해야 함)
@@ -30,13 +30,7 @@ const stateCookieOptions = { ...authCookieOptions, maxAge: 10 * 60 * 1000 };
 const router = Router();
 
 // 인증 엔드포인트 레이트리밋: IP당 15분에 20회 (무차별 대입·유저명 열거 억제)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { message: '요청이 너무 많습니다. 잠시 후 다시 시도하세요.' }
-});
+const authLimiter = makeRateLimiter(15 * 60 * 1000, 20);
 
 // 회원가입 1단계: 정보 제출 → 인증 메일 발송
 router.post('/register/start', authLimiter, async (req, res) => {
@@ -72,13 +66,7 @@ router.post('/register/verify', authLimiter, async (req, res) => {
 });
 
 // 중복확인 엔드포인트 스로틀(대량 열거·수집 억제). 실사용(디바운스 입력)에는 충분히 넉넉.
-const checkLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 60,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { message: '요청이 너무 많습니다. 잠시 후 다시 시도하세요.' }
-});
+const checkLimiter = makeRateLimiter(60 * 1000, 60);
 
 // 닉네임 / 이메일 사용 가능 여부 확인 (실시간 중복 체크)
 router.get('/check/nickname', checkLimiter, async (req, res) => {
@@ -132,33 +120,28 @@ const readOauthCode = (req: Request, res: Response): string | null => {
   return code;
 };
 
-// 카카오
-router.get('/oauth/kakao', (req, res) => {
-  const state = randomBytes(16).toString('hex');
-  res.cookie(OAUTH_STATE_COOKIE, state, stateCookieOptions);
-  const url = kakaoAuthorizeUrl(oauthRedirectUri(req, 'kakao'), state);
-  if (!url) return res.redirect(`${frontendUrl()}/login?error=oauth_unconfigured`);
-  return res.redirect(url);
-});
-router.get('/oauth/kakao/callback', async (req, res) => {
-  const code = readOauthCode(req, res);
-  if (!code) return res.redirect(`${frontendUrl()}/login?error=oauth`);
-  return finishOauth(res, await loginWithKakao(code, oauthRedirectUri(req, 'kakao')));
-});
+// 제공자 레지스트리 — authorize URL 생성기 + 로그인 처리기. 새 소셜은 여기만 추가하면 라우트 자동 생성.
+const OAUTH_PROVIDERS = {
+  kakao: { authorizeUrl: kakaoAuthorizeUrl, login: loginWithKakao },
+  google: { authorizeUrl: googleAuthorizeUrl, login: loginWithGoogle }
+} as const;
 
-// 구글
-router.get('/oauth/google', (req, res) => {
-  const state = randomBytes(16).toString('hex');
-  res.cookie(OAUTH_STATE_COOKIE, state, stateCookieOptions);
-  const url = googleAuthorizeUrl(oauthRedirectUri(req, 'google'), state);
-  if (!url) return res.redirect(`${frontendUrl()}/login?error=oauth_unconfigured`);
-  return res.redirect(url);
-});
-router.get('/oauth/google/callback', async (req, res) => {
-  const code = readOauthCode(req, res);
-  if (!code) return res.redirect(`${frontendUrl()}/login?error=oauth`);
-  return finishOauth(res, await loginWithGoogle(code, oauthRedirectUri(req, 'google')));
-});
+for (const [name, provider] of Object.entries(OAUTH_PROVIDERS)) {
+  // 1) 동의 화면으로 리다이렉트
+  router.get(`/oauth/${name}`, (req, res) => {
+    const state = randomBytes(16).toString('hex');
+    res.cookie(OAUTH_STATE_COOKIE, state, stateCookieOptions);
+    const url = provider.authorizeUrl(oauthRedirectUri(req, name), state);
+    if (!url) return res.redirect(`${frontendUrl()}/login?error=oauth_unconfigured`);
+    return res.redirect(url);
+  });
+  // 2) 콜백 → 로그인/가입 → 세션 → 프론트 복귀
+  router.get(`/oauth/${name}/callback`, async (req, res) => {
+    const code = readOauthCode(req, res);
+    if (!code) return res.redirect(`${frontendUrl()}/login?error=oauth`);
+    return finishOauth(res, await provider.login(code, oauthRedirectUri(req, name)));
+  });
+}
 
 // 로그아웃
 router.post('/logout', (_req, res) => {
@@ -168,7 +151,7 @@ router.post('/logout', (_req, res) => {
 
 // 현재 로그인 사용자 정보
 router.get('/me', requireAuth, async (_req, res) => {
-  const user = await getUser(res.locals.userId);
+  const user = await getUser(res.locals.userId, res.locals.user); // requireAuth가 조회한 유저 재사용
   if (!user) return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
   return res.json(user);
 });

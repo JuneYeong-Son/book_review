@@ -47,7 +47,7 @@ const RegisterPage = () => {
       });
       // 인증 생략 모드: startRegister가 이미 로그인 처리 → 바로 홈으로
       if (r.skipped) { navigate('/'); return; }
-      setDevCode(r.dev ? r.devCode ?? null : null);
+      setDevCode(r.devCode ?? null); // 서버는 dev 모드에서만 devCode를 채워 보냄
       setStep('verify');
     } catch (err) {
       setError((err as Error).message);
