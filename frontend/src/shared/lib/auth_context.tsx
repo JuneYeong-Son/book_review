@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { mutate } from 'swr';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { User } from '@/shared/api/types.ts';
+
+// 로그인/가입/로그아웃 등 "누가 로그인했는지"가 바뀌면 SWR 캐시를 통째로 비운다.
+// (서재·서평 등 사용자별 캐시 키가 고정 문자열이라, 안 비우면 이전 사용자의 데이터가
+//  다음 사용자에게 잠깐 그대로 보인다 — 신규 가입자 서재에 남의 책이 보이던 문제.)
+const clearSwrCache = () => mutate(() => true, undefined, { revalidate: false });
 
 type AuthValue = {
   user: User | null;
@@ -27,15 +33,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    setUser(await apiPost<User>('/auth/login', { username, password }));
+    const next = await apiPost<User>('/auth/login', { username, password });
+    await clearSwrCache();
+    setUser(next);
   };
 
   const register = async (username: string, name: string, password: string, avatar: string, birthYear: number | null) => {
-    setUser(await apiPost<User>('/auth/register', { username, name, password, avatar, birthYear }));
+    const next = await apiPost<User>('/auth/register', { username, name, password, avatar, birthYear });
+    await clearSwrCache();
+    setUser(next);
   };
 
   const logout = async () => {
     await apiPost('/auth/logout');
+    await clearSwrCache();
     setUser(null);
   };
 

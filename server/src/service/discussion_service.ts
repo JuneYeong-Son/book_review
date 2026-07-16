@@ -28,6 +28,10 @@ export const openDiscussion = async (
   const book = await findBookById(bookId);
   if (!book) return { error: '책을 찾을 수 없습니다.' as const };
 
+  // 과하게 짧은 글 방지: 제목 2자, 내용 10자 이상
+  if (title.trim().length < 2) return { error: '제목을 2자 이상 입력해주세요.' as const };
+  if (description.trim().length < 10) return { error: '토론 내용을 10자 이상 적어주세요.' as const };
+
   const progress = await hasProgress(userId, bookId);
   if (!progress) {
     return { error: '읽었거나 읽는 중인 책에 대해서만 토론을 열 수 있습니다.' as const };

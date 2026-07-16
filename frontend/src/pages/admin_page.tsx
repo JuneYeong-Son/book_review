@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { apiGet, apiDelete } from '@/shared/api/client.ts';
-import type { AdminStats, ReportedPost, Progress } from '@/shared/api/types.ts';
+import { apiGet, apiDelete, apiPatch } from '@/shared/api/client.ts';
+import type { AdminStats, ReportedPost, Progress, Member, Feedback } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 const AdminPage = () => {
@@ -9,17 +9,39 @@ const AdminPage = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [reports, setReports] = useState<ReportedPost[]>([]);
   const [reviews, setReviews] = useState<Progress[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [feedback, setFeedback] = useState<Feedback[]>([]);
 
   const load = () => {
     apiGet<AdminStats>('/admin/stats').then(setStats).catch(() => setStats(null));
     apiGet<ReportedPost[]>('/admin/reports').then(setReports).catch(() => setReports([]));
     apiGet<Progress[]>('/admin/reviews').then(setReviews).catch(() => setReviews([]));
+    apiGet<Member[]>('/admin/members').then(setMembers).catch(() => setMembers([]));
+    apiGet<Feedback[]>('/admin/feedback').then(setFeedback).catch(() => setFeedback([]));
   };
 
   useEffect(() => { if (user?.isAdmin) load(); }, [user]);
 
   if (loading) return <p className="muted">불러오는 중…</p>;
   if (!user || !user.isAdmin) return <Navigate to="/" replace />;
+
+  // 실패 메시지를 alert로 보여주는 공통 처리
+  const run = async (fn: () => Promise<unknown>) => {
+    try { await fn(); load(); }
+    catch (err) { window.alert((err as Error).message); }
+  };
+  const toggleAdmin = (m: Member) =>
+    run(() => apiPatch(`/admin/members/${m.id}/admin`, { isAdmin: !m.isAdmin }));
+  const toggleSuspend = (m: Member) =>
+    run(() => apiPatch(`/admin/members/${m.id}/suspend`, { suspended: !m.suspended }));
+  const deleteMember = (m: Member) => {
+    if (!window.confirm(`'${m.name}(@${m.username})' 회원을 삭제할까요? 관련 데이터가 모두 지워지며 되돌릴 수 없어요.`)) return;
+    run(() => apiDelete(`/admin/members/${m.id}`));
+  };
+  const toggleResolved = (f: Feedback) =>
+    run(() => apiPatch(`/admin/feedback/${f.id}/resolve`, { resolved: !f.resolved }));
+  const deleteFeedback = (f: Feedback) =>
+    run(() => apiDelete(`/admin/feedback/${f.id}`));
 
   const removePost = async (p: ReportedPost) => {
     if (!window.confirm(`'${p.title}'을(를) 삭제할까요?`)) return;
@@ -77,6 +99,70 @@ const AdminPage = () => {
               <button className="btn danger small" onClick={() => removePost(p)}>
                 {p.targetType === 'user' ? '회원 삭제' : '삭제'}
               </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h2 className="section-title">피드백 · 버그 신고 ({feedback.length})</h2>
+      {feedback.length === 0 ? (
+        <p className="muted">접수된 피드백이 없어요.</p>
+      ) : (
+        <ul className="feedback-list">
+          {feedback.map((f) => (
+            <li key={f.id} className={`feedback-item ${f.resolved ? 'resolved' : ''}`}>
+              <div className="feedback-main">
+                <p className="feedback-msg">
+                  <span className={`feedback-kind-badge ${f.kind}`}>{f.kind === 'bug' ? '🐞 버그' : '💬 의견'}</span>
+                  {f.message}
+                </p>
+                <p className="muted small">
+                  {f.name} · {new Date(f.createdAt).toLocaleString('ko-KR')}
+                  {f.page && ` · ${f.page}`}
+                  {f.resolved && ' · ✅ 처리됨'}
+                </p>
+              </div>
+              <div className="feedback-actions">
+                <button className="btn ghost small" onClick={() => toggleResolved(f)}>
+                  {f.resolved ? '미처리로' : '처리 완료'}
+                </button>
+                <button className="btn danger small" onClick={() => deleteFeedback(f)}>삭제</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h2 className="section-title">회원 관리 ({members.length})</h2>
+      {members.length === 0 ? (
+        <p className="muted">회원이 없어요.</p>
+      ) : (
+        <ul className="member-list">
+          {members.map((m) => (
+            <li key={m.id} className={`member-item ${m.suspended ? 'suspended' : ''}`}>
+              <span className="member-avatar" aria-hidden="true">{m.avatar}</span>
+              <div className="member-main">
+                <p className="member-name">
+                  <Link to={`/users/${m.id}`} className="user-link">{m.name}</Link>
+                  <span className="muted small"> @{m.username}</span>
+                  {m.isAdmin && <span className="member-badge admin">관리자</span>}
+                  {m.suspended && <span className="member-badge suspended">정지됨</span>}
+                </p>
+                <p className="muted small">가입 {new Date(m.createdAt).toLocaleDateString('ko-KR')}</p>
+              </div>
+              {m.id === user.id ? (
+                <span className="muted small">나</span>
+              ) : (
+                <div className="member-actions">
+                  <button className="btn ghost small" onClick={() => toggleAdmin(m)}>
+                    {m.isAdmin ? '관리자 해제' : '관리자 지정'}
+                  </button>
+                  <button className="btn ghost small" onClick={() => toggleSuspend(m)} disabled={m.isAdmin}>
+                    {m.suspended ? '정지 해제' : '활동 정지'}
+                  </button>
+                  <button className="btn danger small" onClick={() => deleteMember(m)} disabled={m.isAdmin}>삭제</button>
+                </div>
+              )}
             </li>
           ))}
         </ul>

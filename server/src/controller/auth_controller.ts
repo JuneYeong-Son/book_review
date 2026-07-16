@@ -6,7 +6,8 @@ import {
   getUser,
   updateProfile,
   changePassword,
-  deleteAccount
+  deleteAccount,
+  validatePassword
 } from '../service/auth_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 import { authCookieOptions } from '../lib/cookie.ts';
@@ -28,6 +29,8 @@ router.post('/register', authLimiter, async (req, res) => {
   if (!username || !name || !password) {
     return res.status(400).json({ message: '아이디, 이름, 비밀번호를 모두 입력하세요.' });
   }
+  const weak = validatePassword(password);
+  if (weak) return res.status(400).json({ message: weak });
 
   const result = await registerUser(
     username, name, password, avatar ?? '📚',
@@ -42,11 +45,16 @@ router.post('/register', authLimiter, async (req, res) => {
 // 로그인
 router.post('/login', authLimiter, async (req, res) => {
   const { username, password } = req.body ?? {};
-  const user = await loginUser(username, password);
-  if (!user) return res.status(401).json({ message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+  const result = await loginUser(username, password);
+  if ('error' in result) {
+    if (result.error === 'suspended') {
+      return res.status(403).json({ message: '활동이 정지된 계정입니다. 관리자에게 문의하세요.' });
+    }
+    return res.status(401).json({ message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+  }
 
-  res.cookie('userId', user.id, authCookieOptions);
-  return res.json(user);
+  res.cookie('userId', result.user.id, authCookieOptions);
+  return res.json(result.user);
 });
 
 // 로그아웃

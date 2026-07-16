@@ -1,4 +1,12 @@
-import { countUsers, countActiveSince, findUserById, deleteUserCascade } from '../repository/auth_repository.ts';
+import {
+  countUsers,
+  countActiveSince,
+  findUserById,
+  deleteUserCascade,
+  findAllUsers,
+  updateUserAdmin,
+  updateUserSuspended
+} from '../repository/auth_repository.ts';
 import { groupReports, deleteReportsForTarget, countReportedTargets } from '../repository/report_repository.ts';
 import { findProgressById, deleteProgressById, findAllProgress } from '../repository/progress_repository.ts';
 import { findDiscussionById, deleteDiscussionById } from '../repository/discussion_repository.ts';
@@ -68,6 +76,44 @@ export const listReportedPosts = async () => {
 
 // 전체 서평 목록 (신고 여부와 무관, 관리자 관리용 — 최신순)
 export const listAllReviews = () => findAllProgress();
+
+// --- 회원 관리 ---
+
+// 전체 회원 목록 (관리자용)
+export const listMembers = () => findAllUsers();
+
+// 관리자 권한 부여/회수. 본인 권한은 스스로 못 바꾼다(실수로 관리자 잠금 방지).
+export const setMemberAdmin = async (actorId: string, targetId: string, isAdmin: boolean) => {
+  if (actorId === targetId) return { error: '본인의 관리자 권한은 변경할 수 없습니다.' as const };
+  const target = await findUserById(targetId);
+  if (!target) return { error: '사용자를 찾을 수 없습니다.' as const };
+  const user = await updateUserAdmin(targetId, isAdmin);
+  return { user };
+};
+
+// 활동 정지/해제. 본인·다른 관리자는 정지할 수 없다(관리자는 먼저 권한을 회수해야 함).
+export const setMemberSuspended = async (actorId: string, targetId: string, suspended: boolean) => {
+  if (actorId === targetId) return { error: '본인 계정은 정지할 수 없습니다.' as const };
+  const target = await findUserById(targetId);
+  if (!target) return { error: '사용자를 찾을 수 없습니다.' as const };
+  if (suspended && target.isAdmin) {
+    return { error: '관리자는 정지할 수 없습니다. 먼저 관리자 권한을 회수하세요.' as const };
+  }
+  const user = await updateUserSuspended(targetId, suspended);
+  return { user };
+};
+
+// 회원 삭제(관련 데이터 cascade). 본인·다른 관리자는 삭제할 수 없다.
+export const removeMember = async (actorId: string, targetId: string) => {
+  if (actorId === targetId) return { error: '본인 계정은 여기서 삭제할 수 없습니다. (설정 > 회원 탈퇴)' as const };
+  const target = await findUserById(targetId);
+  if (!target) return { error: '사용자를 찾을 수 없습니다.' as const };
+  if (target.isAdmin) {
+    return { error: '관리자는 삭제할 수 없습니다. 먼저 관리자 권한을 회수하세요.' as const };
+  }
+  await deleteUserCascade(targetId);
+  return { ok: true as const };
+};
 
 // 신고된 게시물 삭제 (신고 기록도 함께 삭제)
 export const deleteReportedPost = async (targetType: string, targetId: string) => {

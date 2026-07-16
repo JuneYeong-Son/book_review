@@ -27,6 +27,31 @@ export const touchLastSeen = (id: string) =>
 
 export const countUsers = () => prisma.user.count();
 
+// 관리자 회원 관리용: 전체 회원 목록 (가입 순, 비밀번호 해시 제외)
+export const findAllUsers = () =>
+  prisma.user.findMany({
+    orderBy: { createdAt: 'asc' },
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      avatar: true,
+      birthYear: true,
+      isAdmin: true,
+      suspended: true,
+      lastSeenAt: true,
+      createdAt: true
+    }
+  });
+
+// 관리자 권한 부여/회수
+export const updateUserAdmin = (id: string, isAdmin: boolean) =>
+  prisma.user.update({ where: { id }, data: { isAdmin } });
+
+// 활동 정지/해제
+export const updateUserSuspended = (id: string, suspended: boolean) =>
+  prisma.user.update({ where: { id }, data: { suspended } });
+
 export const countActiveSince = (since: Date) =>
   prisma.user.count({ where: { lastSeenAt: { gte: since } } });
 

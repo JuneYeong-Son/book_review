@@ -57,12 +57,13 @@ const BookCard = ({ book, latest, interested, reason, onDismiss, onToggleInteres
         </div>
       )}
 
-      {/* 내 서재에 없으면 먼저 담기, 담은 뒤에야 서평 쓰기 노출 */}
+      {/* 내 서재에 없으면 먼저 담기, 담은 뒤에야 서평 쓰기 노출.
+          .card-action full 로 카드 하단에 폭 맞춰 정렬(카드마다 위치 통일). */}
       {loggedIn && !interested && (
-        <button className="btn small" onClick={() => onToggleInterest(book.id)}>＋ 내 서재에 추가</button>
+        <button className="btn small full card-action" onClick={() => onToggleInterest(book.id)}>＋ 내 서재에 추가</button>
       )}
       {loggedIn && interested && (
-        <button className="btn ghost small" onClick={() => setOpen((v) => !v)}>
+        <button className="btn ghost small full card-action" onClick={() => setOpen((v) => !v)}>
           {open ? '닫기' : '독서 기록·서평 쓰기'}
         </button>
       )}
@@ -79,7 +80,7 @@ const BookCard = ({ book, latest, interested, reason, onDismiss, onToggleInteres
           </label>
           <label className="row">
             <span>서평</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="이 책에 대한 생각을 남겨보세요" />
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} minLength={10} placeholder="이 책에 대한 생각을 남겨보세요 (10자 이상, 비우면 쪽수만 기록)" />
           </label>
           <label className="row">
             <span>인상깊은 글귀 <em className="optional">(선택)</em></span>

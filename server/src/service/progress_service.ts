@@ -6,7 +6,7 @@ import {
   findProgressById,
   findProgressDetail,
   findProgressByBookSeq,
-  countProgressByBook,
+  maxBookSeqByBook,
   insertProgress,
   insertReviewComment,
   updateProgress,
@@ -19,6 +19,9 @@ import {
 import { findBookById } from '../repository/book_repository.ts';
 import { findUserById } from '../repository/auth_repository.ts';
 import { createNotification } from './notification_service.ts';
+
+// 서평(note)을 적을 경우 요구되는 최소 길이 (과하게 짧은 글 방지)
+const MIN_NOTE_LEN = 10;
 
 // 모든 사용자의 독서 기록 (다른 사람 기록도 볼 수 있음, 페이지네이션 지원)
 export const listProgress = (skip?: number, take?: number) => findAllProgress(skip, take);
@@ -50,6 +53,12 @@ export const editReview = async (
   if (progress.userId !== userId) return { error: '본인 서평만 수정할 수 있습니다.' as const };
   if (fields.rating !== undefined && (fields.rating < 0 || fields.rating > 5)) {
     return { error: '별점은 0~5 사이여야 합니다.' as const };
+  }
+  if (fields.note !== undefined) {
+    const t = fields.note.trim();
+    if (t.length > 0 && t.length < MIN_NOTE_LEN) {
+      return { error: `서평이 너무 짧아요. ${MIN_NOTE_LEN}자 이상 적어주세요.` as const };
+    }
   }
   const record = await updateProgress(id, fields);
   return { record };
@@ -104,8 +113,16 @@ export const saveProgress = async (input: {
   if (input.rating < 0 || input.rating > 5) {
     return { error: '별점은 0~5 사이여야 합니다.' as const };
   }
+  // 과하게 짧은 서평 방지: 글을 적었다면 10자 이상. (빈 값은 페이지만 남기는 독서 기록으로 허용)
+  const trimmedNote = input.note.trim();
+  if (trimmedNote.length > 0 && trimmedNote.length < MIN_NOTE_LEN) {
+    return { error: `서평이 너무 짧아요. ${MIN_NOTE_LEN}자 이상 적어주세요.` as const };
+  }
 
-  const bookSeq = (await countProgressByBook(input.bookId)) + 1; // 그 책의 다음 순번
+  // 그 책의 다음 순번 = 현재 최대 순번 + 1.
+  // count가 아니라 max로 매겨야 서평 삭제 후에도 순번이 재사용(충돌)되지 않아,
+  // /books/:bookId/reviews/:bookSeq 로 들어갔을 때 다른 서평이 뜨는 문제가 없다.
+  const bookSeq = (await maxBookSeqByBook(input.bookId)) + 1;
   const record = await insertProgress({ ...input, bookSeq });
   return { record };
 };

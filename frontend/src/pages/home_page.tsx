@@ -155,19 +155,24 @@ const HomePage = () => {
       ) : (
         <Carousel onLoadMore={reviewsEnd ? undefined : () => setReviewSize(reviewSize + 1)}>
           {sortedReviews.map((r) => (
-            <Link key={r.id} to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-card review-card">
-              <img src={r.book.cover} alt={r.book.title} className="sq-cover" width={220} height={112} loading="lazy" />
+            // 카드 전체가 아니라 각 요소를 개별 링크로: 표지·서평글 → 서평 상세, 책 → 책 상세, 작성자 → 프로필
+            <article key={r.id} className="sq-card review-card">
+              <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} aria-label={`${r.book.title} 서평 자세히 보기`}>
+                <img src={r.book.cover} alt={r.book.title} className="sq-cover" width={220} height={112} loading="lazy" />
+              </Link>
               <div className="sq-body">
-                <span className="sq-book">{r.book.title}</span>
-                {r.note
-                  ? <p className="sq-review">{r.note}</p>
-                  : <p className="sq-review muted">{r.startPage}~{r.endPage}쪽까지 읽었어요.</p>}
+                <Link to={`/books/${r.bookId}`} className="sq-book sq-link">{r.book.title}</Link>
+                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-link">
+                  {r.note
+                    ? <p className="sq-review">{r.note}</p>
+                    : <p className="sq-review muted">{r.startPage}~{r.endPage}쪽까지 읽었어요.</p>}
+                </Link>
                 <div className="sq-foot">
-                  <span className="sq-reader">{r.user.avatar} {r.user.name}</span>
+                  <Link to={`/users/${r.user.id}`} className="sq-reader user-link">{r.user.avatar} {r.user.name}</Link>
                   <span className="like-count">♥ {r.likes.length}</span>
                 </div>
               </div>
-            </Link>
+            </article>
           ))}
         </Carousel>
       )}
@@ -179,14 +184,18 @@ const HomePage = () => {
       ) : (
         <Carousel onLoadMore={discEnd ? undefined : () => setDiscSize(discSize + 1)}>
           {sortedDiscussions.map((d) => (
-            <Link key={d.id} to={`/discussions/${d.id}`} className="sq-card">
-              <img src={d.book.cover} alt={d.book.title} className="sq-cover" width={220} height={170} loading="lazy" />
+            <article key={d.id} className="sq-card">
+              <Link to={`/discussions/${d.id}`} aria-label={`${d.title} 토론 보기`}>
+                <img src={d.book.cover} alt={d.book.title} className="sq-cover" width={220} height={170} loading="lazy" />
+              </Link>
               <div className="sq-body">
-                <strong className="sq-title">{d.title}</strong>
-                <p className="muted small">{d.book.title}</p>
-                <p className="muted small">{d.owner.avatar} {d.owner.name} · 댓글 {d._count.comments}</p>
+                <Link to={`/discussions/${d.id}`} className="sq-link"><strong className="sq-title">{d.title}</strong></Link>
+                <Link to={`/books/${d.book.id}`} className="muted small sq-link">{d.book.title}</Link>
+                <p className="muted small">
+                  <Link to={`/users/${d.owner.id}`} className="user-link">{d.owner.avatar} {d.owner.name}</Link> · 댓글 {d._count.comments}
+                </p>
               </div>
-            </Link>
+            </article>
           ))}
         </Carousel>
       )}
@@ -256,7 +265,7 @@ const HomePage = () => {
                   onOpen={() => openExternal(rec)}
                   dismiss={user ? { onClick: () => handleDismissReco(rec), label: '추천 안 받기' } : null}
                 >
-                  {user && <button className="btn ghost small" onClick={() => handleImportReco(rec)}>내 서재에 추가</button>}
+                  {user && <button className="btn small full card-action" onClick={() => handleImportReco(rec)}>＋ 내 서재에 추가</button>}
                 </BookCardShell>
               </div>
             )

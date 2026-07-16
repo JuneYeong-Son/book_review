@@ -404,6 +404,9 @@ a:hover { text-decoration: underline; }
   font-size: 0.8rem; color: var(--muted); line-height: 1.25;
   display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
 }
+/* 홈 카드 안의 개별 링크(책·서평글·토론 제목) — 색은 상속받고 hover에서만 밑줄 */
+.sq-link { color: inherit; text-decoration: none; }
+.sq-link:hover { text-decoration: underline; }
 .sq-review {
   margin: 0; flex: 1;
   font-size: 0.92rem; line-height: 1.55; color: var(--ink);
@@ -418,7 +421,12 @@ a:hover { text-decoration: underline; }
 .sq-foot .sq-reader { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Recommendation cards inside carousel */
-.carousel-track .reco-slot { flex: 0 0 230px; width: 230px; }
+/* 슬롯을 flex로 만들어 카드가 슬롯(=행 최대) 높이를 꽉 채우게 하고,
+   담기/서평 버튼(.card-action)은 카드 하단에 항상 같은 위치로 정렬한다. */
+.carousel-track .reco-slot { flex: 0 0 230px; width: 230px; display: flex; }
+.reco-slot > .book-card { width: 100%; height: 100%; }
+.reco-slot .book-body { flex: 1 1 auto; }
+.card-action { margin-top: auto; }
 .book-title-link { color: inherit; }
 .book-title-link:hover h3 { color: var(--accent); text-decoration: underline; }
 .picker-subhead { margin: 18px 0 8px; font-size: 0.95rem; }
@@ -467,11 +475,50 @@ a:hover { text-decoration: underline; }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 
 /* Footer — Anthropic 시그니처 다크 네이비(페이지를 닫는 면, 반전 없음) */
+/* 스티키 푸터: 내용이 짧아도 푸터가 화면 맨 아래에 붙도록(푸터가 위로 뜨던 문제) */
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+.container { flex: 1 0 auto; }
+
 .app-footer { background: var(--surface-dark); color: var(--on-dark-soft); margin-top: 40px; }
 .footer-inner { max-width: 960px; margin: 0 auto; padding: 24px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 .footer-brand { font-weight: 700; color: var(--on-dark); }
+.footer-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.footer-actions .footer-link { color: var(--on-dark); font-size: 0.88rem; }
+/* 푸터의 의견·버그 신고 버튼(어두운 배경 위) */
+.footer-actions .btn.ghost { color: var(--on-dark); border-color: rgba(255,255,255,0.35); }
+.footer-actions .btn.ghost:hover { background: rgba(255,255,255,0.12); }
 .footer-info { display: flex; gap: 16px; color: var(--on-dark-soft); font-size: 0.88rem; }
 .app-footer a { color: var(--on-dark); }
+
+/* 정적 문서 페이지(이용 약관 등) */
+.doc-page p { line-height: 1.7; }
+.doc-list { margin: 8px 0 0; padding-left: 20px; line-height: 1.7; }
+
+/* 피드백 모달 */
+.feedback-kind { border: none; padding: 0; margin: 0; display: flex; gap: 16px; align-items: center; }
+.radio-row { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+.feedback-done { display: flex; flex-direction: column; gap: 14px; }
+
+/* 관리자: 피드백 목록 */
+.feedback-list, .member-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.feedback-item, .member-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+}
+.feedback-item.resolved, .member-item.suspended { opacity: 0.6; }
+.feedback-main { flex: 1; min-width: 0; }
+.feedback-msg { margin: 0 0 4px; white-space: pre-wrap; word-break: break-word; }
+.feedback-kind-badge { font-size: 0.75rem; margin-right: 6px; padding: 1px 6px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.feedback-kind-badge.bug { background: #fdecea; color: var(--danger); }
+.feedback-actions, .member-actions { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+
+/* 관리자: 회원 목록 */
+.member-avatar { font-size: 1.6rem; }
+.member-main { flex: 1; min-width: 0; }
+.member-name { margin: 0 0 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.member-badge { font-size: 0.72rem; padding: 1px 7px; border-radius: 999px; }
+.member-badge.admin { background: var(--accent-soft); color: var(--accent); }
+.member-badge.suspended { background: #fdecea; color: var(--danger); }
 .dropdown-item.logout { border-top: 1px solid var(--border); margin-top: 4px; color: var(--danger); }
 
 /* Search */
@@ -674,6 +721,21 @@ textarea { resize: vertical; }
 
 .discussion-detail .detail-head { display: flex; gap: 16px; margin: 12px 0; align-items: flex-start; }
 .detail-head h1 { margin: 0 0 4px; }
+/* 토론 본문: 상단 '책 소개' 헤더와 확실히 구분되도록 라벨 붙은 카드로 */
+.discussion-body {
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 14px 16px;
+}
+.discussion-body .body-label {
+  display: block; margin-bottom: 6px;
+  font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700;
+}
+.discussion-body .detail-desc { background: none; border-radius: 0; padding: 0; margin: 0; line-height: 1.7; }
 .detail-desc { background: var(--accent-soft); border-radius: 10px; padding: 14px; }
 
 /* 서평 상세: 책은 '맥락 카드'로 축소, 서평 본문이 주인공이 되도록 분리 */

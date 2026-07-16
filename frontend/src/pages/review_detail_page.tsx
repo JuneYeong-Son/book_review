@@ -151,7 +151,7 @@ const ReviewDetailPage = () => {
         {review.comments.map((c) => (
           <li key={c.id} className="comment-item">
             <div className="comment-top">
-              <strong>{c.user.avatar} {c.user.name}</strong>
+              <Link to={`/users/${c.user.id}`} className="user-link"><strong>{c.user.avatar} {c.user.name}</strong></Link>
               <span className="muted small">{formatDateTime(c.createdAt)}</span>
             </div>
             <p>{c.text}</p>

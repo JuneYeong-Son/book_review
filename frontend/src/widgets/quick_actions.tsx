@@ -2,7 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { mutate } from 'swr';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, BookCandidate } from '@/shared/api/types.ts';
-import { useMyProgress, useMyInterests, useBooks, KEY } from '@/shared/api/hooks.ts';
+import { useMyProgress, useMyInterests, KEY } from '@/shared/api/hooks.ts';
 import Modal from '@/shared/ui/modal.tsx';
 
 type Props = {
@@ -15,7 +15,6 @@ const QuickActions = ({ onChange }: Props) => {
   const [which, setWhich] = useState<Which>(null);
   const [submitting, setSubmitting] = useState(false);
   // 공용 SWR 훅(홈·마이페이지와 캐시 공유). 모달을 열고 닫을 때마다 전체를 재fetch하던 문제 제거.
-  const { data: books = [] } = useBooks();
   const { data: interests = [] } = useMyInterests();
   const { data: myProgress = [] } = useMyProgress();
   const myBooks = useMemo(
@@ -23,6 +22,8 @@ const QuickActions = ({ onChange }: Props) => {
     [myProgress]
   );
   const interestedIds = useMemo(() => new Set(interests.map((i) => i.bookId)), [interests]);
+  // 서평은 "내 서재(관심)에 담은 책"에만 쓸 수 있다. 서재에 담긴 책 목록.
+  const libraryBooks = useMemo(() => interests.map((i) => i.book), [interests]);
 
   // --- 서평 쓰기 ---
   const [rBook, setRBook] = useState('');
@@ -117,11 +118,18 @@ const QuickActions = ({ onChange }: Props) => {
 
       {which === 'review' && (
         <Modal title="서평 쓰기" onClose={() => setWhich(null)}>
+          {libraryBooks.length === 0 ? (
+            <p className="muted">
+              서평은 <strong>내 서재에 담은 책</strong>에만 쓸 수 있어요. 먼저 위 &lsquo;📚 내 서재에 추가&rsquo;에서
+              책을 담은 뒤 다시 서평을 써주세요.
+            </p>
+          ) : (
           <form className="modal-form" onSubmit={submitReview}>
+            <p className="muted small picker-hint">내 서재에 담은 책만 서평을 쓸 수 있어요.</p>
             <label>책
               <select value={rBook} onChange={(e) => setRBook(e.target.value)} required>
                 <option value="">책 선택</option>
-                {books.map((b) => <option key={b.id} value={b.id}>{b.title}</option>)}
+                {libraryBooks.map((b) => <option key={b.id} value={b.id}>{b.title}</option>)}
               </select>
             </label>
             <label>어디부터 어디까지 읽었나요? (쪽)
@@ -131,13 +139,14 @@ const QuickActions = ({ onChange }: Props) => {
                 <input type="number" min={0} value={rEnd} onChange={(e) => setREnd(Number(e.target.value))} aria-label="끝 쪽" />
               </span>
             </label>
-            <label>서평 <textarea value={rNote} onChange={(e) => setRNote(e.target.value)} rows={3} /></label>
+            <label>서평 <textarea value={rNote} onChange={(e) => setRNote(e.target.value)} rows={3} minLength={10} placeholder="10자 이상 적어주세요 (비워두면 쪽수만 기록돼요)" /></label>
             <label>인상깊은 글귀 <em className="optional">(선택)</em>
               <textarea value={rQuote} onChange={(e) => setRQuote(e.target.value)} rows={2} />
             </label>
             {rErr && <p className="error" role="alert">{rErr}</p>}
             <button type="submit" className="btn full" disabled={submitting}>{submitting ? '저장 중…' : '저장'}</button>
           </form>
+          )}
         </Modal>
       )}
 
@@ -181,8 +190,8 @@ const QuickActions = ({ onChange }: Props) => {
                   {myBooks.map((b) => <option key={b.id} value={b.id}>{b.title}</option>)}
                 </select>
               </label>
-              <label>제목 <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required /></label>
-              <label>설명 <textarea value={dDesc} onChange={(e) => setDDesc(e.target.value)} rows={3} /></label>
+              <label>제목 <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required minLength={2} /></label>
+              <label>내용 <textarea value={dDesc} onChange={(e) => setDDesc(e.target.value)} rows={3} required minLength={10} placeholder="토론 내용을 10자 이상 적어주세요" /></label>
               {dErr && <p className="error" role="alert">{dErr}</p>}
               <button type="submit" className="btn full" disabled={submitting}>{submitting ? '여는 중…' : '토론 열기'}</button>
             </form>

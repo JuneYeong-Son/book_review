@@ -5,6 +5,20 @@ export type User = {
   avatar: string;
   birthYear: number | null;
   isAdmin: boolean;
+  suspended?: boolean;
+};
+
+// 관리자 회원 관리용 목록 항목
+export type Member = {
+  id: string;
+  username: string;
+  name: string;
+  avatar: string;
+  birthYear: number | null;
+  isAdmin: boolean;
+  suspended: boolean;
+  lastSeenAt: string | null;
+  createdAt: string;
 };
 
 export type AdminStats = {
@@ -18,6 +32,17 @@ export type UserProfile = {
   reviews: Progress[];
   interests: Interest[];
   discussions: DiscussionSummary[];
+};
+
+export type Feedback = {
+  id: string;
+  userId: string | null;
+  name: string;
+  kind: 'feedback' | 'bug';
+  message: string;
+  page: string;
+  resolved: boolean;
+  createdAt: string;
 };
 
 export type ReportedPost = {

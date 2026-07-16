@@ -59,7 +59,8 @@ const RegisterPage = () => {
         </label>
         <label>
           비밀번호
-          <input name="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
+          <input name="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required minLength={8} aria-describedby="pw-hint" />
+          <small id="pw-hint" className="muted">8자 이상, 영문과 숫자를 모두 포함해주세요.</small>
         </label>
         <label>
           출생연도 <em className="optional">(선택 · 연령대 추천에 사용)</em>

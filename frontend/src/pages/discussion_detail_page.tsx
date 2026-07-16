@@ -44,14 +44,21 @@ const DiscussionDetailPage = () => {
     <section className="discussion-detail">
       <Link to="/discussions" className="muted small">← 토론 목록</Link>
       <div className="detail-head">
-        <img src={discussion.book.cover} alt={discussion.book.title} className="record-cover" width={54} height={76} />
+        <Link to={`/books/${discussion.book.id}`}>
+          <img src={discussion.book.cover} alt={discussion.book.title} className="record-cover" width={54} height={76} />
+        </Link>
         <div>
           <h1>{discussion.title}</h1>
-          <p className="muted">{discussion.book.title} · {discussion.book.author}</p>
+          <p className="muted context-label">📖 <Link to={`/books/${discussion.book.id}`} className="user-link">{discussion.book.title}</Link> · {discussion.book.author}</p>
           <p className="muted small"><Link to={`/users/${discussion.owner.id}`} className="user-link">{discussion.owner.name}</Link>님이 열었어요 · {formatDateTime(discussion.createdAt)}</p>
         </div>
       </div>
-      {discussion.description && <p className="detail-desc">{discussion.description}</p>}
+      {discussion.description && (
+        <div className="discussion-body">
+          <span className="body-label">토론 내용</span>
+          <p className="detail-desc">{discussion.description}</p>
+        </div>
+      )}
 
       {discussion.owner.id !== user?.id && (
         <div className="detail-actions">
