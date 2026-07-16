@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { SESSION_SECRET } from './lib/cookie.ts';
+import { ensureAdmins } from './lib/bootstrap.ts';
 import authController from './controller/auth_controller.ts';
 import bookController from './controller/book_controller.ts';
 import progressController from './controller/progress_controller.ts';
@@ -45,6 +46,7 @@ app.use('/api/reports', reportController);
 app.use('/api/admin', adminController);
 app.use('/api/users', userController);
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await ensureAdmins(); // 관리자 플래그 보장(재배포 시 seed 건너뛰어도 유지)
   console.log(`Server listening on http://localhost:${PORT}`);
 });

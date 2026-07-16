@@ -25,6 +25,8 @@ services:
         fromDatabase:
           name: book-review-db
           property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true # 세션 쿠키 서명 시크릿 (Render가 안정적인 랜덤값 생성)
       - key: ALADIN_TTB_KEY
         sync: false
       - key: FRONTEND_URL

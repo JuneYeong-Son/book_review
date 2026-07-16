@@ -9,7 +9,7 @@
     "seed": "tsx prisma/seed.ts",
     "prisma:generate": "prisma generate",
     "db:push": "prisma db push",
-    "build": "node scripts/use-postgres.mjs && prisma generate && prisma db push --accept-data-loss",
+    "build": "node scripts/use-postgres.mjs && prisma generate && node scripts/predeploy.mjs && prisma db push --accept-data-loss",
     "deploy:setup": "node scripts/use-postgres.mjs && prisma generate && prisma db push --accept-data-loss && tsx prisma/seed.ts"
   },
   "dependencies": {
