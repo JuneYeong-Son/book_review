@@ -52,6 +52,9 @@ erDiagram
 ### EmailVerification — 이메일 인증 대기
 가입 확정 전 임시 저장. 인증 성공 시 User로 승격 후 삭제. `email` unique, `code`(6자리), `expiresAt`(10분).
 
+### Notice — 공지사항
+관리자만 작성·수정·삭제(모두 열람). `title`·`body`·`pinned`(고정)·createdAt·updatedAt.
+
 ### Feedback — 피드백/버그 신고
 비로그인 허용 → User와 **하드 관계 없음**(userId는 참고용, `name` 제출 시점 저장). `kind`('feedback'|'bug'), `resolved`.
 

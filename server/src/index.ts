@@ -13,6 +13,7 @@ import reportController from './controller/report_controller.ts';
 import adminController from './controller/admin_controller.ts';
 import userController from './controller/user_controller.ts';
 import feedbackController from './controller/feedback_controller.ts';
+import noticeController from './controller/notice_controller.ts';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
@@ -57,6 +58,7 @@ app.use('/api/reports', reportController);
 app.use('/api/admin', adminController);
 app.use('/api/users', userController);
 app.use('/api/feedback', feedbackController);
+app.use('/api/notices', noticeController);
 
 app.listen(PORT, async () => {
   await ensureAdmins(); // 관리자 플래그 보장(재배포 시 seed 건너뛰어도 유지)

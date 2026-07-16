@@ -4,8 +4,6 @@
 > requirements.md / design / logic 문서로 옮긴다.
 
 ## 진행 예정 / 요청됨
-- [ ] **공지사항 만들기**: 운영자가 공지를 올리고 사용자에게 노출(홈 배너/목록 등). 관리자 작성·수정·삭제.
-      설계 초안: `Notice { id, title, body, pinned, createdAt }` + 관리자 CRUD API + 홈/전용 페이지 노출.
 - [~] **안드로이드 앱(스토어 목표)**: Capacitor **번들 + 토큰 인증**으로 전환 완료(`frontend/android/`). 아이디 로그인·회원가입 앱에서 작동(토큰). **남은 것:** ①Android Studio로 서명 AAB 빌드 ②개인정보 처리방침 + Data Safety ③스토어 등록. 가이드 [../android/build.md](../android/build.md).
 - [ ] **앱 소셜 로그인(딥링크)**: 카카오/구글을 앱에서 쓰려면 커스텀 스킴 딥링크 + 콜백 토큰 반환 필요(현재 앱은 버튼 숨김).
 - [ ] **개인정보 처리방침 페이지**: 스토어 제출 필수(이메일·휴대폰 수집 명시).
@@ -27,6 +25,7 @@
       피처: 읽은 책의 genre/category/author 분포.
 
 ## 완료됨 (참고)
+- [x] **공지사항**: `Notice{title,body,pinned}` + 관리자 CRUD(`/notices` POST/PATCH/DELETE, 공개 GET) + 홈 배너 + `/notices` 목록 + 관리자 페이지 관리.
 - [x] **신고 버튼**: 서평/토론 신고(`POST /reports`, Report 모델). 관리자 대시보드에서 집계·삭제.
 - [x] **마이페이지 내 책 편집**: 책별로 관심 지정 토글 + 서평 날짜별 수정/삭제(`PATCH/DELETE /progress/:id`).
 - [x] **관리자 페이지(/admin)**: 오늘의 접속자 수·전체 회원 수·신고된 게시물 수, 신고 많은 게시물 삭제.

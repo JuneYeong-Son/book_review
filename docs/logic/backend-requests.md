@@ -25,6 +25,9 @@
 - `PATCH /admin/members/:id/admin` 관리자 권한 부여/회수, `PATCH /admin/members/:id/suspend` 활동 정지/해제, `DELETE /admin/members/:id` 회원 삭제(cascade).
 - 가드: **본인** 권한변경·정지·삭제 불가, **다른 관리자**는 먼저 권한 회수해야 정지·삭제 가능.
 
+## 공지사항
+- `Notice{ title, body, pinned }`. 공개 `GET /notices`(고정 우선·최신순), 관리자 `POST/PATCH/DELETE /notices[/:id]`(requireAuth+requireAdmin). 제목 2자·내용 5자 이상 검증. 홈 배너(최상단 공지)·`/notices` 목록에 노출.
+
 ## 피드백 / 버그 신고
 - `Feedback` 모델(User와 하드관계 없음 — 비로그인 허용, 제출 시점 이름 저장). 필드: `kind`(feedback|bug)·`message`·`page`·`resolved`.
 - `POST /feedback` 제출(비로그인 가능, IP 레이트리밋 10분 5회, 로그인 시 이름 기록). 관리자 `GET /admin/feedback`·`PATCH /admin/feedback/:id/resolve`·`DELETE /admin/feedback/:id`.

@@ -67,6 +67,16 @@ model Feedback {
   createdAt DateTime @default(now())
 }
 
+// 공지사항 (관리자만 작성·수정·삭제, 모두 열람)
+model Notice {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  pinned    Boolean  @default(false) // 상단 고정
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Book {
   id          String       @id @default(cuid())
   title       String

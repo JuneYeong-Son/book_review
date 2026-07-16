@@ -549,6 +549,35 @@ a:hover { text-decoration: underline; }
 .member-badge { font-size: 0.72rem; padding: 1px 7px; border-radius: 999px; }
 .member-badge.admin { background: var(--accent-soft); color: var(--accent); }
 .member-badge.suspended { background: #fdecea; color: var(--danger); }
+
+/* 공지 — 홈 배너 */
+.notice-banner {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+  padding: 10px 14px; border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.notice-banner:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+.notice-banner-tag { flex-shrink: 0; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+.notice-banner-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notice-banner-more { flex-shrink: 0; }
+
+/* 공지 — 목록 페이지 */
+.notice-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.notice-item { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--surface); }
+.notice-item.pinned { border-left: 3px solid var(--accent); }
+.notice-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.notice-pin { font-size: 0.75rem; color: var(--accent); }
+.notice-title { margin: 0; font-size: 1.1rem; }
+.notice-date { margin-left: auto; }
+.notice-body { margin: 0; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+
+/* 공지 — 관리자 작성/목록 */
+.notice-form { display: flex; flex-direction: column; gap: 8px; max-width: 560px; margin-bottom: 16px; }
+.notice-admin-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.notice-admin-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.notice-admin-main { flex: 1; min-width: 0; }
+.notice-admin-title { margin: 0; font-weight: 600; }
+.notice-admin-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .dropdown-item.logout { border-top: 1px solid var(--border); margin-top: 4px; color: var(--danger); }
 
 /* Search */

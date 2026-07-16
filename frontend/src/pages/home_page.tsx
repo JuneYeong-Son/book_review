@@ -5,7 +5,7 @@ import useSWRInfinite from 'swr/infinite';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, DiscussionSummary, Progress, Recommendation, RecoMethod } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
-import { useMyProgress, useMyInterests, KEY } from '@/shared/api/hooks.ts';
+import { useMyProgress, useMyInterests, useNotices, KEY } from '@/shared/api/hooks.ts';
 import { displayName } from '@/shared/lib/display.ts';
 import BookCard from '@/entities/book_card.tsx';
 import BookCardShell from '@/entities/book_card_shell.tsx';
@@ -36,6 +36,7 @@ const HomePage = () => {
   // 공용 SWR 훅: /progress/me·/books/interests/me는 QuickActions·마이페이지와 캐시를 공유(중복 fetch 제거)
   const { data: myProgress = [] } = useMyProgress();
   const { data: interests = [] } = useMyInterests();
+  const { data: notices = [] } = useNotices();
   // 무한 스크롤 목록 — useSWRInfinite로 페이지 누적(수동 state 대신)
   const { data: reviewPages, size: reviewSize, setSize: setReviewSize, mutate: mutateReviews } =
     useSWRInfinite<Progress[]>(reviewsKey);
@@ -140,6 +141,15 @@ const HomePage = () => {
         </p>
         {user && <QuickActions onChange={() => { mutateReviews(); mutateDiscussions(); loadReco(true); }} />}
       </div>
+
+      {/* 공지 배너 — 최상단 공지(고정 우선) 한 줄, 클릭 시 공지 목록으로 */}
+      {notices.length > 0 && (
+        <Link to="/notices" className="notice-banner">
+          <span className="notice-banner-tag">📢 공지</span>
+          <span className="notice-banner-title">{notices[0].title}</span>
+          <span className="muted small notice-banner-more">전체 보기 →</span>
+        </Link>
+      )}
 
       {myQuotes.length > 0 && (
         <div className="quote-strip">

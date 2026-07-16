@@ -36,6 +36,15 @@ export type UserProfile = {
   discussions: DiscussionSummary[];
 };
 
+export type Notice = {
+  id: string;
+  title: string;
+  body: string;
+  pinned: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Feedback = {
   id: string;
   userId: string | null;

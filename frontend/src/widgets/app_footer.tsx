@@ -8,6 +8,7 @@ const AppFooter = () => {
         <span className="footer-brand">📖 책갈피</span>
         <div className="footer-actions">
           <FeedbackWidget />
+          <Link to="/notices" className="footer-link">공지사항</Link>
           <Link to="/terms" className="footer-link">이용 약관</Link>
           <Link to="/privacy" className="footer-link">개인정보 처리방침</Link>
         </div>

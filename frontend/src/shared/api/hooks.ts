@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
-import type { Book, DiscussionSummary, Interest, Progress } from '@/shared/api/types.ts';
+import type { Book, DiscussionSummary, Interest, Notice, Progress } from '@/shared/api/types.ts';
 
 // 여러 화면이 공유하는 SWR 키. 같은 키를 쓰는 컴포넌트끼리는 SWR이 요청을 자동 dedup하고
 // 캐시를 공유한다(예: 홈 + QuickActions가 /progress/me·/books/interests/me를 중복 호출하던 문제 해소).
@@ -9,7 +9,8 @@ export const KEY = {
   progressMe: '/progress/me',
   interestsMe: '/books/interests/me',
   discussionsMe: '/discussions/me',
-  books: '/books'
+  books: '/books',
+  notices: '/notices'
 } as const;
 
 // 로그인 사용자 범위 데이터 — 비로그인 시 key=null이라 요청하지 않는다.
@@ -30,3 +31,6 @@ export const useMyDiscussions = () => {
 
 // 전체 책 목록(로그인 무관).
 export const useBooks = () => useSWR<Book[]>(KEY.books);
+
+// 공지사항(로그인 무관).
+export const useNotices = () => useSWR<Notice[]>(KEY.notices);

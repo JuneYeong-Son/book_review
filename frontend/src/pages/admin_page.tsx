@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { apiGet, apiDelete, apiPatch } from '@/shared/api/client.ts';
-import type { AdminStats, ReportedPost, Progress, Member, Feedback } from '@/shared/api/types.ts';
+import { mutate } from 'swr';
+import { apiGet, apiPost, apiDelete, apiPatch } from '@/shared/api/client.ts';
+import type { AdminStats, ReportedPost, Progress, Member, Feedback, Notice } from '@/shared/api/types.ts';
+import { KEY } from '@/shared/api/hooks.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 const AdminPage = () => {
@@ -11,6 +13,11 @@ const AdminPage = () => {
   const [reviews, setReviews] = useState<Progress[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
+  const [notices, setNotices] = useState<Notice[]>([]);
+  // 공지 작성 폼
+  const [nTitle, setNTitle] = useState('');
+  const [nBody, setNBody] = useState('');
+  const [nPinned, setNPinned] = useState(false);
 
   const load = () => {
     apiGet<AdminStats>('/admin/stats').then(setStats).catch(() => setStats(null));
@@ -18,6 +25,7 @@ const AdminPage = () => {
     apiGet<Progress[]>('/admin/reviews').then(setReviews).catch(() => setReviews([]));
     apiGet<Member[]>('/admin/members').then(setMembers).catch(() => setMembers([]));
     apiGet<Feedback[]>('/admin/feedback').then(setFeedback).catch(() => setFeedback([]));
+    apiGet<Notice[]>('/notices').then(setNotices).catch(() => setNotices([]));
   };
 
   useEffect(() => { if (user?.isAdmin) load(); }, [user]);
@@ -42,6 +50,21 @@ const AdminPage = () => {
     run(() => apiPatch(`/admin/feedback/${f.id}/resolve`, { resolved: !f.resolved }));
   const deleteFeedback = (f: Feedback) =>
     run(() => apiDelete(`/admin/feedback/${f.id}`));
+
+  // 공지사항 관리 — 변경 후 공용 SWR 캐시(홈 배너·목록)도 갱신
+  const createNotice = (e: FormEvent) => {
+    e.preventDefault();
+    run(async () => {
+      await apiPost('/notices', { title: nTitle, body: nBody, pinned: nPinned });
+      setNTitle(''); setNBody(''); setNPinned(false);
+      mutate(KEY.notices);
+    });
+  };
+  const togglePin = (n: Notice) => run(async () => { await apiPatch(`/notices/${n.id}`, { pinned: !n.pinned }); mutate(KEY.notices); });
+  const deleteNotice = (n: Notice) => {
+    if (!window.confirm(`공지 '${n.title}'을(를) 삭제할까요?`)) return;
+    run(async () => { await apiDelete(`/notices/${n.id}`); mutate(KEY.notices); });
+  };
 
   const removePost = async (p: ReportedPost) => {
     if (!window.confirm(`'${p.title}'을(를) 삭제할까요?`)) return;
@@ -76,6 +99,30 @@ const AdminPage = () => {
           <span className="stat-label">신고된 게시물</span>
         </div>
       </div>
+
+      <h2 className="section-title">공지사항 관리 ({notices.length})</h2>
+      <form className="notice-form" onSubmit={createNotice}>
+        <input value={nTitle} onChange={(e) => setNTitle(e.target.value)} placeholder="공지 제목" required minLength={2} />
+        <textarea value={nBody} onChange={(e) => setNBody(e.target.value)} rows={3} placeholder="공지 내용" required minLength={5} />
+        <label className="consent-row"><input type="checkbox" checked={nPinned} onChange={(e) => setNPinned(e.target.checked)} /> 상단 고정</label>
+        <button className="btn small" type="submit">공지 등록</button>
+      </form>
+      {notices.length > 0 && (
+        <ul className="notice-admin-list">
+          {notices.map((n) => (
+            <li key={n.id} className="notice-admin-item">
+              <div className="notice-admin-main">
+                <p className="notice-admin-title">{n.pinned && '📌 '}{n.title}</p>
+                <p className="muted small">{new Date(n.createdAt).toLocaleDateString('ko-KR')}</p>
+              </div>
+              <div className="notice-admin-actions">
+                <button className="btn ghost small" onClick={() => togglePin(n)}>{n.pinned ? '고정 해제' : '고정'}</button>
+                <button className="btn danger small" onClick={() => deleteNotice(n)}>삭제</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <h2 className="section-title">신고된 게시물 (신고 많은 순)</h2>
       {reports.length === 0 ? (
