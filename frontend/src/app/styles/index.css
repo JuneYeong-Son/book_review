@@ -369,6 +369,26 @@ a:hover { text-decoration: underline; }
 .sq-title { font-size: 1rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sq-note { margin: 0; font-size: 0.83rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
+/* 서평 카드: 표지를 줄이고 서평 내용이 주인공이 되도록 */
+.review-card .sq-cover { height: 112px; }
+.review-card .sq-body { gap: 8px; }
+.sq-book {
+  font-size: 0.8rem; color: var(--muted); line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sq-review {
+  margin: 0; flex: 1;
+  font-size: 0.92rem; line-height: 1.55; color: var(--ink);
+  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sq-review.muted { color: var(--muted); }
+.sq-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border);
+  font-size: 0.75rem; color: var(--muted);
+}
+.sq-foot .sq-reader { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* Recommendation cards inside carousel */
 .carousel-track .reco-slot { flex: 0 0 230px; width: 230px; }
 .book-title-link { color: inherit; }
@@ -626,6 +646,32 @@ textarea { resize: vertical; }
 .discussion-detail .detail-head { display: flex; gap: 16px; margin: 12px 0; align-items: flex-start; }
 .detail-head h1 { margin: 0 0 4px; }
 .detail-desc { background: var(--accent-soft); border-radius: 10px; padding: 14px; }
+
+/* 서평 상세: 책은 '맥락 카드'로 축소, 서평 본문이 주인공이 되도록 분리 */
+.review-detail .book-detail-head {
+  align-items: center; gap: 16px; margin: 12px 0 0;
+  padding: 14px 16px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px;
+}
+.review-detail .book-detail-cover {
+  width: 82px; height: 116px; max-width: none; border-radius: 4px;
+  box-shadow: 0 4px 12px -6px rgba(0,0,0,0.4);
+}
+.review-detail .book-detail-info { flex: 1; min-width: 0; }
+.review-detail .book-detail-info h1 { font-size: 1.2rem; margin: 2px 0 4px; }
+.review-detail .book-detail-info .author { font-size: 0.85rem; margin: 0; }
+.context-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+
+.review-content { margin-top: 24px; }
+.review-byline {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 10px; margin-bottom: 18px; border-bottom: 2px solid var(--border);
+}
+.review-eyebrow { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); }
+.review-body {
+  margin: 0; font-size: 1.12rem; line-height: 1.85; color: var(--ink);
+  max-width: 42em; white-space: pre-wrap;
+}
 /* 서평/토론 본문과 댓글 사이 구분 */
 .review-detail .comments-title, .discussion-detail .comments-title {
   font-size: 1.15rem;

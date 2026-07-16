@@ -78,23 +78,12 @@ const ReviewDetailPage = () => {
       <Link to="/records" className="muted small">← 독서 기록</Link>
       <div className="book-detail-head">
         <Link to={`/books/${review.book.id}`}>
-          <img src={review.book.cover} alt={review.book.title} className="book-detail-cover" width={220} height={300} fetchPriority="high" />
+          <img src={review.book.cover} alt={review.book.title} className="book-detail-cover" width={82} height={116} loading="lazy" />
         </Link>
         <div className="book-detail-info">
+          <p className="context-label">이 서평이 다룬 책</p>
           <Link to={`/books/${review.book.id}`}><h1>{review.book.title}</h1></Link>
           <p className="author">{review.book.author}</p>
-          <p className="muted small reviewer-line">
-            {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{review.user.name}</Link>님의 서평
-            · {formatDateTime(review.createdAt)}
-            {!isMine && (
-              <> · <ReportButton targetType="user" targetId={review.user.id} label="사용자 신고" /></>
-            )}
-          </p>
-          {!editing && (
-            <div className="record-meta">
-              <span className="page-badge">{review.startPage}~{review.endPage}쪽</span>
-            </div>
-          )}
         </div>
       </div>
 
@@ -116,10 +105,22 @@ const ReviewDetailPage = () => {
           </div>
         </div>
       ) : (
-        <>
-          {review.note && <p className="detail-desc">{review.note}</p>}
+        <div className="review-content">
+          <div className="review-byline">
+            <span className="review-eyebrow">서평</span>
+            <span className="muted small">
+              {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{review.user.name}</Link>
+              {' · '}{formatDateTime(review.createdAt)}{' · '}{review.startPage}~{review.endPage}쪽
+              {!isMine && (
+                <> · <ReportButton targetType="user" targetId={review.user.id} label="사용자 신고" /></>
+              )}
+            </span>
+          </div>
+          {review.note
+            ? <p className="review-body">{review.note}</p>
+            : <p className="muted">남긴 글이 없는 기록이에요.</p>}
           {review.quote && <blockquote className="record-quote">“{review.quote}”</blockquote>}
-        </>
+        </div>
       )}
 
       <div className="detail-actions">

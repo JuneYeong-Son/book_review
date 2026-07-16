@@ -161,15 +161,17 @@ const HomePage = () => {
       ) : (
         <Carousel onLoadMore={reviewsEnd ? undefined : () => loadReviews(false)}>
           {sortedReviews.map((r) => (
-            <Link key={r.id} to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-card">
-              <img src={r.book.cover} alt={r.book.title} className="sq-cover" width={220} height={170} loading="lazy" />
+            <Link key={r.id} to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-card review-card">
+              <img src={r.book.cover} alt={r.book.title} className="sq-cover" width={220} height={112} loading="lazy" />
               <div className="sq-body">
-                <strong className="sq-title">{r.book.title}</strong>
-                <div className="record-meta">
+                <span className="sq-book">{r.book.title}</span>
+                {r.note
+                  ? <p className="sq-review">{r.note}</p>
+                  : <p className="sq-review muted">{r.startPage}~{r.endPage}쪽까지 읽었어요.</p>}
+                <div className="sq-foot">
+                  <span className="sq-reader">{r.user.avatar} {r.user.name}</span>
                   <span className="like-count">♥ {r.likes.length}</span>
                 </div>
-                <p className="muted small">{r.user.avatar} {r.user.name} · {r.startPage}~{r.endPage}쪽</p>
-                {r.note && <p className="sq-note">{r.note}</p>}
               </div>
             </Link>
           ))}
