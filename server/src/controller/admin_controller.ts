@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getStats, listReportedPosts, deleteReportedPost } from '../service/admin_service.ts';
+import { getStats, listReportedPosts, deleteReportedPost, listAllReviews } from '../service/admin_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 import { requireAdmin } from '../middleware/admin_middleware.ts';
 
@@ -15,6 +15,11 @@ router.get('/stats', async (_req, res) => {
 // 신고된 게시물 목록
 router.get('/reports', async (_req, res) => {
   return res.json(await listReportedPosts());
+});
+
+// 전체 서평 목록 (신고 여부 무관 관리용)
+router.get('/reviews', async (_req, res) => {
+  return res.json(await listAllReviews());
 });
 
 // 신고된 게시물 삭제

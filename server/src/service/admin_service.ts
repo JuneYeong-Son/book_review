@@ -1,6 +1,6 @@
 import { countUsers, countActiveSince, findUserById, deleteUserCascade } from '../repository/auth_repository.ts';
 import { groupReports, deleteReportsForTarget, countReportedTargets } from '../repository/report_repository.ts';
-import { findProgressById, deleteProgressById } from '../repository/progress_repository.ts';
+import { findProgressById, deleteProgressById, findAllProgress } from '../repository/progress_repository.ts';
 import { findDiscussionById, deleteDiscussionById } from '../repository/discussion_repository.ts';
 
 // 관리자 통계: 오늘의 접속자 수, 회원 수, 신고된 게시물 수
@@ -65,6 +65,9 @@ export const listReportedPosts = async () => {
   );
   return items.filter(Boolean);
 };
+
+// 전체 서평 목록 (신고 여부와 무관, 관리자 관리용 — 최신순)
+export const listAllReviews = () => findAllProgress();
 
 // 신고된 게시물 삭제 (신고 기록도 함께 삭제)
 export const deleteReportedPost = async (targetType: string, targetId: string) => {
