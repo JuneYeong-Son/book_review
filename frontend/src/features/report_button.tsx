@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { apiPost } from '../api/client.ts';
-import { useAuth } from '../lib/auth_context.tsx';
+import { apiPost } from '@/shared/api/client.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 type Props = {
   targetType: 'review' | 'discussion' | 'user';

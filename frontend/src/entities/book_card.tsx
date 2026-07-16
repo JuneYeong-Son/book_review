@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { Book, Progress } from '../api/types.ts';
-import StarRating from './star_rating.tsx';
+import type { Book, Progress } from '@/shared/api/types.ts';
+import StarRating from '@/entities/star_rating.tsx';
 
 type Props = {
   book: Book;

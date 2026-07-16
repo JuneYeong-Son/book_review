@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../lib/auth_context.tsx';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 // 회원가입 시 고를 수 있는 이모지 아바타
 const AVATARS = ['📚', '🦊', '🐰', '🐻', '🐱', '🦉', '🐼', '🦄', '🌱', '⭐'];

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { apiGet, apiPost } from '../api/client.ts';
-import type { BookCandidate } from '../api/types.ts';
+import { apiGet, apiPost } from '@/shared/api/client.ts';
+import type { BookCandidate } from '@/shared/api/types.ts';
 
 type Props = {
   onImported: () => void; // 책 추가 후 목록 새로고침

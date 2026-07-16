@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { apiGet, apiDelete } from '../api/client.ts';
-import type { AdminStats, ReportedPost } from '../api/types.ts';
-import { useAuth } from '../lib/auth_context.tsx';
+import { apiGet, apiDelete } from '@/shared/api/client.ts';
+import type { AdminStats, ReportedPost } from '@/shared/api/types.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 const AdminPage = () => {
   const { user, loading } = useAuth();

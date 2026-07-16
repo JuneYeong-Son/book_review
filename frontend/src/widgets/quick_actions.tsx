@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { apiGet, apiPost } from '../api/client.ts';
-import type { Book, BookCandidate, Interest, Progress } from '../api/types.ts';
-import StarRating from './star_rating.tsx';
-import Modal from './modal.tsx';
+import { apiGet, apiPost } from '@/shared/api/client.ts';
+import type { Book, BookCandidate, Interest, Progress } from '@/shared/api/types.ts';
+import StarRating from '@/entities/star_rating.tsx';
+import Modal from '@/shared/ui/modal.tsx';
 
 type Props = {
   onChange: () => void;

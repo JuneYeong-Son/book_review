@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiGet, apiPost } from '../api/client.ts';
-import type { Book, DiscussionSummary, Interest, Progress, Recommendation, RecoMethod } from '../api/types.ts';
-import { useAuth } from '../lib/auth_context.tsx';
-import BookCard from '../component/book_card.tsx';
-import QuickActions from '../component/quick_actions.tsx';
-import Carousel from '../component/carousel.tsx';
-import StarRating from '../component/star_rating.tsx';
+import { apiGet, apiPost } from '@/shared/api/client.ts';
+import type { Book, DiscussionSummary, Interest, Progress, Recommendation, RecoMethod } from '@/shared/api/types.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
+import BookCard from '@/entities/book_card.tsx';
+import QuickActions from '@/widgets/quick_actions.tsx';
+import Carousel from '@/widgets/carousel.tsx';
+import StarRating from '@/entities/star_rating.tsx';
 
 const PAGE = 8;
 

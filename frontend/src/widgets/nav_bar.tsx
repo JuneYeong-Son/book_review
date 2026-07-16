@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../lib/auth_context.tsx';
-import { apiGet, apiPost } from '../api/client.ts';
-import type { Notification } from '../api/types.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
+import { apiGet, apiPost } from '@/shared/api/client.ts';
+import type { Notification } from '@/shared/api/types.ts';
 
 const NavBar = () => {
   const { user, logout } = useAuth();

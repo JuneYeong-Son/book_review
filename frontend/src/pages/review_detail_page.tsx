@@ -1,9 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { apiGet, apiPost, apiPatch, apiDelete } from '../api/client.ts';
-import type { ReviewDetail } from '../api/types.ts';
-import { useAuth } from '../lib/auth_context.tsx';
-import ReportButton from '../component/report_button.tsx';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/shared/api/client.ts';
+import type { ReviewDetail } from '@/shared/api/types.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
+import ReportButton from '@/features/report_button.tsx';
 
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
 

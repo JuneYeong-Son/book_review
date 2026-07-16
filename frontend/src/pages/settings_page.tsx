@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { apiPatch, apiPost, apiDelete } from '../api/client.ts';
-import { useAuth } from '../lib/auth_context.tsx';
+import { apiPatch, apiPost, apiDelete } from '@/shared/api/client.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 const AVATARS = ['📚', '🦊', '🐰', '🐻', '🐱', '🦉', '🐼', '🦄', '🌱', '⭐'];
 

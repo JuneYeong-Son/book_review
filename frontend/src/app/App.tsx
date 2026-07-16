@@ -1,23 +1,23 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './lib/auth_context.tsx';
-import NavBar from './component/nav_bar.tsx';
-import AppFooter from './component/app_footer.tsx';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
+import NavBar from '@/widgets/nav_bar.tsx';
+import AppFooter from '@/widgets/app_footer.tsx';
 
 // 라우트별 코드 분할: 첫 로드 번들을 줄이고 페이지는 진입 시 지연 로드
-const HomePage = lazy(() => import('./page/home_page.tsx'));
-const LoginPage = lazy(() => import('./page/login_page.tsx'));
-const RegisterPage = lazy(() => import('./page/register_page.tsx'));
-const RecordsPage = lazy(() => import('./page/records_page.tsx'));
-const DiscussionListPage = lazy(() => import('./page/discussion_list_page.tsx'));
-const DiscussionDetailPage = lazy(() => import('./page/discussion_detail_page.tsx'));
-const MyPage = lazy(() => import('./page/my_page.tsx'));
-const MyBookPage = lazy(() => import('./page/my_book_page.tsx'));
-const SettingsPage = lazy(() => import('./page/settings_page.tsx'));
-const ReviewDetailPage = lazy(() => import('./page/review_detail_page.tsx'));
-const BookReviewsPage = lazy(() => import('./page/book_reviews_page.tsx'));
-const AdminPage = lazy(() => import('./page/admin_page.tsx'));
-const UserProfilePage = lazy(() => import('./page/user_profile_page.tsx'));
+const HomePage = lazy(() => import('@/pages/home_page.tsx'));
+const LoginPage = lazy(() => import('@/pages/login_page.tsx'));
+const RegisterPage = lazy(() => import('@/pages/register_page.tsx'));
+const RecordsPage = lazy(() => import('@/pages/records_page.tsx'));
+const DiscussionListPage = lazy(() => import('@/pages/discussion_list_page.tsx'));
+const DiscussionDetailPage = lazy(() => import('@/pages/discussion_detail_page.tsx'));
+const MyPage = lazy(() => import('@/pages/my_page.tsx'));
+const MyBookPage = lazy(() => import('@/pages/my_book_page.tsx'));
+const SettingsPage = lazy(() => import('@/pages/settings_page.tsx'));
+const ReviewDetailPage = lazy(() => import('@/pages/review_detail_page.tsx'));
+const BookReviewsPage = lazy(() => import('@/pages/book_reviews_page.tsx'));
+const AdminPage = lazy(() => import('@/pages/admin_page.tsx'));
+const UserProfilePage = lazy(() => import('@/pages/user_profile_page.tsx'));
 
 const App = () => {
   const { loading } = useAuth();

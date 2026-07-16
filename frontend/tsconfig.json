@@ -13,7 +13,10 @@
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }

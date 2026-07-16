@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { apiGet, apiPost } from '../api/client.ts';
-import type { DiscussionSummary, Progress } from '../api/types.ts';
-import { useAuth } from '../lib/auth_context.tsx';
+import { apiGet, apiPost } from '@/shared/api/client.ts';
+import type { DiscussionSummary, Progress } from '@/shared/api/types.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 const DiscussionListPage = () => {
   const { user } = useAuth();

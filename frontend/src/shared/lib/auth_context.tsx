@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { apiGet, apiPost } from '../api/client.ts';
-import type { User } from '../api/types.ts';
+import { apiGet, apiPost } from '@/shared/api/client.ts';
+import type { User } from '@/shared/api/types.ts';
 
 type AuthValue = {
   user: User | null;

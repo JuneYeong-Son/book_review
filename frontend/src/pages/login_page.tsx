@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../lib/auth_context.tsx';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 const LoginPage = () => {
   const { login } = useAuth();

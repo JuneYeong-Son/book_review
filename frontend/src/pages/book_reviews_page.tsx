@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { apiGet, apiPost } from '../api/client.ts';
-import type { Book, DiscussionSummary, Progress } from '../api/types.ts';
-import { useAuth } from '../lib/auth_context.tsx';
-import StarRating from '../component/star_rating.tsx';
+import { apiGet, apiPost } from '@/shared/api/client.ts';
+import type { Book, DiscussionSummary, Progress } from '@/shared/api/types.ts';
+import { useAuth } from '@/shared/lib/auth_context.tsx';
+import StarRating from '@/entities/star_rating.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
 

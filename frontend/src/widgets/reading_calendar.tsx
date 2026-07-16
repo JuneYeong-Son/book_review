@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { Progress } from '../api/types.ts';
+import type { Progress } from '@/shared/api/types.ts';
 
 type Props = {
   records: Progress[];
