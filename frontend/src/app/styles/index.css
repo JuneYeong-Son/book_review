@@ -1,8 +1,9 @@
 :root {
   /* 디자인 시스템: Anthropic Claude — cream canvas + coral + dark navy (docs/DESIGN-claude.md) */
   --bg: #f2ece0;             /* 종이/양피지 바탕 (밝은 크림보다 낮춰 종이 느낌) */
-  --surface: #ebe3d2;        /* 카드: 한 단계 진한 종이 */
-  --surface-soft: #eee7d8;   /* 옅은 구분 밴드 */
+  --surface: rgba(235, 227, 210, 0.6);   /* 카드: 반투명 → 종이 결이 비쳐 "종이에 인쇄된" 느낌 */
+  --surface-solid: #ece4d3;              /* 오버레이(모달·드롭다운·내비)용 불투명 종이 */
+  --surface-soft: rgba(238, 231, 216, 0.5); /* 옅은 구분 밴드(반투명) */
   --ink: #272016;            /* 종이 위 잉크(따뜻한 세피아 다크) */
   --muted: #6f6551;          /* 보조 텍스트(따뜻한 회갈) */
   --accent: #a87132;         /* primary: 브론즈/오커 */
@@ -11,7 +12,7 @@
   --accent-soft: #e4d9c1;    /* 따뜻한 크림(태그·hover·히어로) */
   --gold: #c08a3a;           /* 앤티크 골드: 별점·글귀 강조 */
   --danger: #c0392b;         /* 벽돌 레드 */
-  --border: #dccfb8;         /* 따뜻한 hairline */
+  --border: #e2d8c6;         /* 따뜻한 hairline (종이톤에 가깝게 부드럽게) */
   /* 따뜻한 다크(에스프레소) 서피스 — 푸터 등 */
   --surface-dark: #211b12;
   --on-dark: #f2ece0;
@@ -41,7 +42,8 @@ body {
   background-size: auto, cover;
   background-repeat: repeat, no-repeat;
   background-position: center center, center center;
-  background-attachment: fixed, fixed;
+  /* scroll: 종이 질감이 뷰포트에 고정되지 않고 내용과 한 장처럼 같이 스크롤 */
+  background-attachment: scroll, scroll;
   color: var(--ink);
   line-height: 1.5;
 }
@@ -73,7 +75,7 @@ a:hover { text-decoration: underline; }
   align-items: center;
   gap: 24px;
   padding: 14px 24px;
-  background: var(--surface);
+  background: var(--surface-solid);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
@@ -156,7 +158,7 @@ a:hover { text-decoration: underline; }
   position: absolute;
   right: 0;
   top: 48px;
-  background: var(--surface);
+  background: var(--surface-solid);
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -291,8 +293,8 @@ a:hover { text-decoration: underline; }
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
-.modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain; }
-.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
+.modal { background: var(--surface-solid); border-radius: 16px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface-solid); }
 .modal-head h3 { margin: 0; }
 .modal-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); }
 .modal-body { padding: 20px; }
