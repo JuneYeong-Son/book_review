@@ -6,8 +6,9 @@
 ## 진행 예정 / 요청됨
 - [ ] **공지사항 만들기**: 운영자가 공지를 올리고 사용자에게 노출(홈 배너/목록 등). 관리자 작성·수정·삭제.
       설계 초안: `Notice { id, title, body, pinned, createdAt }` + 관리자 CRUD API + 홈/전용 페이지 노출.
-- [ ] **안드로이드/iOS 앱 만들기**: 방식 결정 필요 — ①Capacitor로 현재 웹 래핑(단일 코드베이스, 토큰 인증 병행 필요) vs ②React Native 별도 앱.
-      선행 과제: 쿠키 세션 → 토큰(JWT) 인증 병행, 소셜 로그인 네이티브 연동.
+- [~] **안드로이드 앱**: Capacitor **원격 URL 래핑**으로 스캐폴드 완료(`frontend/android/`, `capacitor.config.ts`). 소셜로그인·쿠키·이메일 웹과 동일 작동. **남은 것: 각자 PC에서 Android Studio로 APK 빌드**(가이드 [../mobile/android.md](../mobile/android.md)).
+- [ ] **iOS 앱**: macOS+Xcode 필요. `npx cap add ios`로 동일 확장.
+- [ ] (고도화) 앱 번들 방식(오프라인/스토어) 전환 시: 쿠키 세션 → 토큰(JWT) 병행 + OAuth 딥링크.
 - [ ] (선택) **첫 소셜 로그인 시 약관·닉네임 확인 화면**: 현재는 자동 가입+동의 자동 기록. 명시적 확인 단계 추가.
 
 ## 보안 후속 (감사 하드닝, 낮은 우선순위)
