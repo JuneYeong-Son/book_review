@@ -1,13 +1,18 @@
 :root {
-  --bg: #f7f5f0;
-  --surface: #ffffff;
-  --ink: #2b2b2b;
-  --muted: #8a8578;
-  --accent: #7b5e3b;
-  --accent-soft: #efe7db;
-  --gold: #e6a817;
+  /* 디자인 방향: "고요한 서재" — 따뜻한 종이 + 숲색·황동 포인트, 명조 제목 */
+  --bg: #f2eee4;
+  --surface: #f8f5ee;
+  --ink: #232418;
+  --muted: #6f6b57;
+  --accent: #345c4d;         /* 숲색(bottle green) */
+  --accent-ink: #f6f3ea;     /* 숲색 위 텍스트 */
+  --accent-soft: #e4ddc9;
+  --gold: #b98a3c;           /* 황동 */
   --danger: #c0392b;
-  --border: #e6e1d8;
+  --border: #ddd6c4;
+  /* 제목=명조(세리프), 본문=고딕(산세리프) */
+  --font-display: 'Nanum Myeongjo', 'Batang', 'Apple SD Gothic Neo', Georgia, serif;
+  --font-body: 'Pretendard', -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
   color-scheme: light; /* 단일(라이트) 테마: 네이티브 폼 컨트롤이 시스템 다크로 뒤집히지 않도록 */
 }
 
@@ -16,9 +21,12 @@
 /* 버튼류 더블탭 확대/지연 제거 */
 button { touch-action: manipulation; }
 
+/* 명조체 제목 + 로고 (고요한 서재) */
+h1, h2, h3, .brand { font-family: var(--font-display); letter-spacing: -0.01em; }
+
 body {
   margin: 0;
-  font-family: 'Pretendard', -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--ink);
   line-height: 1.5;
@@ -167,9 +175,9 @@ a:hover { text-decoration: underline; }
 /* Buttons */
 .btn {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-ink);
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 9px 16px;
   font-size: 0.95rem;
   cursor: pointer;
@@ -235,7 +243,7 @@ a:hover { text-decoration: underline; }
 .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 8px; }
 @media (max-width: 640px) { .stat-cards { grid-template-columns: 1fr; } }
 .stat-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 20px; display: flex; flex-direction: column; gap: 6px; align-items: center;
 }
 .stat-num { font-size: 2rem; font-weight: 700; color: var(--accent); }
@@ -256,7 +264,7 @@ a:hover { text-decoration: underline; }
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
-.modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain; }
+.modal { background: var(--surface); border-radius: 10px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
 .modal-head h3 { margin: 0; }
 .modal-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); }
@@ -290,16 +298,17 @@ a:hover { text-decoration: underline; }
 .reco-filter-panel select { min-width: 160px; }
 
 /* Settings */
-.settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 12px; max-width: 480px; }
+.settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 12px; max-width: 480px; }
 .settings-card h2 { margin: 0; font-size: 1.1rem; }
 .settings-card label { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
 .danger-card { border-color: #f0c9c4; }
 
 /* Hero */
 .hero {
-  background: linear-gradient(120deg, var(--accent-soft), #fff);
+  background: linear-gradient(120deg, var(--accent-soft), var(--surface));
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-bottom: 2px solid var(--ink);
+  border-radius: 10px;
   padding: 32px 28px;
   margin-bottom: 24px;
 }
@@ -311,7 +320,7 @@ a:hover { text-decoration: underline; }
 .dash-col {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 16px;
 }
 .dash-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
@@ -351,7 +360,7 @@ a:hover { text-decoration: underline; }
 .sq-card {
   flex: 0 0 220px; width: 220px;
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 14px; overflow: hidden; color: var(--ink);
+  border-radius: 8px; overflow: hidden; color: var(--ink);
   display: flex; flex-direction: column;
 }
 .sq-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); text-decoration: none; }
@@ -377,7 +386,7 @@ a:hover { text-decoration: underline; }
 .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
 
 /* Reading calendar */
-.calendar { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+.calendar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
 .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .cal-head strong { font-size: 1.1rem; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
@@ -425,7 +434,7 @@ a:hover { text-decoration: underline; }
   margin: 48px auto;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 32px;
 }
 .auth-card h1 { margin-top: 0; }
@@ -496,7 +505,7 @@ textarea { resize: vertical; }
 .book-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -550,7 +559,7 @@ textarea { resize: vertical; }
 .mybook-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
