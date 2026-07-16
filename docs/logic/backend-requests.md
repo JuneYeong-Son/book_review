@@ -73,6 +73,9 @@
 ## 페이지네이션
 - `/progress`, `/discussions`에 `skip`/`take`. 알라딘 베스트셀러는 `start`(페이지). 무한 캐러셀에 사용.
 
+## 개선 제안 (미구현 · 프론트 감사에서 도출)
+- **책별 토론 스코프 엔드포인트**: 현재 책 상세([book_reviews_page.tsx](../../frontend/src/pages/book_reviews_page.tsx))가 `/discussions` 전체를 받아 클라이언트에서 `book.id`로 필터한다 → 콘텐츠가 늘수록 불필요하게 전량 다운로드. 백엔드에 `GET /discussions?bookId=…` 스코프 파라미터를 추가하면 프론트에서 그 책 토론만 받게 개선 가능. (Vercel react-best-practices의 워터폴/오버페치 관점 지적사항.)
+
 ## 배포/DB
 - 로컬 SQLite, 배포 PostgreSQL. 빌드 시 `scripts/use-postgres.mjs`로 provider 자동 전환.
 - 배포 시 cross-site 쿠키(SameSite=None; Secure), CORS는 env `FRONTEND_URL`.

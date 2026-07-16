@@ -23,6 +23,18 @@
 - **무엇을:** 날짜(`YYYY-MM-DD`) · 사용자가 지시한 내용 요약 · 한 일(변경한 파일/핵심) · 관련 커밋. 제외하거나 보류한 게 있으면 사유도 남긴다.
 - 단순 질문 답변이나 사소한 확인은 기록하지 않는다. **실제로 코드/문서/설정을 바꾸는 작업**만 남긴다.
 
+### 주제별 문서에도 반영 (필수)
+
+작업로그(연대기)에 더해, **변경의 성격에 맞는 주제 문서도 함께 갱신**한다. 알맞은 파일이 있으면 찾아서 고치고, 없으면 해당 폴더에 새로 만든다.
+
+- **백엔드 로직 / 데이터 / API가 바뀌면** → `docs/logic/` 의 알맞은 파일을 갱신하거나 새 주제 파일을 만든다. 기본은 [docs/logic/backend-requests.md](docs/logic/backend-requests.md).
+- **프론트엔드 설계 철학 / 시각 언어가 바뀌면** → `docs/design/` 쪽을 갱신한다.
+  - 시각 시스템·디자인 철학(색·폰트·질감·톤): [docs/design.md](docs/design.md)
+  - 화면·UI 요청 사항: [docs/design/ui-requests.md](docs/design/ui-requests.md)
+  - 폴더·아키텍처 구조: [docs/design/frontend_structure.md](docs/design/frontend_structure.md)
+- 데이터 모델·전체 개요가 바뀌면 [docs/requirements.md](docs/requirements.md), 배포 절차면 [docs/deploy.md](docs/deploy.md).
+- 어디에 넣을지 애매하면 가장 가까운 기존 문서를 고르고, 정말 새 주제일 때만 해당 폴더(`logic/` 또는 `design/`)에 파일을 새로 만든다. 작업로그에는 **어느 주제 문서를 갱신했는지**도 함께 남긴다.
+
 ## 배포 (필수)
 
 배포는 **Render Blueprint**(`render.yaml`)로 관리된다: 백엔드 `book-review-api` + 프론트 `book-review-frontend` + Postgres. GitHub 원격 `JuneYeong-Son/book_review`의 **`main`에 push하면 Render가 자동 재배포**한다.

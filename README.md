@@ -27,10 +27,11 @@
 
 ## 🛠 기술 스택
 
-- **프론트엔드**: React + Vite + React Router (`frontend/`)
+- **프론트엔드**: React + Vite + React Router, **SWR**(데이터 패칭·요청 dedup·캐시) (`frontend/`)
 - **백엔드**: Express + TypeScript, Prisma ORM (`server/`, tsx로 실행)
 - **DB**: 로컬은 **SQLite**, 배포는 **PostgreSQL** (빌드 시 자동 전환 — `scripts/use-postgres.mjs`)
 - **외부 API**: 알라딘 OpenAPI (책 검색·표지·베스트셀러)
+- **디자인**: "종이 위에 쓴 느낌" — 종이 질감 배경 + **을유1945** 폰트(self-host, 제목·본문). 시각 규칙은 [`docs/design.md`](docs/design.md)
 - **배포**: Render (Blueprint: `render.yaml`)
 
 ## 📁 구조
