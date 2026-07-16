@@ -1,13 +1,10 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
-import { apiGet } from '@/shared/api/client.ts';
+import { useAvailability } from '@/shared/lib/use_availability.ts';
 
 // 회원가입 시 고를 수 있는 이모지 아바타
 const AVATARS = ['📚', '🦊', '🐰', '🐻', '🐱', '🦉', '🐼', '🦄', '🌱', '⭐'];
-
-type Availability = { checking: boolean; ok: boolean | null; message: string | null };
-const IDLE: Availability = { checking: false, ok: null, message: null };
 
 const RegisterPage = () => {
   const { startRegister, verifyRegister } = useAuth();
@@ -27,47 +24,13 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // 실시간 중복 확인
-  const [nickCheck, setNickCheck] = useState<Availability>(IDLE);
-  const [emailCheck, setEmailCheck] = useState<Availability>(IDLE);
+  // 실시간 중복 확인(디바운스) — 재사용 훅
+  const nickCheck = useAvailability('/auth/check/nickname', nickname);
+  const emailCheck = useAvailability('/auth/check/email', email);
 
   // 2단계
   const [code, setCode] = useState('');
   const [devCode, setDevCode] = useState<string | null>(null);
-
-  // 닉네임: 입력이 멈추면(디바운스) 서버에 사용 가능 여부 질의
-  useEffect(() => {
-    if (!nickname) { setNickCheck(IDLE); return; }
-    setNickCheck({ checking: true, ok: null, message: null });
-    const t = setTimeout(async () => {
-      try {
-        const r = await apiGet<{ available: boolean; message: string | null }>(
-          `/auth/check/nickname?value=${encodeURIComponent(nickname)}`
-        );
-        setNickCheck({ checking: false, ok: r.available, message: r.message });
-      } catch {
-        setNickCheck(IDLE);
-      }
-    }, 450);
-    return () => clearTimeout(t);
-  }, [nickname]);
-
-  // 이메일도 동일하게 확인
-  useEffect(() => {
-    if (!email) { setEmailCheck(IDLE); return; }
-    setEmailCheck({ checking: true, ok: null, message: null });
-    const t = setTimeout(async () => {
-      try {
-        const r = await apiGet<{ available: boolean; message: string | null }>(
-          `/auth/check/email?value=${encodeURIComponent(email)}`
-        );
-        setEmailCheck({ checking: false, ok: r.available, message: r.message });
-      } catch {
-        setEmailCheck(IDLE);
-      }
-    }, 450);
-    return () => clearTimeout(t);
-  }, [email]);
 
   const submitForm = async (event: FormEvent) => {
     event.preventDefault();
@@ -155,14 +118,14 @@ const RegisterPage = () => {
         <label>
           이메일
           <input name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" autoCapitalize="none" required aria-describedby="email-check" />
-          <small id="email-check" className={`field-hint ${emailCheck.ok === false ? 'bad' : emailCheck.ok ? 'ok' : ''}`}>
+          <small id="email-check" aria-live="polite" className={`field-hint ${emailCheck.ok === false ? 'bad' : emailCheck.ok ? 'ok' : ''}`}>
             {emailCheck.checking ? '확인 중…' : emailCheck.ok ? '사용 가능한 이메일이에요.' : emailCheck.message ?? '인증 코드를 이 주소로 보냅니다.'}
           </small>
         </label>
         <label>
           닉네임 <em className="optional">(활동 표시명)</em>
           <input name="nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="off" required aria-describedby="nick-check" />
-          <small id="nick-check" className={`field-hint ${nickCheck.ok === false ? 'bad' : nickCheck.ok ? 'ok' : ''}`}>
+          <small id="nick-check" aria-live="polite" className={`field-hint ${nickCheck.ok === false ? 'bad' : nickCheck.ok ? 'ok' : ''}`}>
             {nickCheck.checking ? '확인 중…' : nickCheck.ok ? '사용 가능한 닉네임이에요.' : nickCheck.message ?? '한글/영문/숫자/밑줄 2~16자'}
           </small>
         </label>

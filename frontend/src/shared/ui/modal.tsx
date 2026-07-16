@@ -6,28 +6,49 @@ type Props = {
   children: ReactNode;
 };
 
+const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input:not([disabled]), select, [tabindex]:not([tabindex="-1"])';
+
 const Modal = ({ title, onClose, children }: Props) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
-  // Escape로 닫기 + 열려 있는 동안 뒤 배경 스크롤 잠금
   useEffect(() => {
+    // 열기 전 포커스된 요소를 기억했다가 닫을 때 복귀(web-guidelines: 트리거로 포커스 복귀)
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      // 포커스 트랩: Tab이 모달 밖으로 나가지 않게 순환
+      if (e.key === 'Tab') {
+        const nodes = dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE);
+        if (!nodes || nodes.length === 0) return;
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
+
     document.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // 열릴 때 다이얼로그로 포커스 이동
+    dialogRef.current?.focus();
+
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
+      previouslyFocused?.focus?.();
     };
   }, [onClose]);
-
-  // 열릴 때 다이얼로그로 포커스 이동
-  useEffect(() => {
-    dialogRef.current?.focus();
-  }, []);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
