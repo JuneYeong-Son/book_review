@@ -13,13 +13,15 @@ const KAKAO_TOKEN_URL = 'https://kauth.kakao.com/oauth/token';
 const KAKAO_ME_URL = 'https://kapi.kakao.com/v2/user/me';
 
 // 카카오 동의 화면으로 보낼 authorize URL. 키 미설정 시 null.
-export const kakaoAuthorizeUrl = (redirectUri: string): string | null => {
+// state: CSRF 방지용 난수(콜백에서 대조).
+export const kakaoAuthorizeUrl = (redirectUri: string, state: string): string | null => {
   const key = process.env.KAKAO_REST_API_KEY;
   if (!key) return null;
   const params = new URLSearchParams({
     client_id: key,
     redirect_uri: redirectUri,
-    response_type: 'code'
+    response_type: 'code',
+    state
   });
   return `${KAKAO_AUTH_URL}?${params.toString()}`;
 };
@@ -111,11 +113,13 @@ export const loginWithKakao = async (code: string, redirectUri: string) => {
   }
   const me = (await meRes.json()) as {
     id: number;
-    kakao_account?: { email?: string; profile?: { nickname?: string } };
+    kakao_account?: { email?: string; is_email_verified?: boolean; profile?: { nickname?: string } };
   };
   const providerId = String(me.id);
-  const email = me.kakao_account?.email ?? null;
-  const kakaoNickname = me.kakao_account?.profile?.nickname ?? '';
+  // 검증된 이메일만 계정 연결에 사용(미검증 이메일로 남의 계정에 연결되는 탈취 방지)
+  const account = me.kakao_account;
+  const email = account?.is_email_verified === true ? (account.email ?? null) : null;
+  const kakaoNickname = account?.profile?.nickname ?? '';
 
   return resolveSocialUser('kakao', providerId, email, kakaoNickname);
 };
@@ -125,7 +129,7 @@ const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GOOGLE_ME_URL = 'https://www.googleapis.com/oauth2/v2/userinfo';
 
-export const googleAuthorizeUrl = (redirectUri: string): string | null => {
+export const googleAuthorizeUrl = (redirectUri: string, state: string): string | null => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) return null;
   const params = new URLSearchParams({
@@ -134,7 +138,8 @@ export const googleAuthorizeUrl = (redirectUri: string): string | null => {
     response_type: 'code',
     scope: 'openid email profile',
     access_type: 'online',
-    prompt: 'select_account'
+    prompt: 'select_account',
+    state
   });
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 };
@@ -167,8 +172,10 @@ export const loginWithGoogle = async (code: string, redirectUri: string) => {
     console.error('[google] profile fetch failed', meRes.status, await meRes.text().catch(() => ''));
     return { error: 'profile' as const };
   }
-  const me = (await meRes.json()) as { id?: string; email?: string; name?: string };
+  const me = (await meRes.json()) as { id?: string; email?: string; verified_email?: boolean; name?: string };
   if (!me.id) return { error: 'profile' as const };
 
-  return resolveSocialUser('google', me.id, me.email ?? null, me.name ?? '');
+  // 검증된 이메일만 계정 연결에 사용
+  const email = me.verified_email === true ? (me.email ?? null) : null;
+  return resolveSocialUser('google', me.id, email, me.name ?? '');
 };

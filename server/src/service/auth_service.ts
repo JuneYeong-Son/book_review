@@ -120,8 +120,13 @@ export const startRegistration = async (input: {
     code, expiresAt: new Date(Date.now() + CODE_TTL_MS)
   });
 
-  const { dev } = await sendVerificationEmail(email, code);
-  // dev 모드(메일 미설정)에서는 코드를 함께 돌려줘 화면에서 바로 입력할 수 있게 한다.
+  let dev = false;
+  try {
+    ({ dev } = await sendVerificationEmail(email, code));
+  } catch {
+    return { error: '인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.' as const };
+  }
+  // devCode는 로컬/개발(dev=true)에서만 반환된다. 프로덕션에서는 절대 코드가 노출되지 않는다.
   return { ok: true as const, dev, devCode: dev ? code : undefined };
 };
 

@@ -1,8 +1,16 @@
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'node:crypto';
 import prisma from '../src/lib/prisma.ts';
 import { searchExternalBooks } from '../src/service/book_import_service.ts';
 
 const createHash = (password: string) => bcrypt.hashSync(password, 8);
+
+// 보안: 프로덕션에서는 공개된 기본 비밀번호('password')를 쓰지 않는다.
+// 데모 계정 비번은 랜덤(로그인 불가), 관리자(reader)는 SEED_ADMIN_PASSWORD가 있으면 그 값, 없으면 랜덤.
+// (로컬/개발에서는 편의상 'password' 유지.) 관리자 비번은 배포 후 ADMIN_PASSWORD로도 교정 가능.
+const isProd = process.env.NODE_ENV === 'production';
+const demoPassword = isProd ? randomBytes(9).toString('hex') : 'password';
+const adminPassword = process.env.SEED_ADMIN_PASSWORD || (isProd ? randomBytes(12).toString('hex') : 'password');
 
 // 알라딘에서 실제 표지·장르·카테고리를 가져와 시드 책을 보강 (키 없으면 폴백값 사용)
 const enrichFromAladin = async (seed: {
@@ -73,7 +81,7 @@ async function main() {
       avatar: '🦊',
       birthYear: 1994,
       isAdmin: true, // 관리자 계정(서버 통제 컬럼). 유저명 매칭 대신 이 값으로 판정
-      passwordHash: createHash('password')
+      passwordHash: createHash(adminPassword)
     }
   });
 
@@ -83,18 +91,18 @@ async function main() {
       name: '책벌레',
       avatar: '🐰',
       birthYear: 2001,
-      passwordHash: createHash('password')
+      passwordHash: createHash(demoPassword)
     }
   });
 
   const soyul = await prisma.user.create({
-    data: { username: 'soyul', name: '소설러버', avatar: '🐱', birthYear: 1998, passwordHash: createHash('password') }
+    data: { username: 'soyul', name: '소설러버', avatar: '🐱', birthYear: 1998, passwordHash: createHash(demoPassword) }
   });
   const cheol = await prisma.user.create({
-    data: { username: 'cheol', name: '철학도', avatar: '🦉', birthYear: 1990, passwordHash: createHash('password') }
+    data: { username: 'cheol', name: '철학도', avatar: '🦉', birthYear: 1990, passwordHash: createHash(demoPassword) }
   });
   const essay = await prisma.user.create({
-    data: { username: 'essay', name: '에세이러', avatar: '🌱', birthYear: 1985, passwordHash: createHash('password') }
+    data: { username: 'essay', name: '에세이러', avatar: '🌱', birthYear: 1985, passwordHash: createHash(demoPassword) }
   });
 
   const seedBooks = [
@@ -209,7 +217,11 @@ async function main() {
     ]
   });
 
-  console.log('Seed 완료 — 계정(비번 공통 password): reader, bookworm, soyul, cheol, essay');
+  if (isProd) {
+    console.log('Seed 완료(프로덕션) — 데모 계정 비밀번호는 랜덤(로그인 불가). 관리자(reader) 비번은 SEED_ADMIN_PASSWORD/ADMIN_PASSWORD로 설정.');
+  } else {
+    console.log('Seed 완료 — 계정(비번 공통 password): reader, bookworm, soyul, cheol, essay');
+  }
 }
 
 main()

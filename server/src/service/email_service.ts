@@ -13,6 +13,11 @@ export const sendVerificationEmail = async (
   const from = process.env.RESEND_FROM ?? '책갈피 <onboarding@resend.dev>';
 
   if (!apiKey) {
+    // 프로덕션에서 키가 없으면 인증 코드를 노출하지 않고 실패시킨다(우회 방지).
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('이메일 발송이 설정되지 않았습니다. (RESEND_API_KEY 미설정)');
+    }
+    // 로컬/개발에서만 콘솔에 코드를 남겨 테스트 가능하게 한다.
     console.log(`[DEV] 이메일 인증 코드 (${to}): ${code}`);
     return { dev: true };
   }

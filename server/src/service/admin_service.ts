@@ -125,6 +125,8 @@ export const deleteReportedPost = async (targetType: string, targetId: string) =
     if (d) await deleteDiscussionById(targetId);
   } else if (targetType === 'user') {
     const u = await findUserById(targetId);
+    // 관리자 계정은 이 경로로도 삭제 불가(removeMember와 동일한 보호). 먼저 권한 회수 필요.
+    if (u?.isAdmin) return { error: '관리자는 삭제할 수 없습니다. 먼저 관리자 권한을 회수하세요.' as const };
     if (u) await deleteUserCascade(targetId);
   } else {
     return { error: '잘못된 대상입니다.' as const };

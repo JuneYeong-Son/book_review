@@ -12,6 +12,7 @@ import {
   deleteAccount
 } from '../service/auth_service.ts';
 import { kakaoAuthorizeUrl, loginWithKakao, googleAuthorizeUrl, loginWithGoogle } from '../service/oauth_service.ts';
+import { randomBytes } from 'node:crypto';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 import { authCookieOptions } from '../lib/cookie.ts';
 import type { Request, Response } from 'express';
@@ -20,6 +21,10 @@ import type { Request, Response } from 'express';
 const oauthRedirectUri = (req: Request, provider: string) =>
   `${req.protocol}://${req.get('host')}/api/auth/oauth/${provider}/callback`;
 const frontendUrl = () => (process.env.FRONTEND_URL ?? 'http://localhost:5173').split(',')[0].trim();
+
+// OAuth CSRF 방지용 state: 시작 시 난수를 서명 쿠키로 저장, 콜백에서 대조
+const OAUTH_STATE_COOKIE = 'oauth_state';
+const stateCookieOptions = { ...authCookieOptions, maxAge: 10 * 60 * 1000 };
 
 const router = Router();
 
@@ -60,13 +65,22 @@ router.post('/register/verify', authLimiter, async (req, res) => {
   return res.status(201).json(result.user);
 });
 
+// 중복확인 엔드포인트 스로틀(대량 열거·수집 억제). 실사용(디바운스 입력)에는 충분히 넉넉.
+const checkLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: '요청이 너무 많습니다. 잠시 후 다시 시도하세요.' }
+});
+
 // 닉네임 / 이메일 사용 가능 여부 확인 (실시간 중복 체크)
-router.get('/check/nickname', async (req, res) => {
+router.get('/check/nickname', checkLimiter, async (req, res) => {
   const value = String(req.query.value ?? '');
   const error = await checkNickname(value);
   return res.json({ available: error === null, message: error });
 });
-router.get('/check/email', async (req, res) => {
+router.get('/check/email', checkLimiter, async (req, res) => {
   const value = String(req.query.value ?? '');
   const error = await checkEmail(value);
   return res.json({ available: error === null, message: error });
@@ -101,26 +115,40 @@ const finishOauth = (
   return res.redirect(`${frontendUrl()}/`);
 };
 
+// 콜백의 code/state 유효성 검사 — 통과 시 code 반환, 아니면 null
+const readOauthCode = (req: Request, res: Response): string | null => {
+  const code = typeof req.query.code === 'string' ? req.query.code : '';
+  const state = typeof req.query.state === 'string' ? req.query.state : '';
+  const expected = req.signedCookies?.[OAUTH_STATE_COOKIE];
+  res.clearCookie(OAUTH_STATE_COOKIE, stateCookieOptions);
+  if (!code || !state || !expected || state !== expected) return null;
+  return code;
+};
+
 // 카카오
 router.get('/oauth/kakao', (req, res) => {
-  const url = kakaoAuthorizeUrl(oauthRedirectUri(req, 'kakao'));
+  const state = randomBytes(16).toString('hex');
+  res.cookie(OAUTH_STATE_COOKIE, state, stateCookieOptions);
+  const url = kakaoAuthorizeUrl(oauthRedirectUri(req, 'kakao'), state);
   if (!url) return res.redirect(`${frontendUrl()}/login?error=oauth_unconfigured`);
   return res.redirect(url);
 });
 router.get('/oauth/kakao/callback', async (req, res) => {
-  const code = typeof req.query.code === 'string' ? req.query.code : '';
+  const code = readOauthCode(req, res);
   if (!code) return res.redirect(`${frontendUrl()}/login?error=oauth`);
   return finishOauth(res, await loginWithKakao(code, oauthRedirectUri(req, 'kakao')));
 });
 
 // 구글
 router.get('/oauth/google', (req, res) => {
-  const url = googleAuthorizeUrl(oauthRedirectUri(req, 'google'));
+  const state = randomBytes(16).toString('hex');
+  res.cookie(OAUTH_STATE_COOKIE, state, stateCookieOptions);
+  const url = googleAuthorizeUrl(oauthRedirectUri(req, 'google'), state);
   if (!url) return res.redirect(`${frontendUrl()}/login?error=oauth_unconfigured`);
   return res.redirect(url);
 });
 router.get('/oauth/google/callback', async (req, res) => {
-  const code = typeof req.query.code === 'string' ? req.query.code : '';
+  const code = readOauthCode(req, res);
   if (!code) return res.redirect(`${frontendUrl()}/login?error=oauth`);
   return finishOauth(res, await loginWithGoogle(code, oauthRedirectUri(req, 'google')));
 });

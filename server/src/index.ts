@@ -27,6 +27,16 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser(SESSION_SECRET)); // 시크릿을 줘야 signed 쿠키(위조 방지)가 동작
 
+// 기본 보안 헤더(helmet 대체 최소 세트). API 응답에 적용.
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('X-DNS-Prefetch-Control', 'off');
+  next();
+});
+
 // CSRF 간이 방어: 상태 변경 요청은 커스텀 헤더를 요구한다.
 // 커스텀 헤더는 교차출처 <form>/단순요청으로 붙일 수 없고, 이를 붙인 요청은
 // 프리플라이트가 필요해 CORS allowlist가 교차출처를 차단한다. (프론트 client.ts가 헤더를 붙임)
