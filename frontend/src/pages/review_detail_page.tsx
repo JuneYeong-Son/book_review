@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/shared/api/client.ts';
 import type { ReviewDetail } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
+import { displayName } from '@/shared/lib/display.ts';
 import ReportButton from '@/features/report_button.tsx';
 
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
@@ -119,7 +120,7 @@ const ReviewDetailPage = () => {
           <div className="review-byline">
             <span className="review-eyebrow">서평</span>
             <span className="muted small">
-              {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{review.user.name}</Link>
+              {review.user.avatar} <Link to={`/users/${review.user.id}`} className="user-link">{displayName(review.user)}</Link>
               {' · '}{formatDateTime(review.createdAt)}{' · '}{review.startPage}~{review.endPage}쪽
               {!isMine && (
                 <> · <ReportButton targetType="user" targetId={review.user.id} label="사용자 신고" /></>
@@ -151,7 +152,7 @@ const ReviewDetailPage = () => {
         {review.comments.map((c) => (
           <li key={c.id} className="comment-item">
             <div className="comment-top">
-              <Link to={`/users/${c.user.id}`} className="user-link"><strong>{c.user.avatar} {c.user.name}</strong></Link>
+              <Link to={`/users/${c.user.id}`} className="user-link"><strong>{c.user.avatar} {displayName(c.user)}</strong></Link>
               <span className="muted small">{formatDateTime(c.createdAt)}</span>
             </div>
             <p>{c.text}</p>

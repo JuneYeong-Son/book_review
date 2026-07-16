@@ -9,7 +9,12 @@
 - **추천 코드는 별도 폴더** `server/src/recommendation/` 에 작성.
 
 ## 인증
-- 회원가입 / 로그인 / 로그아웃.
+- **이메일 인증 2단계 회원가입**: `POST /auth/register/start`(검증→인증코드 메일)·`POST /auth/register/verify`(코드 확인→User 생성+로그인). 대기 데이터는 `EmailVerification`에 임시 저장.
+  - 수집: 아이디(로그인용)·이메일(**unique**)·이름(비공개)·**닉네임**(활동 표시명, unique)·**휴대폰**·비밀번호·(선택)출생연도 + **개인정보 수집·이용 동의 필수**(`agreedAt` 기록).
+  - 실시간 중복 확인: `GET /auth/check/nickname?value=`·`GET /auth/check/email?value=` → `{available, message}`.
+  - 발송: Resend HTTP API(`email_service.ts`). `RESEND_API_KEY` 미설정 시 콘솔 출력 + 응답 `devCode`(테스트 모드).
+  - 표시명은 `nickname` 우선, 없으면 `name`(기존 계정 폴백).
+- 로그인 / 로그아웃.
 - **내 정보 수정**: 프로필(이름·아바타) 변경, **비밀번호 변경**, **회원 탈퇴**(관련 데이터 cascade 삭제).
 - **비밀번호 보안 정책**(`validatePassword`): **8자 이상 + 영문·숫자 혼합**. 회원가입·비밀번호 변경 공통 적용.
 - **활동 정지(`User.suspended`)**: 정지 계정은 로그인 차단(403) + `requireAuth`에서도 차단(미들웨어 async — 매 인증 요청 시 계정 존재·정지 여부 확인).

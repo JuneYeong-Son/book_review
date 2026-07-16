@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, DiscussionSummary, Progress } from '@/shared/api/types.ts';
+import { displayName } from '@/shared/lib/display.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 import { StarRatingDisplay, StarRatingInput } from '@/entities/star_rating.tsx';
 
@@ -83,7 +84,7 @@ const BookReviewsPage = () => {
             <li key={r.id} className="record-item">
               <div className="record-main">
                 <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="record-top">
-                  <strong>{r.user.avatar} {r.user.name}</strong>
+                  <strong>{r.user.avatar} {displayName(r.user)}</strong>
                 </Link>
                 <div className="record-meta">
                   <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
@@ -107,7 +108,7 @@ const BookReviewsPage = () => {
             <li key={d.id} className="discussion-item">
               <div className="discussion-main">
                 <Link to={`/discussions/${d.id}`} className="discussion-title">{d.title}</Link>
-                <p className="muted small">{d.owner.avatar} {d.owner.name} · 댓글 {d._count.comments}</p>
+                <p className="muted small">{d.owner.avatar} {displayName(d.owner)} · 댓글 {d._count.comments}</p>
               </div>
             </li>
           ))}

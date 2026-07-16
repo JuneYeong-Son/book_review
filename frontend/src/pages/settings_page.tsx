@@ -10,6 +10,7 @@ const SettingsPage = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState(user?.name ?? '');
+  const [nickname, setNickname] = useState(user?.nickname ?? '');
   const [avatar, setAvatar] = useState(user?.avatar ?? '📚');
   const [birthYear, setBirthYear] = useState(user?.birthYear ? String(user.birthYear) : '');
   const [profileMsg, setProfileMsg] = useState('');
@@ -34,7 +35,12 @@ const SettingsPage = () => {
     setProfileErr('');
     setSavingProfile(true);
     try {
-      await apiPatch('/auth/me', { name, avatar, birthYear: birthYear ? Number(birthYear) : null });
+      await apiPatch('/auth/me', {
+        name, avatar,
+        birthYear: birthYear ? Number(birthYear) : null,
+        // 닉네임은 값이 있을 때만 전송(기존 계정이 빈 값으로 덮어써지지 않게)
+        ...(nickname.trim() ? { nickname: nickname.trim() } : {})
+      });
       await refresh();
       setProfileMsg('저장되었습니다.');
     } catch (err) {
@@ -97,7 +103,11 @@ const SettingsPage = () => {
           ))}
         </div>
         <label>
-          이름
+          닉네임 <em className="optional">(활동 표시명)</em>
+          <input value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="off" placeholder="한글/영문/숫자/밑줄 2~16자" />
+        </label>
+        <label>
+          이름 <em className="optional">(비공개)</em>
           <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
         </label>
         <label>

@@ -3,12 +3,22 @@ import prisma from '../lib/prisma.ts';
 export const findUserByUsername = (username: string) =>
   prisma.user.findUnique({ where: { username } });
 
+export const findUserByEmail = (email: string) =>
+  prisma.user.findUnique({ where: { email } });
+
+export const findUserByNickname = (nickname: string) =>
+  prisma.user.findUnique({ where: { nickname } });
+
 export const findUserById = (id: string) =>
   prisma.user.findUnique({ where: { id } });
 
 export const insertUser = (data: {
   username: string;
+  email?: string | null;
   name: string;
+  nickname?: string | null;
+  phone?: string | null;
+  agreedAt?: Date | null;
   passwordHash: string;
   avatar: string;
   birthYear: number | null;
@@ -16,7 +26,7 @@ export const insertUser = (data: {
 
 export const updateUser = (
   id: string,
-  data: { name?: string; avatar?: string; birthYear?: number | null }
+  data: { name?: string; nickname?: string; avatar?: string; birthYear?: number | null }
 ) => prisma.user.update({ where: { id }, data });
 
 export const updateUserPassword = (id: string, passwordHash: string) =>
@@ -37,12 +47,38 @@ export const findAllUsers = () =>
       name: true,
       avatar: true,
       birthYear: true,
+      nickname: true,
       isAdmin: true,
       suspended: true,
       lastSeenAt: true,
       createdAt: true
     }
   });
+
+// --- 이메일 인증 대기 ---
+export const upsertEmailVerification = (data: {
+  email: string;
+  username: string;
+  name: string;
+  nickname: string;
+  phone: string;
+  passwordHash: string;
+  avatar: string;
+  birthYear: number | null;
+  code: string;
+  expiresAt: Date;
+}) =>
+  prisma.emailVerification.upsert({
+    where: { email: data.email },
+    create: data,
+    update: data
+  });
+
+export const findEmailVerification = (email: string) =>
+  prisma.emailVerification.findUnique({ where: { email } });
+
+export const deleteEmailVerification = (email: string) =>
+  prisma.emailVerification.delete({ where: { email } }).catch(() => null);
 
 // 관리자 권한 부여/회수
 export const updateUserAdmin = (id: string, isAdmin: boolean) =>

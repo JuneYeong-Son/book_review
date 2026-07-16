@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import { apiPost } from '@/shared/api/client.ts';
+import { displayName } from '@/shared/lib/display.ts';
 import type { DiscussionSummary } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 import { useMyProgress, KEY } from '@/shared/api/hooks.ts';
@@ -70,7 +71,7 @@ const DiscussionListPage = () => {
             <img src={d.book.cover} alt={d.book.title} className="record-cover" width={54} height={76} loading="lazy" />
             <div className="discussion-main">
               <Link to={`/discussions/${d.id}`} className="discussion-title">{d.title}</Link>
-              <p className="muted small">{d.book.title} · {d.owner.name} · 댓글 {d._count.comments}</p>
+              <p className="muted small">{d.book.title} · {displayName(d.owner)} · 댓글 {d._count.comments}</p>
               {d.description && <p className="discussion-desc">{d.description}</p>}
             </div>
           </li>

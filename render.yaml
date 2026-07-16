@@ -31,6 +31,11 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+      # 이메일 인증(회원가입) 발송 — Resend. 없으면 인증코드가 서버 로그로만 출력(테스트 모드)
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
 
   # 프론트엔드 (React 정적 빌드) — 정적 사이트는 plan 필드 없음(항상 무료)
   - type: web

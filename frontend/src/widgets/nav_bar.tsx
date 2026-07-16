@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
+import { displayName } from '@/shared/lib/display.ts';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Notification } from '@/shared/api/types.ts';
 
@@ -118,7 +119,7 @@ const NavBar = () => {
                 ref={menuBtnRef}
                 className="avatar-btn"
                 onClick={() => setMenuOpen((v) => !v)}
-                aria-label={`${user.name} 메뉴`}
+                aria-label={`${displayName(user)} 메뉴`}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
               >
@@ -128,7 +129,7 @@ const NavBar = () => {
                 <div className="dropdown" role="menu">
                   <div className="dropdown-head">
                     <span className="dropdown-avatar">{user.avatar}</span>
-                    <span className="dropdown-name">{user.name}</span>
+                    <span className="dropdown-name">{displayName(user)}</span>
                   </div>
                   <button role="menuitem" className="dropdown-item" onClick={() => go('/mypage')}>마이페이지</button>
                   <button role="menuitem" className="dropdown-item" onClick={() => go('/settings')}>내 정보 수정</button>

@@ -1,7 +1,9 @@
 export type User = {
   id: string;
   username: string;
+  email?: string | null;
   name: string;
+  nickname?: string | null;
   avatar: string;
   birthYear: number | null;
   isAdmin: boolean;
@@ -28,7 +30,7 @@ export type AdminStats = {
 };
 
 export type UserProfile = {
-  user: { id: string; name: string; avatar: string };
+  user: { id: string; name: string; nickname?: string | null; avatar: string };
   reviews: Progress[];
   interests: Interest[];
   discussions: DiscussionSummary[];

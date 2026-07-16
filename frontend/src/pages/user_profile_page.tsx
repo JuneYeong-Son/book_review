@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiGet } from '@/shared/api/client.ts';
 import type { UserProfile } from '@/shared/api/types.ts';
+import { displayName } from '@/shared/lib/display.ts';
 
 const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,7 +23,7 @@ const UserProfilePage = () => {
     <section>
       <div className="profile-head">
         <span className="profile-avatar">{user.avatar}</span>
-        <h1>{user.name}</h1>
+        <h1>{displayName(user)}</h1>
       </div>
 
       <h2 className="section-title">서평 ({reviews.length})</h2>

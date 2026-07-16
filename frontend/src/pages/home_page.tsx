@@ -6,6 +6,7 @@ import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, DiscussionSummary, Progress, Recommendation, RecoMethod } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 import { useMyProgress, useMyInterests, KEY } from '@/shared/api/hooks.ts';
+import { displayName } from '@/shared/lib/display.ts';
 import BookCard from '@/entities/book_card.tsx';
 import BookCardShell from '@/entities/book_card_shell.tsx';
 import QuickActions from '@/widgets/quick_actions.tsx';
@@ -135,7 +136,7 @@ const HomePage = () => {
       <div className="hero">
         <h1>책을 기록하고, 당신의 세계를 다른 사람과 나눠보세요</h1>
         <p className="muted">
-          {user ? `${user.name}님, 오늘은 어디까지 읽으셨나요?` : '로그인하면 독서 기록과 서평을 남길 수 있어요.'}
+          {user ? `${displayName(user)}님, 오늘은 어디까지 읽으셨나요?` : '로그인하면 독서 기록과 서평을 남길 수 있어요.'}
         </p>
         {user && <QuickActions onChange={() => { mutateReviews(); mutateDiscussions(); loadReco(true); }} />}
       </div>
@@ -168,7 +169,7 @@ const HomePage = () => {
                     : <p className="sq-review muted">{r.startPage}~{r.endPage}쪽까지 읽었어요.</p>}
                 </Link>
                 <div className="sq-foot">
-                  <Link to={`/users/${r.user.id}`} className="sq-reader user-link">{r.user.avatar} {r.user.name}</Link>
+                  <Link to={`/users/${r.user.id}`} className="sq-reader user-link">{r.user.avatar} {displayName(r.user)}</Link>
                   <span className="like-count">♥ {r.likes.length}</span>
                 </div>
               </div>
@@ -192,7 +193,7 @@ const HomePage = () => {
                 <Link to={`/discussions/${d.id}`} className="sq-link"><strong className="sq-title">{d.title}</strong></Link>
                 <Link to={`/books/${d.book.id}`} className="muted small sq-link">{d.book.title}</Link>
                 <p className="muted small">
-                  <Link to={`/users/${d.owner.id}`} className="user-link">{d.owner.avatar} {d.owner.name}</Link> · 댓글 {d._count.comments}
+                  <Link to={`/users/${d.owner.id}`} className="user-link">{d.owner.avatar} {displayName(d.owner)}</Link> · 댓글 {d._count.comments}
                 </p>
               </div>
             </article>

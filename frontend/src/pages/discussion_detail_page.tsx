@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { DiscussionDetail } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
+import { displayName } from '@/shared/lib/display.ts';
 import ReportButton from '@/features/report_button.tsx';
 
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ko-KR');
@@ -50,7 +51,7 @@ const DiscussionDetailPage = () => {
         <div>
           <h1>{discussion.title}</h1>
           <p className="muted context-label">📖 <Link to={`/books/${discussion.book.id}`} className="user-link">{discussion.book.title}</Link> · {discussion.book.author}</p>
-          <p className="muted small"><Link to={`/users/${discussion.owner.id}`} className="user-link">{discussion.owner.name}</Link>님이 열었어요 · {formatDateTime(discussion.createdAt)}</p>
+          <p className="muted small"><Link to={`/users/${discussion.owner.id}`} className="user-link">{displayName(discussion.owner)}</Link>님이 열었어요 · {formatDateTime(discussion.createdAt)}</p>
         </div>
       </div>
       {discussion.description && (
@@ -72,7 +73,7 @@ const DiscussionDetailPage = () => {
         {discussion.comments.map((comment) => (
           <li key={comment.id} className="comment-item">
             <div className="comment-top">
-              <Link to={`/users/${comment.user.id}`} className="user-link"><strong>{comment.user.name}</strong></Link>
+              <Link to={`/users/${comment.user.id}`} className="user-link"><strong>{comment.user.avatar} {displayName(comment.user)}</strong></Link>
               <span className="muted small">{formatDateTime(comment.createdAt)}</span>
             </div>
             <p>{comment.text}</p>

@@ -2,12 +2,14 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import {
   loginUser,
-  registerUser,
+  startRegistration,
+  verifyRegistration,
+  checkNickname,
+  checkEmail,
   getUser,
   updateProfile,
   changePassword,
-  deleteAccount,
-  validatePassword
+  deleteAccount
 } from '../service/auth_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 import { authCookieOptions } from '../lib/cookie.ts';
@@ -23,23 +25,44 @@ const authLimiter = rateLimit({
   message: { message: '요청이 너무 많습니다. 잠시 후 다시 시도하세요.' }
 });
 
-// 회원가입
-router.post('/register', authLimiter, async (req, res) => {
-  const { username, name, password, avatar, birthYear } = req.body ?? {};
-  if (!username || !name || !password) {
-    return res.status(400).json({ message: '아이디, 이름, 비밀번호를 모두 입력하세요.' });
+// 회원가입 1단계: 정보 제출 → 인증 메일 발송
+router.post('/register/start', authLimiter, async (req, res) => {
+  const { username, email, name, nickname, phone, password, avatar, birthYear, agreed } = req.body ?? {};
+  if (!username || !email || !name || !nickname || !phone || !password) {
+    return res.status(400).json({ message: '아이디, 이메일, 이름, 닉네임, 휴대폰 번호, 비밀번호를 모두 입력하세요.' });
   }
-  const weak = validatePassword(password);
-  if (weak) return res.status(400).json({ message: weak });
+  const result = await startRegistration({
+    username, email, name, nickname,
+    phone: String(phone),
+    password,
+    avatar: avatar ?? '📚',
+    birthYear: typeof birthYear === 'number' ? birthYear : null,
+    agreed: agreed === true
+  });
+  if ('error' in result) return res.status(400).json({ message: result.error });
+  return res.status(200).json({ ok: true, dev: result.dev, devCode: result.devCode });
+});
 
-  const result = await registerUser(
-    username, name, password, avatar ?? '📚',
-    typeof birthYear === 'number' ? birthYear : null
-  );
-  if (result.error) return res.status(409).json({ message: result.error });
-
+// 회원가입 2단계: 인증 코드 확인 → 가입 확정
+router.post('/register/verify', authLimiter, async (req, res) => {
+  const { email, code } = req.body ?? {};
+  if (!email || !code) return res.status(400).json({ message: '이메일과 인증 코드를 입력하세요.' });
+  const result = await verifyRegistration(email, String(code));
+  if ('error' in result) return res.status(400).json({ message: result.error });
   res.cookie('userId', result.user.id, authCookieOptions);
   return res.status(201).json(result.user);
+});
+
+// 닉네임 / 이메일 사용 가능 여부 확인 (실시간 중복 체크)
+router.get('/check/nickname', async (req, res) => {
+  const value = String(req.query.value ?? '');
+  const error = await checkNickname(value);
+  return res.json({ available: error === null, message: error });
+});
+router.get('/check/email', async (req, res) => {
+  const value = String(req.query.value ?? '');
+  const error = await checkEmail(value);
+  return res.json({ available: error === null, message: error });
 });
 
 // 로그인
@@ -70,12 +93,16 @@ router.get('/me', requireAuth, async (_req, res) => {
   return res.json(user);
 });
 
-// 프로필(이름·아바타·출생연도) 수정
+// 프로필(이름·닉네임·아바타·출생연도) 수정
 router.patch('/me', requireAuth, async (req, res) => {
-  const { name, avatar, birthYear } = req.body ?? {};
+  const { name, nickname, avatar, birthYear } = req.body ?? {};
   const by = birthYear === null ? null : typeof birthYear === 'number' ? birthYear : undefined;
-  const user = await updateProfile(res.locals.userId, name, avatar, by);
-  return res.json(user);
+  const result = await updateProfile(res.locals.userId, {
+    name, avatar, birthYear: by,
+    nickname: typeof nickname === 'string' ? nickname : undefined
+  });
+  if ('error' in result) return res.status(400).json({ message: result.error });
+  return res.json(result.user);
 });
 
 // 비밀번호 변경

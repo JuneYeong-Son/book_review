@@ -268,6 +268,15 @@ a:hover { text-decoration: underline; }
 .user-link { color: var(--accent); }
 .user-link:hover { text-decoration: underline; }
 
+/* 회원가입 실시간 확인 힌트 + 링크형 버튼 */
+.field-hint { display: block; margin-top: 4px; font-size: 0.8rem; color: var(--muted); }
+.field-hint.ok { color: #2e7d32; }
+.field-hint.bad { color: var(--danger); }
+.link-btn { background: none; border: none; padding: 0; color: var(--accent); cursor: pointer; font: inherit; }
+.link-btn:hover { text-decoration: underline; }
+.consent-row { flex-direction: row !important; align-items: center; gap: 8px; font-size: 0.9rem; }
+.consent-row input { width: auto; }
+
 /* Admin dashboard */
 .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 8px; }
 @media (max-width: 640px) { .stat-cards { grid-template-columns: 1fr; } }

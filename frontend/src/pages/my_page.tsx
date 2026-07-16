@@ -2,6 +2,7 @@ import { useMemo, type MouseEvent } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { mutate } from 'swr';
 import { apiPost } from '@/shared/api/client.ts';
+import { displayName } from '@/shared/lib/display.ts';
 import type { Book, Progress } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 import { useMyProgress, useMyInterests, useMyDiscussions, KEY } from '@/shared/api/hooks.ts';
@@ -50,7 +51,7 @@ const MyPage = () => {
     <section>
       <div className="page-head">
         <h1>마이페이지</h1>
-        <p className="muted">{user.avatar} {user.name}님의 기록</p>
+        <p className="muted">{user.avatar} {displayName(user)}님의 기록</p>
       </div>
 
       {/* 마이페이지를 열면 달력이 바로 보임 */}

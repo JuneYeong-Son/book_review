@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Progress } from '@/shared/api/types.ts';
+import { displayName } from '@/shared/lib/display.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString('ko-KR');
@@ -27,7 +28,7 @@ const RecordsPage = () => {
   const query = keyword.trim().toLowerCase();
   const filtered = query
     ? records.filter((record) =>
-        [record.book.title, record.book.author, record.user.name]
+        [record.book.title, record.book.author, displayName(record.user)]
           .some((field) => field.toLowerCase().includes(query))
       )
     : records;
@@ -62,7 +63,7 @@ const RecordsPage = () => {
               <div className="record-top">
                 <Link to={`/books/${record.bookId}/reviews/${record.bookSeq}`}><strong>{record.book.title}</strong></Link>
                 <span className="muted"> · {record.user.avatar} </span>
-                <Link to={`/users/${record.user.id}`} className="user-link">{record.user.name}</Link>
+                <Link to={`/users/${record.user.id}`} className="user-link">{displayName(record.user)}</Link>
               </div>
               <div className="record-meta">
                 <span className="page-badge">{record.startPage}~{record.endPage}쪽</span>

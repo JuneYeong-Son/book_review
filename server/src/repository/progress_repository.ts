@@ -3,7 +3,7 @@ import prisma from '../lib/prisma.ts';
 const withRelations = {
   include: {
     book: true,
-    user: { select: { id: true, username: true, name: true, avatar: true } },
+    user: { select: { id: true, username: true, name: true, nickname: true, avatar: true } },
     likes: { select: { userId: true } }
   }
 } as const;
@@ -70,7 +70,7 @@ export const maxBookSeqByBook = async (bookId: string) => {
 export const hasProgress = (userId: string, bookId: string) =>
   prisma.progress.findFirst({ where: { userId, bookId } });
 
-const userSelect = { select: { id: true, username: true, name: true, avatar: true } } as const;
+const userSelect = { select: { id: true, username: true, name: true, nickname: true, avatar: true } } as const;
 
 const detailInclude = {
   book: true,

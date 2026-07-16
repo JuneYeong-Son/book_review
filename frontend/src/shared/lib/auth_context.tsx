@@ -8,11 +8,25 @@ import type { User } from '@/shared/api/types.ts';
 //  다음 사용자에게 잠깐 그대로 보인다 — 신규 가입자 서재에 남의 책이 보이던 문제.)
 const clearSwrCache = () => mutate(() => true, undefined, { revalidate: false });
 
+export type RegisterInput = {
+  username: string;
+  email: string;
+  name: string;
+  nickname: string;
+  phone: string;
+  password: string;
+  avatar: string;
+  birthYear: number | null;
+  agreed: boolean;
+};
+
 type AuthValue = {
   user: User | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, name: string, password: string, avatar: string, birthYear: number | null) => Promise<void>;
+  // 이메일 인증 2단계 회원가입
+  startRegister: (data: RegisterInput) => Promise<{ dev: boolean; devCode?: string }>;
+  verifyRegister: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   clearUser: () => void;
@@ -38,8 +52,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(next);
   };
 
-  const register = async (username: string, name: string, password: string, avatar: string, birthYear: number | null) => {
-    const next = await apiPost<User>('/auth/register', { username, name, password, avatar, birthYear });
+  // 1단계: 정보 제출 → 인증 메일 발송 (아직 로그인 아님)
+  const startRegister = (data: RegisterInput) =>
+    apiPost<{ dev: boolean; devCode?: string }>('/auth/register/start', data);
+
+  // 2단계: 인증 코드 확인 → 가입 확정 + 로그인
+  const verifyRegister = async (email: string, code: string) => {
+    const next = await apiPost<User>('/auth/register/verify', { email, code });
     await clearSwrCache();
     setUser(next);
   };
@@ -62,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const clearUser = () => setUser(null);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refresh, clearUser }}>
+    <AuthContext.Provider value={{ user, loading, login, startRegister, verifyRegister, logout, refresh, clearUser }}>
       {children}
     </AuthContext.Provider>
   );

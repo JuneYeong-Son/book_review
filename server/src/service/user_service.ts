@@ -15,7 +15,7 @@ export const getPublicProfile = async (id: string) => {
   ]);
 
   return {
-    user: { id: user.id, name: user.name, avatar: user.avatar },
+    user: { id: user.id, name: user.name, nickname: user.nickname, avatar: user.avatar },
     reviews,
     interests,
     discussions
