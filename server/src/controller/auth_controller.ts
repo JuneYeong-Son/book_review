@@ -1,15 +1,12 @@
 import { Router } from 'express';
+import { loginUser, getUser } from '../service/auth_service.ts';
 import {
-  loginUser,
   startRegistration,
   verifyRegistration,
   checkNickname,
-  checkEmail,
-  getUser,
-  updateProfile,
-  changePassword,
-  deleteAccount
-} from '../service/auth_service.ts';
+  checkEmail
+} from '../service/registration_service.ts';
+import { updateProfile, changePassword, deleteAccount } from '../service/account_service.ts';
 import { kakaoAuthorizeUrl, loginWithKakao, googleAuthorizeUrl, loginWithGoogle } from '../service/oauth_service.ts';
 import { randomBytes } from 'node:crypto';
 import { requireAuth } from '../middleware/auth_middleware.ts';

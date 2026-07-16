@@ -18,10 +18,6 @@
 - [ ] `POST /books/import`가 클라이언트 후보를 그대로 신뢰 → **ISBN 서버 재조회**로 카탈로그 오염 방지.
 - [ ] 프론트 정적 사이트 **CSP 헤더**(현재 API에 기본 보안 헤더만 적용).
 
-## 리팩터 (SOLID 리뷰)
-> [../architecture/solid-review-2026-07-17.md](../architecture/solid-review-2026-07-17.md) 참고.
-- [ ] **`auth_service` 분리(SRP)**: login/getUser · registration(check·start·verify) · account(profile·password·탈퇴) · password 정책으로 쪼개기. (스토어 빌드 이후 권장)
-
 ## 향후 고도화 (나중에)
 - [ ] **추천 – 임베딩 기반**: 책/사용자 임베딩으로 유사도 추천. (현재는 CF + 콘텐츠 기반)
 - [ ] **연령대 추천 UI 복구**: 백엔드(age_group)는 있으나 UI에서 잠시 제거함. 데이터 쌓이면 복구.

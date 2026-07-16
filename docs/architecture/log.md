@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-07-17 — `auth_service` 분리 (SRP)
+
+SOLID 리뷰에서 지적한 "auth 갓 서비스"(223줄·10 export)를 책임별로 분리. 행동 불변, 타입체크 + 스모크(로그인·`/me`·중복확인·가입) 통과. **다른 파일 중 `auth_service`를 쓰던 건 `auth_controller` 하나뿐**이라 import 경로만 갱신.
+
+| 새 위치 | 담당 |
+|---------|------|
+| `lib/password.ts` | `BCRYPT_COST`·`validatePassword`·`hashPassword`·`verifyPassword` (비밀번호 정책·해시) |
+| `service/public_user.ts` | `toPublicUser` (민감정보 제외 공개 매핑 — 정보 은닉 지점) |
+| `service/auth_service.ts` | `loginUser`·`getUser` (로그인·조회) + `DUMMY_HASH` |
+| `service/registration_service.ts` | `checkNickname`·`checkEmail`·`startRegistration`·`verifyRegistration` (+ 형식 정규식·코드 생성) |
+| `service/account_service.ts` | `updateProfile`·`changePassword`·`deleteAccount` |
+
+의존: registration·account → password·public_user, account → registration(`checkNickname`), auth → password·public_user. 순환 없음.
+
 ## 2026-07-17 — `simplify` 스킬 적용 (커밋 `83de266`)
 
 `simplify` 스킬로 오늘 세션 변경분(`a549b50..HEAD`)을 **4개 관점(재사용·단순화·효율·추상화) 병렬 리뷰** → 겹치는 것 정리 후 **행동 불변**을 지키며 아래를 적용. 타입체크 + 스모크(OAuth 302·토큰 로그인·`/me`·피드백) 통과.

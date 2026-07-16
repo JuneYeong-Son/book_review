@@ -11,6 +11,7 @@
 - **좋음:** 컨트롤러(HTTP)·서비스(로직)·리포지토리(Prisma) 분리. 프론트도 `client.ts`(전송)·`auth_context`(인증상태)·`displayName`/`useAvailability`(추출) 등 책임 분할.
 - **⚠️ 냄새:** `server/src/service/auth_service.ts`(≈223줄·10 export) — 비밀번호 정책·중복확인·로그인·2단계 가입·프로필·비번변경·탈퇴가 한 파일.
   - **권장 분리:** `auth_service`(login·getUser) / `registration_service`(check*·start·verify) / `account_service`(updateProfile·changePassword·deleteAccount) / `password.ts`(validatePassword).
+  - ✅ **해결됨(2026-07-17):** 위 대로 분리 완료 + `public_user.ts`(toPublicUser) 추출. [log.md](log.md) 참고.
 
 ### O — 개방/폐쇄 ✅
 - 모범: `server/src/recommendation/index.ts`가 method로 전략(content/cf/popular/ageGroup) 디스패치 → 새 방식 추가 시 기존 미수정.
