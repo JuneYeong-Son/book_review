@@ -36,6 +36,11 @@ services:
         sync: false
       - key: RESEND_FROM
         sync: false
+      # 카카오 소셜 로그인 (REST API 키). 없으면 카카오 로그인 비활성
+      - key: KAKAO_REST_API_KEY
+        sync: false
+      - key: KAKAO_CLIENT_SECRET
+        sync: false
 
   # 프론트엔드 (React 정적 빌드) — 정적 사이트는 plan 필드 없음(항상 무료)
   - type: web

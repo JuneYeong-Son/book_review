@@ -277,6 +277,15 @@ a:hover { text-decoration: underline; }
 .consent-row { flex-direction: row !important; align-items: center; gap: 8px; font-size: 0.9rem; }
 .consent-row input { width: auto; }
 
+/* 소셜 로그인 */
+.oauth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--muted); font-size: 0.85rem; }
+.oauth-divider::before, .oauth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.kakao-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: #FEE500; color: #191600; border: none; text-decoration: none;
+}
+.kakao-btn:hover { opacity: 0.92; }
+
 /* Admin dashboard */
 .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 8px; }
 @media (max-width: 640px) { .stat-cards { grid-template-columns: 1fr; } }

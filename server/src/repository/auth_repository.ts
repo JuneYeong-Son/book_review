@@ -9,6 +9,13 @@ export const findUserByEmail = (email: string) =>
 export const findUserByNickname = (nickname: string) =>
   prisma.user.findUnique({ where: { nickname } });
 
+export const findUserByProvider = (provider: string, providerId: string) =>
+  prisma.user.findFirst({ where: { provider, providerId } });
+
+// 기존(이메일) 계정에 소셜 계정을 연결
+export const linkProvider = (id: string, provider: string, providerId: string) =>
+  prisma.user.update({ where: { id }, data: { provider, providerId } });
+
 export const findUserById = (id: string) =>
   prisma.user.findUnique({ where: { id } });
 
@@ -19,6 +26,8 @@ export const insertUser = (data: {
   nickname?: string | null;
   phone?: string | null;
   agreedAt?: Date | null;
+  provider?: string | null;
+  providerId?: string | null;
   passwordHash: string;
   avatar: string;
   birthYear: number | null;

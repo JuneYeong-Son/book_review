@@ -11,8 +11,14 @@ import {
   changePassword,
   deleteAccount
 } from '../service/auth_service.ts';
+import { kakaoAuthorizeUrl, loginWithKakao } from '../service/oauth_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 import { authCookieOptions } from '../lib/cookie.ts';
+import type { Request } from 'express';
+
+// 콜백 Redirect URI는 현재 요청 호스트에서 구성(로컬/배포 동일 코드, 카카오 등록값과 일치해야 함)
+const kakaoRedirectUri = (req: Request) => `${req.protocol}://${req.get('host')}/api/auth/oauth/kakao/callback`;
+const frontendUrl = () => (process.env.FRONTEND_URL ?? 'http://localhost:5173').split(',')[0].trim();
 
 const router = Router();
 
@@ -78,6 +84,27 @@ router.post('/login', authLimiter, async (req, res) => {
 
   res.cookie('userId', result.user.id, authCookieOptions);
   return res.json(result.user);
+});
+
+// --- 소셜 로그인 (카카오) ---
+// 1) 카카오 동의 화면으로 리다이렉트
+router.get('/oauth/kakao', (req, res) => {
+  const url = kakaoAuthorizeUrl(kakaoRedirectUri(req));
+  if (!url) return res.redirect(`${frontendUrl()}/login?error=oauth_unconfigured`);
+  return res.redirect(url);
+});
+
+// 2) 카카오 콜백 → 로그인/가입 → 세션 쿠키 → 프론트로 복귀
+router.get('/oauth/kakao/callback', async (req, res) => {
+  const code = typeof req.query.code === 'string' ? req.query.code : '';
+  if (!code) return res.redirect(`${frontendUrl()}/login?error=oauth`);
+  const result = await loginWithKakao(code, kakaoRedirectUri(req));
+  if ('error' in result) {
+    const reason = result.error === 'suspended' ? 'suspended' : 'oauth';
+    return res.redirect(`${frontendUrl()}/login?error=${reason}`);
+  }
+  res.cookie('userId', result.user.id, authCookieOptions);
+  return res.redirect(`${frontendUrl()}/`);
 });
 
 // 로그아웃

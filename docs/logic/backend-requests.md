@@ -15,6 +15,7 @@
   - 발송: Resend HTTP API(`email_service.ts`). `RESEND_API_KEY` 미설정 시 콘솔 출력 + 응답 `devCode`(테스트 모드).
   - 표시명은 `nickname` 우선, 없으면 `name`(기존 계정 폴백).
 - 로그인 / 로그아웃.
+- **소셜 로그인(카카오)**: `GET /auth/oauth/kakao`(동의화면)·`/callback`(code→토큰→프로필→로그인/가입→세션쿠키→프론트 복귀). `User.provider`·`providerId`로 식별. 연동 정책: 소셜계정 존재→로그인 / 같은 이메일→연결 / 없으면 신규 생성. env `KAKAO_REST_API_KEY`(+선택 `KAKAO_CLIENT_SECRET`). *구글은 동일 패턴으로 확장 예정.*
 - **내 정보 수정**: 프로필(이름·아바타) 변경, **비밀번호 변경**, **회원 탈퇴**(관련 데이터 cascade 삭제).
 - **비밀번호 보안 정책**(`validatePassword`): **8자 이상 + 영문·숫자 혼합**. 회원가입·비밀번호 변경 공통 적용.
 - **활동 정지(`User.suspended`)**: 정지 계정은 로그인 차단(403) + `requireAuth`에서도 차단(미들웨어 async — 매 인증 요청 시 계정 존재·정지 여부 확인).
