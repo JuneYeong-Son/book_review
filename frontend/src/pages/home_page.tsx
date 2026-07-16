@@ -1,15 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { mutate } from 'swr';
+import useSWRInfinite from 'swr/infinite';
 import { apiGet, apiPost } from '@/shared/api/client.ts';
 import type { Book, DiscussionSummary, Progress, Recommendation, RecoMethod } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
 import { useMyProgress, useMyInterests, KEY } from '@/shared/api/hooks.ts';
 import BookCard from '@/entities/book_card.tsx';
+import BookCardShell from '@/entities/book_card_shell.tsx';
 import QuickActions from '@/widgets/quick_actions.tsx';
 import Carousel from '@/widgets/carousel.tsx';
 
 const PAGE = 8;
+
+// useSWRInfinite 키 — 직전 페이지가 PAGE보다 적으면 끝(null 반환해 다음 페이지 요청 안 함)
+const reviewsKey = (index: number, prev: Progress[] | null) =>
+  prev && prev.length < PAGE ? null : `/progress?skip=${index * PAGE}&take=${PAGE}`;
+const discussionsKey = (index: number, prev: DiscussionSummary[] | null) =>
+  prev && prev.length < PAGE ? null : `/discussions?skip=${index * PAGE}&take=${PAGE}`;
 
 // 알라딘 베스트셀러 장르(분야) 필터 — label → 알라딘 CategoryId
 const GENRES = [
@@ -27,32 +35,23 @@ const HomePage = () => {
   // 공용 SWR 훅: /progress/me·/books/interests/me는 QuickActions·마이페이지와 캐시를 공유(중복 fetch 제거)
   const { data: myProgress = [] } = useMyProgress();
   const { data: interests = [] } = useMyInterests();
-  const [reviews, setReviews] = useState<Progress[]>([]);
-  const [reviewsEnd, setReviewsEnd] = useState(false);
-  const [discussions, setDiscussions] = useState<DiscussionSummary[]>([]);
-  const [discEnd, setDiscEnd] = useState(false);
+  // 무한 스크롤 목록 — useSWRInfinite로 페이지 누적(수동 state 대신)
+  const { data: reviewPages, size: reviewSize, setSize: setReviewSize, mutate: mutateReviews } =
+    useSWRInfinite<Progress[]>(reviewsKey);
+  const reviews = useMemo(() => (reviewPages ? reviewPages.flat() : []), [reviewPages]);
+  const lastReviewPage = reviewPages?.[reviewPages.length - 1];
+  const reviewsEnd = !!reviewPages && (lastReviewPage?.length ?? 0) < PAGE;
+  const { data: discPages, size: discSize, setSize: setDiscSize, mutate: mutateDiscussions } =
+    useSWRInfinite<DiscussionSummary[]>(discussionsKey);
+  const discussions = useMemo(() => (discPages ? discPages.flat() : []), [discPages]);
+  const lastDiscPage = discPages?.[discPages.length - 1];
+  const discEnd = !!discPages && (lastDiscPage?.length ?? 0) < PAGE;
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [recoEnd, setRecoEnd] = useState(false);
   const [method, setMethod] = useState<RecoMethod>('content');
   const [genre, setGenre] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [dismissedExternal, setDismissedExternal] = useState<Set<string>>(new Set());
-
-  // --- 서평 피드 (무한 로드) ---
-  const loadReviews = async (reset: boolean) => {
-    const skip = reset ? 0 : reviews.length;
-    const page = await apiGet<Progress[]>(`/progress?skip=${skip}&take=${PAGE}`).catch(() => []);
-    setReviews((prev) => (reset ? page : [...prev, ...page]));
-    setReviewsEnd(page.length < PAGE);
-  };
-
-  // --- 토론 피드 (무한 로드) ---
-  const loadDiscussions = async (reset: boolean) => {
-    const skip = reset ? 0 : discussions.length;
-    const page = await apiGet<DiscussionSummary[]>(`/discussions?skip=${skip}&take=${PAGE}`).catch(() => []);
-    setDiscussions((prev) => (reset ? page : [...prev, ...page]));
-    setDiscEnd(page.length < PAGE);
-  };
 
   // --- 추천 (content=읽은 책과 비슷(CF); popular=알라딘 베스트셀러 페이지네이션) ---
   const loadReco = async (reset: boolean) => {
@@ -70,7 +69,6 @@ const HomePage = () => {
     setRecoEnd(page.length < 10);
   };
 
-  useEffect(() => { loadReviews(true); loadDiscussions(true); }, []);
   useEffect(() => { loadReco(true); }, [method, genre, user]);
 
   const interestedIds = useMemo(() => new Set(interests.map((i) => i.bookId)), [interests]);
@@ -95,13 +93,13 @@ const HomePage = () => {
 
   const handleToggleInterest = async (bookId: string) => {
     await apiPost(`/books/${bookId}/interest`);
-    mutate(KEY.interestsMe); loadReviews(true);
+    mutate(KEY.interestsMe); mutateReviews();
   };
   const handleSaveProgress = async (
     bookId: string, startPage: number, endPage: number, note: string, quote: string, rating: number
   ) => {
     await apiPost('/progress', { bookId, startPage, endPage, note, quote, rating });
-    mutate(KEY.progressMe); mutate(KEY.interestsMe); loadReviews(true); loadReco(true);
+    mutate(KEY.progressMe); mutate(KEY.interestsMe); mutateReviews(); loadReco(true);
   };
   const handleImportReco = async (rec: Recommendation) => {
     // 임포트 후 내 서재(관심)에 담기 → 마이페이지 '내 서재'에 표시됨
@@ -139,7 +137,7 @@ const HomePage = () => {
         <p className="muted">
           {user ? `${user.name}님, 오늘은 어디까지 읽으셨나요?` : '로그인하면 독서 기록과 서평을 남길 수 있어요.'}
         </p>
-        {user && <QuickActions onChange={() => { loadReviews(true); loadDiscussions(true); loadReco(true); }} />}
+        {user && <QuickActions onChange={() => { mutateReviews(); mutateDiscussions(); loadReco(true); }} />}
       </div>
 
       {myQuotes.length > 0 && (
@@ -155,7 +153,7 @@ const HomePage = () => {
       {sortedReviews.length === 0 ? (
         <p className="muted">아직 서평이 없어요.</p>
       ) : (
-        <Carousel onLoadMore={reviewsEnd ? undefined : () => loadReviews(false)}>
+        <Carousel onLoadMore={reviewsEnd ? undefined : () => setReviewSize(reviewSize + 1)}>
           {sortedReviews.map((r) => (
             <Link key={r.id} to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-card review-card">
               <img src={r.book.cover} alt={r.book.title} className="sq-cover" width={220} height={112} loading="lazy" />
@@ -179,7 +177,7 @@ const HomePage = () => {
       {sortedDiscussions.length === 0 ? (
         <p className="muted">아직 토론이 없어요.</p>
       ) : (
-        <Carousel onLoadMore={discEnd ? undefined : () => loadDiscussions(false)}>
+        <Carousel onLoadMore={discEnd ? undefined : () => setDiscSize(discSize + 1)}>
           {sortedDiscussions.map((d) => (
             <Link key={d.id} to={`/discussions/${d.id}`} className="sq-card">
               <img src={d.book.cover} alt={d.book.title} className="sq-cover" width={220} height={170} loading="lazy" />
@@ -196,7 +194,7 @@ const HomePage = () => {
       {/* 추천하는 책 — 필터 버튼 하나로 정리 */}
       <div className="dash-head section-title">
         <h2>추천하는 책</h2>
-        <button className="btn ghost small" onClick={() => setFilterOpen((v) => !v)}>필터 ▾</button>
+        <button className="btn ghost small" onClick={() => setFilterOpen((v) => !v)} aria-expanded={filterOpen} aria-controls="reco-filter-panel">필터 ▾</button>
       </div>
       <p className="muted small reco-summary">
         {method === 'popular'
@@ -204,7 +202,7 @@ const HomePage = () => {
           : '읽은 책과 비슷한 책'}
       </p>
       {filterOpen && (
-        <div className="reco-filter-panel">
+        <div className="reco-filter-panel" id="reco-filter-panel">
           <label>추천 방식
             <select value={method} onChange={(e) => setMethod(e.target.value as RecoMethod)}>
               <option value="content">읽은 책과 비슷한 책</option>
@@ -248,21 +246,19 @@ const HomePage = () => {
                 />
               </div>
             ) : (
-              <article key={`${rec.book.isbn}-${idx}`} className="book-card reco-slot">
-                <div className="cover-wrap">
-                  <button className="cover-link" onClick={() => openExternal(rec)} aria-label={`${rec.book.title} 담고 서평 보러가기`}>
-                    <img src={rec.book.cover} alt={rec.book.title} className="cover" width={140} height={200} loading="lazy" />
-                  </button>
-                  {user && <button className="dismiss-btn" onClick={() => handleDismissReco(rec)} aria-label="추천 안 받기">✕</button>}
-                </div>
-                <div className="book-body">
-                  <p className="reason">{rec.reason}</p>
-                  <button className="book-title-btn" onClick={() => openExternal(rec)}><h3>{rec.book.title}</h3></button>
-                  <p className="author">{rec.book.author}</p>
-                  <div className="tags">{rec.book.genre && <span className="tag">{rec.book.genre}</span>}</div>
+              <div key={`${rec.book.isbn}-${idx}`} className="reco-slot">
+                <BookCardShell
+                  book={{
+                    id: '', title: rec.book.title, author: rec.book.author,
+                    cover: rec.book.cover, genre: rec.book.genre, category: rec.book.category
+                  }}
+                  reason={rec.reason}
+                  onOpen={() => openExternal(rec)}
+                  dismiss={user ? { onClick: () => handleDismissReco(rec), label: '추천 안 받기' } : null}
+                >
                   {user && <button className="btn ghost small" onClick={() => handleImportReco(rec)}>내 서재에 추가</button>}
-                </div>
-              </article>
+                </BookCardShell>
+              </div>
             )
           )}
         </Carousel>

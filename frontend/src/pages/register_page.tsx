@@ -14,15 +14,18 @@ const RegisterPage = () => {
   const [avatar, setAvatar] = useState(AVATARS[0]);
   const [birthYear, setBirthYear] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
+    setSubmitting(true);
     try {
       await register(username, name, password, avatar, birthYear ? Number(birthYear) : null);
       navigate('/');
     } catch (err) {
       setError((err as Error).message);
+      setSubmitting(false);
     }
   };
 
@@ -48,22 +51,22 @@ const RegisterPage = () => {
         </div>
         <label>
           아이디
-          <input name="username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+          <input name="username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required />
         </label>
         <label>
           이름
-          <input name="name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
+          <input name="name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
         </label>
         <label>
           비밀번호
-          <input name="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
+          <input name="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
         </label>
         <label>
           출생연도 <em className="optional">(선택 · 연령대 추천에 사용)</em>
-          <input name="birthYear" type="number" inputMode="numeric" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} placeholder="예: 2000" />
+          <input name="birthYear" type="number" inputMode="numeric" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} autoComplete="bday-year" placeholder="예: 2000" />
         </label>
         {error && <p className="error" role="alert">{error}</p>}
-        <button type="submit" className="btn full">가입하기</button>
+        <button type="submit" className="btn full" disabled={submitting}>{submitting ? '가입 중…' : '가입하기'}</button>
       </form>
       <p className="muted">이미 계정이 있나요? <Link to="/login">로그인</Link></p>
     </div>

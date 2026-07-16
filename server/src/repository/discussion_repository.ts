@@ -2,8 +2,9 @@ import prisma from '../lib/prisma.ts';
 
 const ownerSelect = { select: { id: true, username: true, name: true, avatar: true } } as const;
 
-export const findAllDiscussions = (skip?: number, take?: number) =>
+export const findAllDiscussions = (skip?: number, take?: number, bookId?: string) =>
   prisma.discussion.findMany({
+    where: bookId ? { bookId } : undefined,
     include: {
       book: true,
       owner: ownerSelect,

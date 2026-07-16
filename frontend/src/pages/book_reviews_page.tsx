@@ -27,8 +27,8 @@ const BookReviewsPage = () => {
     apiGet<Progress[]>(`/progress/book/${bookId}`)
       .then((list) => setReviews([...list].sort((a, b) => b.likes.length - a.likes.length)))
       .catch(() => setReviews([]));
-    apiGet<DiscussionSummary[]>('/discussions')
-      .then((all) => setDiscussions(all.filter((d) => d.book.id === bookId)))
+    apiGet<DiscussionSummary[]>(`/discussions?bookId=${bookId}`)
+      .then(setDiscussions)
       .catch(() => setDiscussions([]));
     loadRating();
   }, [bookId]);

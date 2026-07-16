@@ -44,5 +44,12 @@ src/
 - **공유 데이터는 공용 훅으로.** 여러 화면이 같은 엔드포인트를 쓰면 [shared/api/hooks.ts](../../frontend/src/shared/api/hooks.ts)의 훅(`useMyProgress`·`useMyInterests`·`useMyDiscussions`·`useBooks`)을 쓴다. 같은 SWR 키(`KEY.*`)를 공유하면 SWR이 요청을 자동 dedup하고 캐시를 나눠 쓴다. (홈·QuickActions·마이페이지가 `/progress/me`·`/books/interests/me`를 중복 호출하던 문제를 이렇게 없앴다.)
 - **로그인 범위 데이터는 key를 게이팅.** 비로그인 시 `useSWR(user ? KEY.x : null)`로 키를 `null`로 두어 요청하지 않는다.
 - **쓰기(작성·삭제·토글) 후에는 재검증.** `import { mutate } from 'swr'` 로 바뀐 키를 `mutate(KEY.progressMe)`처럼 무효화한다. 수동 `apiGet`+`setState` 재조회를 새로 만들지 않는다.
-- **무한 스크롤/페이지네이션 목록**(서평·토론·추천 캐러셀)은 아직 수동 `apiGet` + 로컬 state를 쓴다. 필요 시 `useSWRInfinite`로 승격은 후속 과제.
+- **무한 스크롤 목록은 `useSWRInfinite`.** 홈의 서평·토론 캐러셀은 `useSWRInfinite`로 페이지를 누적한다(키 함수가 직전 페이지 길이 < PAGE면 `null` 반환해 종료). "더 보기"는 `setSize(size + 1)`, 갱신은 해당 훅의 `mutate()`. 추천 캐러셀은 방식(content/popular) 전환·외부 dedup 로직이 얽혀 아직 수동 유지.
+- `.flat()`로 페이지를 합칠 때는 `useMemo`로 감싸 참조를 안정화(정렬 `useMemo`가 매 렌더 재계산되지 않게).
 - 새 GET을 추가할 때: 한 화면 전용이면 그 자리에서 `useSWR('/path')`, 여러 화면 공유면 `hooks.ts`에 훅과 `KEY`를 추가한다.
+
+## 컴포넌트 합성 (composition-patterns)
+
+- **boolean prop로 모드 전환하지 않는다.** 예: `BookCard`는 `loggedIn` prop을 받지 않고 `useAuth()`로 직접 읽는다.
+- **공통 시각 골격은 셸 컴포넌트 + children 합성.** 책 카드의 표지/제목/저자/태그 프레임은 [entities/book_card_shell.tsx](../../frontend/src/entities/book_card_shell.tsx)(`BookCardShell`)에 한 번만 두고, 라이브러리 카드(`BookCard`)와 홈의 외부추천 카드가 이를 공유한다. 이동 방식만 `to`(Link) / `onOpen`(콜백)로 분기, 하단 액션은 `children`으로 넣는다. (마크업 복붙 금지.)
+- 표시/입력처럼 역할이 다르면 명시적 변형 컴포넌트로 나눈다(예: `StarRatingDisplay` / `StarRatingInput`).

@@ -13,6 +13,7 @@ type Which = 'review' | 'book' | 'discussion' | null;
 
 const QuickActions = ({ onChange }: Props) => {
   const [which, setWhich] = useState<Which>(null);
+  const [submitting, setSubmitting] = useState(false);
   // 공용 SWR 훅(홈·마이페이지와 캐시 공유). 모달을 열고 닫을 때마다 전체를 재fetch하던 문제 제거.
   const { data: books = [] } = useBooks();
   const { data: interests = [] } = useMyInterests();
@@ -34,6 +35,7 @@ const QuickActions = ({ onChange }: Props) => {
   const submitReview = async (e: FormEvent) => {
     e.preventDefault();
     setRErr('');
+    setSubmitting(true);
     try {
       await apiPost('/progress', {
         bookId: rBook, startPage: Number(rStart), endPage: Number(rEnd),
@@ -45,6 +47,8 @@ const QuickActions = ({ onChange }: Props) => {
       onChange();
     } catch (err) {
       setRErr((err as Error).message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -57,6 +61,7 @@ const QuickActions = ({ onChange }: Props) => {
   const submitDiscussion = async (e: FormEvent) => {
     e.preventDefault();
     setDErr('');
+    setSubmitting(true);
     try {
       await apiPost('/discussions', { bookId: dBook, title: dTitle, description: dDesc });
       setWhich(null);
@@ -65,6 +70,8 @@ const QuickActions = ({ onChange }: Props) => {
       onChange();
     } catch (err) {
       setDErr((err as Error).message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -129,7 +136,7 @@ const QuickActions = ({ onChange }: Props) => {
               <textarea value={rQuote} onChange={(e) => setRQuote(e.target.value)} rows={2} />
             </label>
             {rErr && <p className="error" role="alert">{rErr}</p>}
-            <button type="submit" className="btn full">저장</button>
+            <button type="submit" className="btn full" disabled={submitting}>{submitting ? '저장 중…' : '저장'}</button>
           </form>
         </Modal>
       )}
@@ -177,7 +184,7 @@ const QuickActions = ({ onChange }: Props) => {
               <label>제목 <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required /></label>
               <label>설명 <textarea value={dDesc} onChange={(e) => setDDesc(e.target.value)} rows={3} /></label>
               {dErr && <p className="error" role="alert">{dErr}</p>}
-              <button type="submit" className="btn full">토론 열기</button>
+              <button type="submit" className="btn full" disabled={submitting}>{submitting ? '여는 중…' : '토론 열기'}</button>
             </form>
           )}
         </Modal>

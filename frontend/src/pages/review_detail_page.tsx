@@ -14,6 +14,8 @@ const ReviewDetailPage = () => {
   const [review, setReview] = useState<ReviewDetail | null>(null);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [commenting, setCommenting] = useState(false);
   const id = review?.id; // 좋아요/댓글/수정/삭제는 실제 서평 id로
 
   // 수정 모드
@@ -39,9 +41,14 @@ const ReviewDetailPage = () => {
   };
 
   const saveEdit = async () => {
-    await apiPatch(`/progress/${id}`, { startPage: Number(startPage), endPage: Number(endPage), note, quote });
-    setEditing(false);
-    load();
+    setSaving(true);
+    try {
+      await apiPatch(`/progress/${id}`, { startPage: Number(startPage), endPage: Number(endPage), note, quote });
+      setEditing(false);
+      load();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const removeReview = async () => {
@@ -59,12 +66,15 @@ const ReviewDetailPage = () => {
   const handleComment = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setCommenting(true);
     try {
       await apiPost(`/progress/${id}/comments`, { text });
       setText('');
       load();
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setCommenting(false);
     }
   };
 
@@ -100,7 +110,7 @@ const ReviewDetailPage = () => {
           <label className="row"><span>서평</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} /></label>
           <label className="row"><span>인상깊은 글귀 <em className="optional">(선택)</em></span><textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} /></label>
           <div className="edit-actions">
-            <button className="btn small" onClick={saveEdit}>저장</button>
+            <button className="btn small" onClick={saveEdit} disabled={saving}>{saving ? '저장 중…' : '저장'}</button>
             <button className="btn ghost small" onClick={() => setEditing(false)}>취소</button>
           </div>
         </div>
@@ -124,7 +134,7 @@ const ReviewDetailPage = () => {
       )}
 
       <div className="detail-actions">
-        <button className={`like-btn ${likedByMe ? 'liked' : ''}`} onClick={handleLike} disabled={!user}>
+        <button className={`like-btn ${likedByMe ? 'liked' : ''}`} onClick={handleLike} disabled={!user} aria-label={likedByMe ? '좋아요 취소' : '좋아요'}>
           ♥ {review.likes.length}
         </button>
         {isMine && !editing && (
@@ -152,9 +162,9 @@ const ReviewDetailPage = () => {
 
       {user ? (
         <form className="comment-form" onSubmit={handleComment}>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="이 서평에 댓글을 남겨보세요" required aria-label="댓글 입력" />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="이 서평에 댓글을 남겨보세요…" required aria-label="댓글 입력" />
           {error && <p className="error" role="alert">{error}</p>}
-          <button type="submit" className="btn">댓글 달기</button>
+          <button type="submit" className="btn" disabled={commenting}>{commenting ? '등록 중…' : '댓글 달기'}</button>
         </form>
       ) : (
         <p className="muted"><Link to="/login">로그인</Link>하면 댓글을 남길 수 있어요.</p>

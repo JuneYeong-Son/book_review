@@ -46,9 +46,9 @@ const ReadingCalendar = ({ records }: Props) => {
   return (
     <div className="calendar">
       <div className="cal-head">
-        <button className="btn ghost small" onClick={() => move(-1)}>← 이전</button>
-        <strong>{cursor.year}년 {cursor.month + 1}월</strong>
-        <button className="btn ghost small" onClick={() => move(1)}>다음 →</button>
+        <button className="btn ghost small" onClick={() => move(-1)} aria-label="이전 달">← 이전</button>
+        <strong aria-live="polite">{cursor.year}년 {cursor.month + 1}월</strong>
+        <button className="btn ghost small" onClick={() => move(1)} aria-label="다음 달">다음 →</button>
       </div>
       <div className="cal-grid">
         {WEEKDAYS.map((w) => (

@@ -13,6 +13,7 @@ const DiscussionDetailPage = () => {
   const [discussion, setDiscussion] = useState<DiscussionDetail | null>(null);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const load = () => {
     if (id) apiGet<DiscussionDetail>(`/discussions/${id}`).then(setDiscussion).catch(() => setDiscussion(null));
@@ -25,12 +26,15 @@ const DiscussionDetailPage = () => {
   const handleComment = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
+    setSubmitting(true);
     try {
       await apiPost(`/discussions/${id}/comments`, { text });
       setText('');
       load();
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -72,9 +76,9 @@ const DiscussionDetailPage = () => {
 
       {user ? (
         <form className="comment-form" onSubmit={handleComment}>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="댓글을 입력하세요" required aria-label="댓글 입력" />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="댓글을 입력하세요…" required aria-label="댓글 입력" />
           {error && <p className="error" role="alert">{error}</p>}
-          <button type="submit" className="btn">댓글 달기</button>
+          <button type="submit" className="btn" disabled={submitting}>{submitting ? '등록 중…' : '댓글 달기'}</button>
         </form>
       ) : (
         <p className="muted"><Link to="/login">로그인</Link>하면 토론에 참여할 수 있어요.</p>

@@ -13,29 +13,42 @@ const SettingsPage = () => {
   const [avatar, setAvatar] = useState(user?.avatar ?? '📚');
   const [birthYear, setBirthYear] = useState(user?.birthYear ? String(user.birthYear) : '');
   const [profileMsg, setProfileMsg] = useState('');
+  const [profileErr, setProfileErr] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [pwMsg, setPwMsg] = useState('');
   const [pwErr, setPwErr] = useState('');
+  const [savingPw, setSavingPw] = useState(false);
 
   const [delPassword, setDelPassword] = useState('');
   const [delErr, setDelErr] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   if (!user) return <Navigate to="/login" replace />;
 
   const saveProfile = async (e: FormEvent) => {
     e.preventDefault();
     setProfileMsg('');
-    await apiPatch('/auth/me', { name, avatar, birthYear: birthYear ? Number(birthYear) : null });
-    await refresh();
-    setProfileMsg('저장되었습니다.');
+    setProfileErr('');
+    setSavingProfile(true);
+    try {
+      await apiPatch('/auth/me', { name, avatar, birthYear: birthYear ? Number(birthYear) : null });
+      await refresh();
+      setProfileMsg('저장되었습니다.');
+    } catch (err) {
+      setProfileErr((err as Error).message);
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const savePassword = async (e: FormEvent) => {
     e.preventDefault();
     setPwMsg('');
     setPwErr('');
+    setSavingPw(true);
     try {
       await apiPost('/auth/change-password', { currentPassword, newPassword });
       setPwMsg('비밀번호가 변경되었습니다.');
@@ -43,6 +56,8 @@ const SettingsPage = () => {
       setNewPassword('');
     } catch (err) {
       setPwErr((err as Error).message);
+    } finally {
+      setSavingPw(false);
     }
   };
 
@@ -50,12 +65,14 @@ const SettingsPage = () => {
     e.preventDefault();
     setDelErr('');
     if (!window.confirm('정말 탈퇴하시겠어요? 모든 기록이 삭제되며 되돌릴 수 없어요.')) return;
+    setDeleting(true);
     try {
       await apiDelete('/auth/me', { password: delPassword });
       clearUser();
       navigate('/');
     } catch (err) {
       setDelErr((err as Error).message);
+      setDeleting(false);
     }
   };
 
@@ -81,14 +98,15 @@ const SettingsPage = () => {
         </div>
         <label>
           이름
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
         </label>
         <label>
           출생연도 <em className="optional">(연령대 추천에 사용)</em>
-          <input type="number" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} placeholder="예: 2000" />
+          <input type="number" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} autoComplete="bday-year" placeholder="예: 2000" />
         </label>
+        {profileErr && <p className="error" role="alert">{profileErr}</p>}
         {profileMsg && <p className="success" role="status">{profileMsg}</p>}
-        <button type="submit" className="btn">저장</button>
+        <button type="submit" className="btn" disabled={savingProfile}>{savingProfile ? '저장 중…' : '저장'}</button>
       </form>
 
       <form className="settings-card" onSubmit={savePassword}>
@@ -103,7 +121,7 @@ const SettingsPage = () => {
         </label>
         {pwErr && <p className="error" role="alert">{pwErr}</p>}
         {pwMsg && <p className="success" role="status">{pwMsg}</p>}
-        <button type="submit" className="btn">비밀번호 변경</button>
+        <button type="submit" className="btn" disabled={savingPw}>{savingPw ? '변경 중…' : '비밀번호 변경'}</button>
       </form>
 
       <form className="settings-card danger-card" onSubmit={removeAccount}>
@@ -114,7 +132,7 @@ const SettingsPage = () => {
           <input type="password" value={delPassword} onChange={(e) => setDelPassword(e.target.value)} autoComplete="current-password" />
         </label>
         {delErr && <p className="error" role="alert">{delErr}</p>}
-        <button type="submit" className="btn danger">회원 탈퇴</button>
+        <button type="submit" className="btn danger" disabled={deleting}>{deleting ? '처리 중…' : '회원 탈퇴'}</button>
       </form>
     </section>
   );

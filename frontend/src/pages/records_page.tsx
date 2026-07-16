@@ -51,7 +51,7 @@ const RecordsPage = () => {
 
       {records.length === 0 && <p className="muted">아직 기록이 없어요.</p>}
       {records.length > 0 && filtered.length === 0 && (
-        <p className="muted">'{keyword}'에 대한 검색 결과가 없어요.</p>
+        <p className="muted">“{keyword}”에 대한 검색 결과가 없어요.</p>
       )}
 
       <ul className="record-list">

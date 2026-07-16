@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import type { Book, Progress } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
+import BookCardShell from '@/entities/book_card_shell.tsx';
 
 type Props = {
   book: Book;
@@ -45,64 +45,52 @@ const BookCard = ({ book, latest, interested, reason, onDismiss, onToggleInteres
   };
 
   return (
-    <article className="book-card">
-      <div className="cover-wrap">
-        <Link to={`/books/${book.id}`}><img src={book.cover} alt={book.title} className="cover" width={140} height={200} loading="lazy" /></Link>
-        {onDismiss && (
-          <button className="dismiss-btn" onClick={onDismiss} aria-label="이 책 추천 안 받기">✕</button>
-        )}
-      </div>
-
-      <div className="book-body">
-        {reason && <p className="reason">{reason}</p>}
-        <Link to={`/books/${book.id}`} className="book-title-link"><h3>{book.title}</h3></Link>
-        <p className="author">{book.author}</p>
-        <div className="tags">
-          {book.genre && <span className="tag">{book.genre}</span>}
-          {book.category && <span className="tag">{book.category}</span>}
+    <BookCardShell
+      book={book}
+      reason={reason}
+      to={`/books/${book.id}`}
+      dismiss={onDismiss ? { onClick: onDismiss, label: '이 책 추천 안 받기' } : null}
+    >
+      {latest && (
+        <div className="my-progress">
+          <span className="page-badge">{latest.startPage}~{latest.endPage}쪽</span>
         </div>
+      )}
 
-        {latest && (
-          <div className="my-progress">
-            <span className="page-badge">{latest.startPage}~{latest.endPage}쪽</span>
-          </div>
-        )}
+      {/* 내 서재에 없으면 먼저 담기, 담은 뒤에야 서평 쓰기 노출 */}
+      {loggedIn && !interested && (
+        <button className="btn small" onClick={() => onToggleInterest(book.id)}>＋ 내 서재에 추가</button>
+      )}
+      {loggedIn && interested && (
+        <button className="btn ghost small" onClick={() => setOpen((v) => !v)}>
+          {open ? '닫기' : '독서 기록·서평 쓰기'}
+        </button>
+      )}
 
-        {/* 내 서재에 없으면 먼저 담기, 담은 뒤에야 서평 쓰기 노출 */}
-        {loggedIn && !interested && (
-          <button className="btn small" onClick={() => onToggleInterest(book.id)}>＋ 내 서재에 추가</button>
-        )}
-        {loggedIn && interested && (
-          <button className="btn ghost small" onClick={() => setOpen((v) => !v)}>
-            {open ? '닫기' : '독서 기록·서평 쓰기'}
+      {open && (
+        <div className="record-form">
+          <label className="row">
+            <span>어디부터 어디까지 읽었나요? (쪽)</span>
+            <span className="page-range">
+              <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} aria-label="시작 쪽" />
+              <span>~</span>
+              <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} aria-label="끝 쪽" />
+            </span>
+          </label>
+          <label className="row">
+            <span>서평</span>
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="이 책에 대한 생각을 남겨보세요" />
+          </label>
+          <label className="row">
+            <span>인상깊은 글귀 <em className="optional">(선택)</em></span>
+            <textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} placeholder="마음에 남은 문장을 적어보세요" />
+          </label>
+          <button className="btn full" onClick={handleSave} disabled={saving}>
+            {saving ? '저장 중…' : '기록 추가'}
           </button>
-        )}
-
-        {open && (
-          <div className="record-form">
-            <label className="row">
-              <span>어디부터 어디까지 읽었나요? (쪽)</span>
-              <span className="page-range">
-                <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} aria-label="시작 쪽" />
-                <span>~</span>
-                <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} aria-label="끝 쪽" />
-              </span>
-            </label>
-            <label className="row">
-              <span>서평</span>
-              <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="이 책에 대한 생각을 남겨보세요" />
-            </label>
-            <label className="row">
-              <span>인상깊은 글귀 <em className="optional">(선택)</em></span>
-              <textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} placeholder="마음에 남은 문장을 적어보세요" />
-            </label>
-            <button className="btn full" onClick={handleSave} disabled={saving}>
-              {saving ? '저장 중…' : '기록 추가'}
-            </button>
-          </div>
-        )}
-      </div>
-    </article>
+        </div>
+      )}
+    </BookCardShell>
   );
 };
 

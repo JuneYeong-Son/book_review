@@ -1,39 +1,37 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { apiGet, apiPost } from '@/shared/api/client.ts';
-import type { DiscussionSummary, Progress } from '@/shared/api/types.ts';
+import useSWR, { mutate } from 'swr';
+import { apiPost } from '@/shared/api/client.ts';
+import type { DiscussionSummary } from '@/shared/api/types.ts';
 import { useAuth } from '@/shared/lib/auth_context.tsx';
+import { useMyProgress, KEY } from '@/shared/api/hooks.ts';
 
 const DiscussionListPage = () => {
   const { user } = useAuth();
-  const [discussions, setDiscussions] = useState<DiscussionSummary[]>([]);
-  const [myProgress, setMyProgress] = useState<Progress[]>([]);
+  // SWR — 전체 토론 목록 + 내 진행 기록(홈·마이페이지와 캐시 공유)
+  const { data: discussions = [] } = useSWR<DiscussionSummary[]>('/discussions');
+  const { data: myProgress = [] } = useMyProgress();
   const [bookId, setBookId] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
-
-  const load = () => apiGet<DiscussionSummary[]>('/discussions').then(setDiscussions);
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  useEffect(() => {
-    if (user) apiGet<Progress[]>('/progress/me').then(setMyProgress).catch(() => setMyProgress([]));
-  }, [user]);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleOpen = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
+    setSubmitting(true);
     try {
       await apiPost('/discussions', { bookId, title, description });
       setTitle('');
       setDescription('');
       setBookId('');
-      load();
+      mutate('/discussions');
+      mutate(KEY.discussionsMe);
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -60,7 +58,7 @@ const DiscussionListPage = () => {
               <input name="title" placeholder="토론 제목" value={title} onChange={(e) => setTitle(e.target.value)} required aria-label="토론 제목" />
               <textarea placeholder="어떤 이야기를 나누고 싶나요?" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} aria-label="토론 설명" />
               {error && <p className="error" role="alert">{error}</p>}
-              <button type="submit" className="btn">토론 열기</button>
+              <button type="submit" className="btn" disabled={submitting}>{submitting ? '여는 중…' : '토론 열기'}</button>
             </>
           )}
         </form>
