@@ -475,7 +475,8 @@ a:hover { text-decoration: underline; }
 .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
 
 /* Reading calendar */
-.calendar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+/* 최대 폭 고정 + 가운데 정렬 → 탭/창 폭·스크롤바와 무관하게 달력 크기가 항상 동일. */
+.calendar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; max-width: 620px; margin: 0 auto 8px; }
 .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .cal-head strong { font-size: 1.1rem; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
