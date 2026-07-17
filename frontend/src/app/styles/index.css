@@ -511,7 +511,9 @@ a:hover { text-decoration: underline; }
 /* Footer — Anthropic 시그니처 다크 네이비(페이지를 닫는 면, 반전 없음) */
 /* 스티키 푸터: 내용이 짧아도 푸터가 화면 맨 아래에 붙도록(푸터가 위로 뜨던 문제) */
 #root { min-height: 100vh; display: flex; flex-direction: column; }
-.container { flex: 1 0 auto; }
+/* width:100% 필수 — #root가 flex column이라 margin:0 auto만 있으면 컨테이너가 내용 폭에
+   맞춰 줄어든다(shrink-to-fit). 탭 내용마다 폭이 달라지던 원인. 100%로 항상 꽉 채우고 max-width로 캡. */
+.container { flex: 1 0 auto; width: 100%; }
 
 .app-footer { background: var(--surface-dark); color: var(--on-dark-soft); margin-top: 40px; }
 .footer-inner { max-width: 960px; margin: 0 auto; padding: 24px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
