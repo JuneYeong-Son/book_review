@@ -16,10 +16,10 @@
 
 ## 작업 기록 (필수)
 
-사용자가 지시한 작업을 수행하면, 그 작업을 [docs/작업로그.md](docs/작업로그.md)에 기록한다. 세션이 바뀌어도 이어서 기록한다.
+사용자가 지시한 작업을 수행하면, 그 작업을 [docs/progress/작업로그.md](docs/progress/작업로그.md)에 기록한다. 세션이 바뀌어도 이어서 기록한다.
 
 - **언제:** 사용자가 시킨 작업을 끝냈을 때(또는 의미 있는 단위로 마무리했을 때).
-- **어디에:** `docs/작업로그.md`의 **맨 위**에 새 항목을 추가한다(최신이 위, 역순).
+- **어디에:** `docs/progress/작업로그.md`의 **맨 위**에 새 항목을 추가한다(최신이 위, 역순).
 - **무엇을:** 날짜(`YYYY-MM-DD`) · 사용자가 지시한 내용 요약 · 한 일(변경한 파일/핵심) · 관련 커밋. 제외하거나 보류한 게 있으면 사유도 남긴다.
 - 단순 질문 답변이나 사소한 확인은 기록하지 않는다. **실제로 코드/문서/설정을 바꾸는 작업**만 남긴다.
 
@@ -29,10 +29,10 @@
 
 - **백엔드 로직 / 데이터 / API가 바뀌면** → `docs/logic/` 의 알맞은 파일을 갱신하거나 새 주제 파일을 만든다. 기본은 [docs/logic/backend-requests.md](docs/logic/backend-requests.md).
 - **프론트엔드 설계 철학 / 시각 언어가 바뀌면** → `docs/design/` 쪽을 갱신한다.
-  - 시각 시스템·디자인 철학(색·폰트·질감·톤): [docs/design.md](docs/design.md)
+  - 시각 시스템·디자인 철학(색·폰트·질감·톤): [docs/design/design.md](docs/design/design.md)
   - 화면·UI 요청 사항: [docs/design/ui-requests.md](docs/design/ui-requests.md)
   - 폴더·아키텍처 구조: [docs/design/frontend_structure.md](docs/design/frontend_structure.md)
-- 데이터 모델·전체 개요가 바뀌면 [docs/requirements.md](docs/requirements.md), 배포 절차면 [docs/deploy.md](docs/deploy.md).
+- 데이터 모델·전체 개요가 바뀌면 [docs/progress/requirements.md](docs/progress/requirements.md), 배포 절차면 [docs/logic/deploy.md](docs/logic/deploy.md).
 - 어디에 넣을지 애매하면 가장 가까운 기존 문서를 고르고, 정말 새 주제일 때만 해당 폴더(`logic/` 또는 `design/`)에 파일을 새로 만든다. 작업로그에는 **어느 주제 문서를 갱신했는지**도 함께 남긴다.
 
 ## 배포 (필수)
@@ -45,7 +45,7 @@
 - **세션 시작 시:** `git fetch` 후 `git status -sb`로 **로컬이 `origin/main`(=현재 배포본) 대비 어떤 상태인지** 확인해, 배포가 최신인지·안 올라간 변경이 있는지 파악한다.
 - **커밋 후:** 변경을 배포 사이트에 반영하려면 반드시 **`git push origin main`** 한다(그래야 Render가 재배포). 커밋만 하고 push를 빠뜨려 배포가 뒤처지지 않게 한다.
 - 무료 플랜이라 백엔드가 잠들어 있으면 첫 접속에 ~30초 콜드스타트가 있을 수 있다.
-- 배포 세부 절차는 [docs/deploy.md](docs/deploy.md), 요약은 [README.md](README.md) "배포" 참고.
+- 배포 세부 절차는 [docs/logic/deploy.md](docs/logic/deploy.md), 요약은 [README.md](README.md) "배포" 참고.
 
 ## 프론트엔드 작업 규칙 — Vercel 스킬 필수 참고 (모든 세션)
 
@@ -55,4 +55,4 @@
 - **`vercel-composition-patterns`** — 컴포넌트 합성(compound·render props·context) 설계. boolean prop 남발을 정리하거나 재사용 API를 설계할 때.
 - **`web-design-guidelines`** — Web Interface Guidelines(접근성·UX) 준수 리뷰. UI 리뷰·접근성 점검·디자인 감사를 할 때.
 
-> 디자인 토큰·시각 규칙은 [docs/design.md](docs/design.md)를 따르고(§ "종이 위에 쓴 느낌"), 위 스킬은 그 위에서 구현 품질(성능·합성·접근성)을 보강하는 용도로 쓴다. 문서 편집·백엔드 전용 작업 등 프론트와 무관한 작업엔 강제하지 않는다.
+> 디자인 토큰·시각 규칙은 [docs/design/design.md](docs/design/design.md)를 따르고(§ "종이 위에 쓴 느낌"), 위 스킬은 그 위에서 구현 품질(성능·합성·접근성)을 보강하는 용도로 쓴다. 문서 편집·백엔드 전용 작업 등 프론트와 무관한 작업엔 강제하지 않는다.

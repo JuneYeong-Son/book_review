@@ -4,9 +4,8 @@
 > requirements.md / design / logic 문서로 옮긴다.
 
 ## 진행 예정 / 요청됨
-- [~] **안드로이드 앱(스토어 목표)**: Capacitor **번들 + 토큰 인증**으로 전환 완료(`frontend/android/`). 아이디 로그인·회원가입 앱에서 작동(토큰). **남은 것:** ①Android Studio로 서명 AAB 빌드 ②개인정보 처리방침 + Data Safety ③스토어 등록. 가이드 [../android/build.md](../android/build.md).
+- [~] **안드로이드 앱(스토어 목표)**: Capacitor **번들 + 토큰 인증**으로 전환 완료(`frontend/android/`). 아이디 로그인·회원가입 앱에서 작동. 개인정보 처리방침(`/privacy`)·이용약관(`/terms`) 페이지 완료. **남은 것:** ①Android Studio로 **서명 AAB 빌드** ②앱 아이콘 ③**Data Safety 양식**·콘텐츠 등급 ④스토어 등록·제출. 체크리스트 [../android/store-submission.md](../android/store-submission.md).
 - [ ] **앱 소셜 로그인(딥링크)**: 카카오/구글을 앱에서 쓰려면 커스텀 스킴 딥링크 + 콜백 토큰 반환 필요(현재 앱은 버튼 숨김).
-- [ ] **개인정보 처리방침 페이지**: 스토어 제출 필수(이메일·휴대폰 수집 명시).
 - [ ] **iOS 앱**: macOS+Xcode 필요. `npx cap add ios`로 동일 확장.
 - [ ] (선택) **첫 소셜 로그인 시 약관·닉네임 확인 화면**: 현재는 자동 가입+동의 자동 기록. 명시적 확인 단계 추가.
 
