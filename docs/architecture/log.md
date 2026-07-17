@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-07-17 — YAGNI: 안 쓰는 유연성 제거
+
+죽은 코드에 이어 "쓰지도 않는 유연성"까지 정리.
+- `signToken(userId, days=30)` → 3곳 모두 `days` 미전달(항상 기본값) → 파라미터 제거, `TOKEN_TTL_MS` 상수로.
+- `getAuthToken` → client.ts 내부에서만 사용하는데 export → export 제거(로컬 함수화).
+- `updateNotice`의 부분 필드(title/body/pinned)는 정상적인 REST 부분 수정이라 유지.
+
 ## 2026-07-17 — YAGNI: 죽은 코드 제거
 
 정의만 있고 아무 데서도 안 쓰이는 export를 스캔해 제거(타입체크·빌드·부팅 스모크 통과).
