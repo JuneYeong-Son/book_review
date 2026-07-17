@@ -46,12 +46,7 @@ const uniqueNickname = async (base: string) => {
 
 // 소셜 프로필 → 우리 계정 연결/생성 (제공자 공통).
 // ①이미 연결된 소셜계정 → 로그인, ②같은 이메일 계정 → 연결, ③없으면 신규 생성.
-const resolveSocialUser = async (
-  provider: string,
-  providerId: string,
-  email: string | null,
-  nameHint: string
-) => {
+const resolveSocialUser = async (provider: string, providerId: string, email: string | null, nameHint: string) => {
   const existing = await findUserByProvider(provider, providerId);
   if (existing) {
     if (existing.suspended) return { error: 'suspended' as const };
@@ -172,7 +167,9 @@ export const loginWithGoogle = async (code: string, redirectUri: string) => {
   if (!accessToken) return { error: 'token' as const };
 
   const me = await fetchProfileJson<{ id?: string; email?: string; verified_email?: boolean; name?: string }>(
-    'google', GOOGLE_ME_URL, accessToken
+    'google',
+    GOOGLE_ME_URL,
+    accessToken
   );
   if (!me?.id) return { error: 'profile' as const };
 

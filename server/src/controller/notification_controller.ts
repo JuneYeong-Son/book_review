@@ -1,9 +1,5 @@
 import { Router } from 'express';
-import {
-  listNotifications,
-  readNotification,
-  readAllNotifications
-} from '../service/notification_service.ts';
+import { listNotifications, readNotification, readAllNotifications } from '../service/notification_service.ts';
 import { requireAuth } from '../middleware/auth_middleware.ts';
 
 const router = Router();

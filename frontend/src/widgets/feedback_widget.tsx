@@ -49,7 +49,9 @@ const FeedbackWidget = () => {
           {done ? (
             <div className="feedback-done">
               <p>소중한 의견 감사합니다! 더 나은 서비스를 위해 참고할게요.</p>
-              <button type="button" className="btn full" onClick={close}>닫기</button>
+              <button type="button" className="btn full" onClick={close}>
+                닫기
+              </button>
             </div>
           ) : (
             <form className="modal-form" onSubmit={submit}>
@@ -64,7 +66,8 @@ const FeedbackWidget = () => {
                   버그 신고
                 </label>
               </fieldset>
-              <label>내용
+              <label>
+                내용
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -74,7 +77,11 @@ const FeedbackWidget = () => {
                   placeholder="불편한 점이나 버그를 자세히 알려주세요. (5자 이상)"
                 />
               </label>
-              {error && <p className="error" role="alert">{error}</p>}
+              {error && (
+                <p className="error" role="alert">
+                  {error}
+                </p>
+              )}
               <button type="submit" className="btn full" disabled={submitting}>
                 {submitting ? '보내는 중…' : '보내기'}
               </button>

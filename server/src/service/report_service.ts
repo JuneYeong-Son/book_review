@@ -4,12 +4,7 @@ import { insertReport } from '../repository/report_repository.ts';
 const VALID = ['review', 'discussion', 'user'];
 
 // 서평/토론 신고. 1인 1대상 1회(@@unique)로 남용을 막고, 중복 신고는 조용히 성공 처리(멱등).
-export const submitReport = async (
-  reporterId: string,
-  targetType: string,
-  targetId: string,
-  reason: string
-) => {
+export const submitReport = async (reporterId: string, targetType: string, targetId: string, reason: string) => {
   if (!VALID.includes(targetType) || !targetId) {
     return { error: '잘못된 신고 대상입니다.' as const };
   }

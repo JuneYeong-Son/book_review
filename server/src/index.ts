@@ -19,9 +19,7 @@ const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
 // 배포 시 프론트 주소를 FRONTEND_URL 환경변수로 지정 (없으면 로컬 Vite)
-const allowedOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:5173')
-  .split(',')
-  .map((o) => o.trim());
+const allowedOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:5173').split(',').map((o) => o.trim());
 
 app.set('trust proxy', 1); // Render 등 프록시 뒤에서 secure 쿠키 동작
 app.use(cors({ origin: allowedOrigins, credentials: true }));

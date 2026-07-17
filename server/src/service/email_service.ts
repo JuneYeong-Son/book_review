@@ -4,10 +4,7 @@
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 
-export const sendVerificationEmail = async (
-  to: string,
-  code: string
-): Promise<{ dev: boolean }> => {
+export const sendVerificationEmail = async (to: string, code: string): Promise<{ dev: boolean }> => {
   const apiKey = process.env.RESEND_API_KEY;
   // 발신 주소: 도메인 인증 전에는 Resend 테스트 주소를 쓸 수 있다.
   const from = process.env.RESEND_FROM ?? '책갈피 <onboarding@resend.dev>';

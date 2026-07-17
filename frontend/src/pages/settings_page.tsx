@@ -36,7 +36,8 @@ const SettingsPage = () => {
     setSavingProfile(true);
     try {
       await apiPatch('/auth/me', {
-        name, avatar,
+        name,
+        avatar,
         birthYear: birthYear ? Number(birthYear) : null,
         // 닉네임은 값이 있을 때만 전송(기존 계정이 빈 값으로 덮어써지지 않게)
         ...(nickname.trim() ? { nickname: nickname.trim() } : {})
@@ -104,7 +105,12 @@ const SettingsPage = () => {
         </div>
         <label>
           닉네임 <em className="optional">(활동 표시명)</em>
-          <input value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="off" placeholder="한글/영문/숫자/밑줄 2~16자" />
+          <input
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            autoComplete="off"
+            placeholder="한글/영문/숫자/밑줄 2~16자"
+          />
         </label>
         <label>
           이름 <em className="optional">(비공개)</em>
@@ -112,26 +118,64 @@ const SettingsPage = () => {
         </label>
         <label>
           출생연도 <em className="optional">(연령대 추천에 사용)</em>
-          <input type="number" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} autoComplete="bday-year" placeholder="예: 2000" />
+          <input
+            type="number"
+            min={1900}
+            max={2025}
+            value={birthYear}
+            onChange={(e) => setBirthYear(e.target.value)}
+            autoComplete="bday-year"
+            placeholder="예: 2000"
+          />
         </label>
-        {profileErr && <p className="error" role="alert">{profileErr}</p>}
-        {profileMsg && <p className="success" role="status">{profileMsg}</p>}
-        <button type="submit" className="btn" disabled={savingProfile}>{savingProfile ? '저장 중…' : '저장'}</button>
+        {profileErr && (
+          <p className="error" role="alert">
+            {profileErr}
+          </p>
+        )}
+        {profileMsg && (
+          <p className="success" role="status">
+            {profileMsg}
+          </p>
+        )}
+        <button type="submit" className="btn" disabled={savingProfile}>
+          {savingProfile ? '저장 중…' : '저장'}
+        </button>
       </form>
 
       <form className="settings-card" onSubmit={savePassword}>
         <h2>비밀번호 변경</h2>
         <label>
           현재 비밀번호
-          <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} autoComplete="current-password" />
+          <input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            autoComplete="current-password"
+          />
         </label>
         <label>
           새 비밀번호
-          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} autoComplete="new-password" />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+          />
         </label>
-        {pwErr && <p className="error" role="alert">{pwErr}</p>}
-        {pwMsg && <p className="success" role="status">{pwMsg}</p>}
-        <button type="submit" className="btn" disabled={savingPw}>{savingPw ? '변경 중…' : '비밀번호 변경'}</button>
+        {pwErr && (
+          <p className="error" role="alert">
+            {pwErr}
+          </p>
+        )}
+        {pwMsg && (
+          <p className="success" role="status">
+            {pwMsg}
+          </p>
+        )}
+        <button type="submit" className="btn" disabled={savingPw}>
+          {savingPw ? '변경 중…' : '비밀번호 변경'}
+        </button>
       </form>
 
       <form className="settings-card danger-card" onSubmit={removeAccount}>
@@ -139,10 +183,21 @@ const SettingsPage = () => {
         <p className="muted small">탈퇴하면 작성한 서평·토론·댓글 등 모든 데이터가 삭제되며 복구할 수 없어요.</p>
         <label>
           비밀번호 확인
-          <input type="password" value={delPassword} onChange={(e) => setDelPassword(e.target.value)} autoComplete="current-password" />
+          <input
+            type="password"
+            value={delPassword}
+            onChange={(e) => setDelPassword(e.target.value)}
+            autoComplete="current-password"
+          />
         </label>
-        {delErr && <p className="error" role="alert">{delErr}</p>}
-        <button type="submit" className="btn danger" disabled={deleting}>{deleting ? '처리 중…' : '회원 탈퇴'}</button>
+        {delErr && (
+          <p className="error" role="alert">
+            {delErr}
+          </p>
+        )}
+        <button type="submit" className="btn danger" disabled={deleting}>
+          {deleting ? '처리 중…' : '회원 탈퇴'}
+        </button>
       </form>
     </section>
   );

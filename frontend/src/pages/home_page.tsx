@@ -38,13 +38,21 @@ const HomePage = () => {
   const { data: interests = [] } = useMyInterests();
   const { data: notices = [] } = useNotices();
   // 무한 스크롤 목록 — useSWRInfinite로 페이지 누적(수동 state 대신)
-  const { data: reviewPages, size: reviewSize, setSize: setReviewSize, mutate: mutateReviews } =
-    useSWRInfinite<Progress[]>(reviewsKey);
+  const {
+    data: reviewPages,
+    size: reviewSize,
+    setSize: setReviewSize,
+    mutate: mutateReviews
+  } = useSWRInfinite<Progress[]>(reviewsKey);
   const reviews = useMemo(() => (reviewPages ? reviewPages.flat() : []), [reviewPages]);
   const lastReviewPage = reviewPages?.[reviewPages.length - 1];
   const reviewsEnd = !!reviewPages && (lastReviewPage?.length ?? 0) < PAGE;
-  const { data: discPages, size: discSize, setSize: setDiscSize, mutate: mutateDiscussions } =
-    useSWRInfinite<DiscussionSummary[]>(discussionsKey);
+  const {
+    data: discPages,
+    size: discSize,
+    setSize: setDiscSize,
+    mutate: mutateDiscussions
+  } = useSWRInfinite<DiscussionSummary[]>(discussionsKey);
   const discussions = useMemo(() => (discPages ? discPages.flat() : []), [discPages]);
   const lastDiscPage = discPages?.[discPages.length - 1];
   const discEnd = !!discPages && (lastDiscPage?.length ?? 0) < PAGE;
@@ -71,7 +79,9 @@ const HomePage = () => {
     setRecoEnd(page.length < 10);
   };
 
-  useEffect(() => { loadReco(true); }, [method, genre, user]);
+  useEffect(() => {
+    loadReco(true);
+  }, [method, genre, user]);
 
   const interestedIds = useMemo(() => new Set(interests.map((i) => i.bookId)), [interests]);
   const latestByBook = useMemo(() => {
@@ -84,33 +94,55 @@ const HomePage = () => {
 
   const myQuotes = useMemo(() => myProgress.filter((p) => p.quote.trim()).slice(0, 2), [myProgress]);
 
-  const sortedReviews = useMemo(() => [...reviews].sort((a, b) => {
-    const d = (interestedIds.has(b.bookId) ? 1 : 0) - (interestedIds.has(a.bookId) ? 1 : 0);
-    return d !== 0 ? d : b.likes.length - a.likes.length;
-  }), [reviews, interestedIds]);
-  const sortedDiscussions = useMemo(() => [...discussions].sort((a, b) => {
-    const d = (interestedIds.has(b.book.id) ? 1 : 0) - (interestedIds.has(a.book.id) ? 1 : 0);
-    return d !== 0 ? d : b._count.comments - a._count.comments;
-  }), [discussions, interestedIds]);
+  const sortedReviews = useMemo(
+    () =>
+      [...reviews].sort((a, b) => {
+        const d = (interestedIds.has(b.bookId) ? 1 : 0) - (interestedIds.has(a.bookId) ? 1 : 0);
+        return d !== 0 ? d : b.likes.length - a.likes.length;
+      }),
+    [reviews, interestedIds]
+  );
+  const sortedDiscussions = useMemo(
+    () =>
+      [...discussions].sort((a, b) => {
+        const d = (interestedIds.has(b.book.id) ? 1 : 0) - (interestedIds.has(a.book.id) ? 1 : 0);
+        return d !== 0 ? d : b._count.comments - a._count.comments;
+      }),
+    [discussions, interestedIds]
+  );
 
   const handleToggleInterest = async (bookId: string) => {
     await apiPost(`/books/${bookId}/interest`);
-    mutate(KEY.interestsMe); mutateReviews();
+    mutate(KEY.interestsMe);
+    mutateReviews();
   };
   const handleSaveProgress = async (
-    bookId: string, startPage: number, endPage: number, note: string, quote: string, rating: number
+    bookId: string,
+    startPage: number,
+    endPage: number,
+    note: string,
+    quote: string,
+    rating: number
   ) => {
     await apiPost('/progress', { bookId, startPage, endPage, note, quote, rating });
-    mutate(KEY.progressMe); mutate(KEY.interestsMe); mutateReviews(); loadReco(true);
+    mutate(KEY.progressMe);
+    mutate(KEY.interestsMe);
+    mutateReviews();
+    loadReco(true);
   };
   const handleImportReco = async (rec: Recommendation) => {
     // 임포트 후 내 서재(관심)에 담기 → 마이페이지 '내 서재'에 표시됨
     const book = await apiPost<Book>('/books/import', {
-      title: rec.book.title, author: rec.book.author, cover: rec.book.cover,
-      genre: rec.book.genre, category: rec.book.category, isbn: rec.book.isbn ?? ''
+      title: rec.book.title,
+      author: rec.book.author,
+      cover: rec.book.cover,
+      genre: rec.book.genre,
+      category: rec.book.category,
+      isbn: rec.book.isbn ?? ''
     });
     if (!interestedIds.has(book.id)) await apiPost(`/books/${book.id}/interest`);
-    mutate(KEY.interestsMe); loadReco(true);
+    mutate(KEY.interestsMe);
+    loadReco(true);
   };
   // 추천 X: 라이브러리 책은 '추천 안 받을 책'에 영구 저장, 외부(베스트셀러)는 이번 세션에서 숨김
   const handleDismissReco = async (rec: Recommendation) => {
@@ -124,10 +156,17 @@ const HomePage = () => {
   };
   // 외부(베스트셀러) 책: 클릭 시 우리 DB에 담고 그 책의 서평 페이지로 이동
   const openExternal = async (rec: Recommendation) => {
-    if (rec.book.id) { navigate(`/books/${rec.book.id}`); return; }
+    if (rec.book.id) {
+      navigate(`/books/${rec.book.id}`);
+      return;
+    }
     const book = await apiPost<Book>('/books/import', {
-      title: rec.book.title, author: rec.book.author, cover: rec.book.cover,
-      genre: rec.book.genre, category: rec.book.category, isbn: rec.book.isbn ?? ''
+      title: rec.book.title,
+      author: rec.book.author,
+      cover: rec.book.cover,
+      genre: rec.book.genre,
+      category: rec.book.category,
+      isbn: rec.book.isbn ?? ''
     });
     navigate(`/books/${book.id}`);
   };
@@ -137,9 +176,19 @@ const HomePage = () => {
       <div className="hero">
         <h1>책을 기록하고, 당신의 세계를 다른 사람과 나눠보세요</h1>
         <p className="muted">
-          {user ? `${displayName(user)}님, 오늘은 어디까지 읽으셨나요?` : '로그인하면 독서 기록과 서평을 남길 수 있어요.'}
+          {user
+            ? `${displayName(user)}님, 오늘은 어디까지 읽으셨나요?`
+            : '로그인하면 독서 기록과 서평을 남길 수 있어요.'}
         </p>
-        {user && <QuickActions onChange={() => { mutateReviews(); mutateDiscussions(); loadReco(true); }} />}
+        {user && (
+          <QuickActions
+            onChange={() => {
+              mutateReviews();
+              mutateDiscussions();
+              loadReco(true);
+            }}
+          />
+        )}
       </div>
 
       {/* 공지 배너 — 최상단 공지(고정 우선) 한 줄, 클릭 시 공지 목록으로 */}
@@ -154,13 +203,20 @@ const HomePage = () => {
       {myQuotes.length > 0 && (
         <div className="quote-strip">
           {myQuotes.map((q) => (
-            <blockquote key={q.id} className="my-quote">“{q.quote}”<cite>— {q.book.title}</cite></blockquote>
+            <blockquote key={q.id} className="my-quote">
+              “{q.quote}”<cite>— {q.book.title}</cite>
+            </blockquote>
           ))}
         </div>
       )}
 
       {/* 서평 캐러셀 (박스 클릭 → 서평 상세, › 끝에서 더 불러오기) */}
-      <div className="dash-head section-title"><h2>서평</h2><Link to="/records" className="muted small">전체 보기 →</Link></div>
+      <div className="dash-head section-title">
+        <h2>서평</h2>
+        <Link to="/records" className="muted small">
+          전체 보기 →
+        </Link>
+      </div>
       {sortedReviews.length === 0 ? (
         <p className="muted">아직 서평이 없어요.</p>
       ) : (
@@ -169,17 +225,32 @@ const HomePage = () => {
             // 카드 전체가 아니라 각 요소를 개별 링크로: 표지·서평글 → 서평 상세, 책 → 책 상세, 작성자 → 프로필
             <article key={r.id} className="sq-card review-card">
               <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} aria-label={`${r.book.title} 서평 자세히 보기`}>
-                <img src={r.book.cover} alt={r.book.title} className="sq-cover" width={220} height={112} loading="lazy" />
+                <img
+                  src={r.book.cover}
+                  alt={r.book.title}
+                  className="sq-cover"
+                  width={220}
+                  height={112}
+                  loading="lazy"
+                />
               </Link>
               <div className="sq-body">
-                <Link to={`/books/${r.bookId}`} className="sq-book sq-link">{r.book.title}</Link>
+                <Link to={`/books/${r.bookId}`} className="sq-book sq-link">
+                  {r.book.title}
+                </Link>
                 <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="sq-link">
-                  {r.note
-                    ? <p className="sq-review">{r.note}</p>
-                    : <p className="sq-review muted">{r.startPage}~{r.endPage}쪽까지 읽었어요.</p>}
+                  {r.note ? (
+                    <p className="sq-review">{r.note}</p>
+                  ) : (
+                    <p className="sq-review muted">
+                      {r.startPage}~{r.endPage}쪽까지 읽었어요.
+                    </p>
+                  )}
                 </Link>
                 <div className="sq-foot">
-                  <Link to={`/users/${r.user.id}`} className="sq-reader user-link">{r.user.avatar} {displayName(r.user)}</Link>
+                  <Link to={`/users/${r.user.id}`} className="sq-reader user-link">
+                    {r.user.avatar} {displayName(r.user)}
+                  </Link>
                   <span className="like-count">♥ {r.likes.length}</span>
                 </div>
               </div>
@@ -189,7 +260,12 @@ const HomePage = () => {
       )}
 
       {/* 토론 캐러셀 */}
-      <div className="dash-head section-title"><h2>토론</h2><Link to="/discussions" className="muted small">전체 보기 →</Link></div>
+      <div className="dash-head section-title">
+        <h2>토론</h2>
+        <Link to="/discussions" className="muted small">
+          전체 보기 →
+        </Link>
+      </div>
       {sortedDiscussions.length === 0 ? (
         <p className="muted">아직 토론이 없어요.</p>
       ) : (
@@ -197,13 +273,27 @@ const HomePage = () => {
           {sortedDiscussions.map((d) => (
             <article key={d.id} className="sq-card">
               <Link to={`/discussions/${d.id}`} aria-label={`${d.title} 토론 보기`}>
-                <img src={d.book.cover} alt={d.book.title} className="sq-cover" width={220} height={170} loading="lazy" />
+                <img
+                  src={d.book.cover}
+                  alt={d.book.title}
+                  className="sq-cover"
+                  width={220}
+                  height={170}
+                  loading="lazy"
+                />
               </Link>
               <div className="sq-body">
-                <Link to={`/discussions/${d.id}`} className="sq-link"><strong className="sq-title">{d.title}</strong></Link>
-                <Link to={`/books/${d.book.id}`} className="muted small sq-link">{d.book.title}</Link>
+                <Link to={`/discussions/${d.id}`} className="sq-link">
+                  <strong className="sq-title">{d.title}</strong>
+                </Link>
+                <Link to={`/books/${d.book.id}`} className="muted small sq-link">
+                  {d.book.title}
+                </Link>
                 <p className="muted small">
-                  <Link to={`/users/${d.owner.id}`} className="user-link">{d.owner.avatar} {displayName(d.owner)}</Link> · 댓글 {d._count.comments}
+                  <Link to={`/users/${d.owner.id}`} className="user-link">
+                    {d.owner.avatar} {displayName(d.owner)}
+                  </Link>{' '}
+                  · 댓글 {d._count.comments}
                 </p>
               </div>
             </article>
@@ -214,7 +304,14 @@ const HomePage = () => {
       {/* 추천하는 책 — 필터 버튼 하나로 정리 */}
       <div className="dash-head section-title">
         <h2>추천하는 책</h2>
-        <button className="btn ghost small" onClick={() => setFilterOpen((v) => !v)} aria-expanded={filterOpen} aria-controls="reco-filter-panel">필터 ▾</button>
+        <button
+          className="btn ghost small"
+          onClick={() => setFilterOpen((v) => !v)}
+          aria-expanded={filterOpen}
+          aria-controls="reco-filter-panel"
+        >
+          필터 ▾
+        </button>
       </div>
       <p className="muted small reco-summary">
         {method === 'popular'
@@ -223,16 +320,22 @@ const HomePage = () => {
       </p>
       {filterOpen && (
         <div className="reco-filter-panel" id="reco-filter-panel">
-          <label>추천 방식
+          <label>
+            추천 방식
             <select value={method} onChange={(e) => setMethod(e.target.value as RecoMethod)}>
               <option value="content">읽은 책과 비슷한 책</option>
               <option value="popular">요즘 많이 사는 책</option>
             </select>
           </label>
           {method === 'popular' && (
-            <label>주제
+            <label>
+              주제
               <select value={genre} onChange={(e) => setGenre(e.target.value)}>
-                {GENRES.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
+                {GENRES.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.label}
+                  </option>
+                ))}
               </select>
             </label>
           )}
@@ -250,37 +353,49 @@ const HomePage = () => {
           {recommendations
             .filter((r) => r.book.id || !dismissedExternal.has(r.book.isbn || r.book.title))
             .map((rec, idx) =>
-            rec.inLibrary && rec.book.id ? (
-              <div key={`${rec.book.id}-${idx}`} className="reco-slot">
-                <BookCard
-                  book={{
-                    id: rec.book.id, title: rec.book.title, author: rec.book.author,
-                    cover: rec.book.cover, genre: rec.book.genre, category: rec.book.category
-                  }}
-                  latest={latestByBook.get(rec.book.id)}
-                  interested={interestedIds.has(rec.book.id)}
-                  reason={rec.reason}
-                  onDismiss={user ? () => handleDismissReco(rec) : undefined}
-                  onToggleInterest={handleToggleInterest}
-                  onSaveProgress={handleSaveProgress}
-                />
-              </div>
-            ) : (
-              <div key={`${rec.book.isbn}-${idx}`} className="reco-slot">
-                <BookCardShell
-                  book={{
-                    id: '', title: rec.book.title, author: rec.book.author,
-                    cover: rec.book.cover, genre: rec.book.genre, category: rec.book.category
-                  }}
-                  reason={rec.reason}
-                  onOpen={() => openExternal(rec)}
-                  dismiss={user ? { onClick: () => handleDismissReco(rec), label: '추천 안 받기' } : null}
-                >
-                  {user && <button className="btn small full card-action" onClick={() => handleImportReco(rec)}>＋ 내 서재에 추가</button>}
-                </BookCardShell>
-              </div>
-            )
-          )}
+              rec.inLibrary && rec.book.id ? (
+                <div key={`${rec.book.id}-${idx}`} className="reco-slot">
+                  <BookCard
+                    book={{
+                      id: rec.book.id,
+                      title: rec.book.title,
+                      author: rec.book.author,
+                      cover: rec.book.cover,
+                      genre: rec.book.genre,
+                      category: rec.book.category
+                    }}
+                    latest={latestByBook.get(rec.book.id)}
+                    interested={interestedIds.has(rec.book.id)}
+                    reason={rec.reason}
+                    onDismiss={user ? () => handleDismissReco(rec) : undefined}
+                    onToggleInterest={handleToggleInterest}
+                    onSaveProgress={handleSaveProgress}
+                  />
+                </div>
+              ) : (
+                <div key={`${rec.book.isbn}-${idx}`} className="reco-slot">
+                  <BookCardShell
+                    book={{
+                      id: '',
+                      title: rec.book.title,
+                      author: rec.book.author,
+                      cover: rec.book.cover,
+                      genre: rec.book.genre,
+                      category: rec.book.category
+                    }}
+                    reason={rec.reason}
+                    onOpen={() => openExternal(rec)}
+                    dismiss={user ? { onClick: () => handleDismissReco(rec), label: '추천 안 받기' } : null}
+                  >
+                    {user && (
+                      <button className="btn small full card-action" onClick={() => handleImportReco(rec)}>
+                        ＋ 내 서재에 추가
+                      </button>
+                    )}
+                  </BookCardShell>
+                </div>
+              )
+            )}
         </Carousel>
       )}
     </section>

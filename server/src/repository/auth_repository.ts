@@ -1,17 +1,14 @@
 import prisma from '../lib/prisma.ts';
 
-export const findUserByUsername = (username: string) =>
-  prisma.user.findUnique({ where: { username } });
+export const findUserByUsername = (username: string) => prisma.user.findUnique({ where: { username } });
 
 // requireAuth가 조회해 res.locals.user에 붙여두는 인증된 유저 행 타입.
 // current-user seam: 하위 서비스는 이 유저를 재조회하지 않고 인자로 받는다.
 export type AuthedUser = NonNullable<Awaited<ReturnType<typeof findUserById>>>;
 
-export const findUserByEmail = (email: string) =>
-  prisma.user.findUnique({ where: { email } });
+export const findUserByEmail = (email: string) => prisma.user.findUnique({ where: { email } });
 
-export const findUserByNickname = (nickname: string) =>
-  prisma.user.findUnique({ where: { nickname } });
+export const findUserByNickname = (nickname: string) => prisma.user.findUnique({ where: { nickname } });
 
 export const findUserByProvider = (provider: string, providerId: string) =>
   prisma.user.findFirst({ where: { provider, providerId } });
@@ -20,8 +17,7 @@ export const findUserByProvider = (provider: string, providerId: string) =>
 export const linkProvider = (id: string, provider: string, providerId: string) =>
   prisma.user.update({ where: { id }, data: { provider, providerId } });
 
-export const findUserById = (id: string) =>
-  prisma.user.findUnique({ where: { id } });
+export const findUserById = (id: string) => prisma.user.findUnique({ where: { id } });
 
 export const insertUser = (data: {
   username: string;
@@ -45,8 +41,7 @@ export const updateUser = (
 export const updateUserPassword = (id: string, passwordHash: string) =>
   prisma.user.update({ where: { id }, data: { passwordHash } });
 
-export const touchLastSeen = (id: string) =>
-  prisma.user.update({ where: { id }, data: { lastSeenAt: new Date() } });
+export const touchLastSeen = (id: string) => prisma.user.update({ where: { id }, data: { lastSeenAt: new Date() } });
 
 export const countUsers = () => prisma.user.count();
 
@@ -87,8 +82,7 @@ export const upsertEmailVerification = (data: {
     update: data
   });
 
-export const findEmailVerification = (email: string) =>
-  prisma.emailVerification.findUnique({ where: { email } });
+export const findEmailVerification = (email: string) => prisma.emailVerification.findUnique({ where: { email } });
 
 export const deleteEmailVerification = (email: string) =>
   prisma.emailVerification.delete({ where: { email } }).catch(() => null);
@@ -101,8 +95,7 @@ export const updateUserAdmin = (id: string, isAdmin: boolean) =>
 export const updateUserSuspended = (id: string, suspended: boolean) =>
   prisma.user.update({ where: { id }, data: { suspended } });
 
-export const countActiveSince = (since: Date) =>
-  prisma.user.count({ where: { lastSeenAt: { gte: since } } });
+export const countActiveSince = (since: Date) => prisma.user.count({ where: { lastSeenAt: { gte: since } } });
 
 // 회원 탈퇴: 외래키 순서에 맞춰 사용자 관련 데이터를 모두 삭제
 export const deleteUserCascade = (id: string) =>

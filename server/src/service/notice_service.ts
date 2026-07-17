@@ -20,10 +20,7 @@ export const createNotice = async (input: { title: string; body: string; pinned:
   return { notice };
 };
 
-export const updateNotice = async (
-  id: string,
-  input: { title?: string; body?: string; pinned?: boolean }
-) => {
+export const updateNotice = async (id: string, input: { title?: string; body?: string; pinned?: boolean }) => {
   const existing = await findNoticeById(id);
   if (!existing) return { error: '공지를 찾을 수 없습니다.' as const };
 

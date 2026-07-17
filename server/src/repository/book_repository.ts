@@ -1,16 +1,12 @@
 import prisma from '../lib/prisma.ts';
 
-export const findAllBooks = () =>
-  prisma.book.findMany({ orderBy: { createdAt: 'asc' } });
+export const findAllBooks = () => prisma.book.findMany({ orderBy: { createdAt: 'asc' } });
 
-export const findBookById = (id: string) =>
-  prisma.book.findUnique({ where: { id } });
+export const findBookById = (id: string) => prisma.book.findUnique({ where: { id } });
 
-export const findBookByIsbn = (isbn: string) =>
-  prisma.book.findUnique({ where: { isbn } });
+export const findBookByIsbn = (isbn: string) => prisma.book.findUnique({ where: { isbn } });
 
-export const findBooksByTitle = (title: string) =>
-  prisma.book.findMany({ where: { title } });
+export const findBooksByTitle = (title: string) => prisma.book.findMany({ where: { title } });
 
 export const createBook = (data: {
   title: string;
@@ -29,8 +25,7 @@ export const findInterestsByUser = (userId: string) =>
 export const findInterest = (userId: string, bookId: string) =>
   prisma.interest.findUnique({ where: { userId_bookId: { userId, bookId } } });
 
-export const insertInterest = (userId: string, bookId: string) =>
-  prisma.interest.create({ data: { userId, bookId } });
+export const insertInterest = (userId: string, bookId: string) => prisma.interest.create({ data: { userId, bookId } });
 
 export const deleteInterest = (userId: string, bookId: string) =>
   prisma.interest.delete({ where: { userId_bookId: { userId, bookId } } });

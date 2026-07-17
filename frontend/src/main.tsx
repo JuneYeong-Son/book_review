@@ -17,7 +17,9 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <AuthProvider>
         {/* SWR 전역 설정: 공용 fetcher + 포커스 재검증/에러 재시도 끄고, 5s 내 동일 요청은 dedup */}
-        <SWRConfig value={{ fetcher: swrFetcher, revalidateOnFocus: false, shouldRetryOnError: false, dedupingInterval: 5000 }}>
+        <SWRConfig
+          value={{ fetcher: swrFetcher, revalidateOnFocus: false, shouldRetryOnError: false, dedupingInterval: 5000 }}
+        >
           <App />
         </SWRConfig>
       </AuthProvider>

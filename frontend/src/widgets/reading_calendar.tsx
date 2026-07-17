@@ -46,22 +46,28 @@ const ReadingCalendar = ({ records }: Props) => {
   return (
     <div className="calendar">
       <div className="cal-head">
-        <button className="btn ghost small" onClick={() => move(-1)} aria-label="이전 달">← 이전</button>
-        <strong aria-live="polite">{cursor.year}년 {cursor.month + 1}월</strong>
-        <button className="btn ghost small" onClick={() => move(1)} aria-label="다음 달">다음 →</button>
+        <button className="btn ghost small" onClick={() => move(-1)} aria-label="이전 달">
+          ← 이전
+        </button>
+        <strong aria-live="polite">
+          {cursor.year}년 {cursor.month + 1}월
+        </strong>
+        <button className="btn ghost small" onClick={() => move(1)} aria-label="다음 달">
+          다음 →
+        </button>
       </div>
       <div className="cal-grid">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="cal-weekday">{w}</div>
+          <div key={w} className="cal-weekday">
+            {w}
+          </div>
         ))}
         {cells.map((day, idx) => {
           if (day === null) return <div key={`e${idx}`} className="cal-cell empty" />;
           const key = `${cursor.year}-${cursor.month}-${day}`;
           const dayRecords = byDay.get(key) ?? [];
           const isToday =
-            today.getFullYear() === cursor.year &&
-            today.getMonth() === cursor.month &&
-            today.getDate() === day;
+            today.getFullYear() === cursor.year && today.getMonth() === cursor.month && today.getDate() === day;
           return (
             <div key={key} className={`cal-cell ${isToday ? 'today' : ''}`}>
               <span className="cal-date">{day}</span>

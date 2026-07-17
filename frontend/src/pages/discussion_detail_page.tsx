@@ -17,7 +17,10 @@ const DiscussionDetailPage = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const load = () => {
-    if (id) apiGet<DiscussionDetail>(`/discussions/${id}`).then(setDiscussion).catch(() => setDiscussion(null));
+    if (id)
+      apiGet<DiscussionDetail>(`/discussions/${id}`)
+        .then(setDiscussion)
+        .catch(() => setDiscussion(null));
   };
 
   useEffect(() => {
@@ -43,15 +46,34 @@ const DiscussionDetailPage = () => {
 
   return (
     <section className="discussion-detail">
-      <Link to="/discussions" className="muted small">← 토론 목록</Link>
+      <Link to="/discussions" className="muted small">
+        ← 토론 목록
+      </Link>
       <div className="detail-head">
         <Link to={`/books/${discussion.book.id}`}>
-          <img src={discussion.book.cover} alt={discussion.book.title} className="record-cover" width={54} height={76} />
+          <img
+            src={discussion.book.cover}
+            alt={discussion.book.title}
+            className="record-cover"
+            width={54}
+            height={76}
+          />
         </Link>
         <div>
           <h1>{discussion.title}</h1>
-          <p className="muted context-label">📖 <Link to={`/books/${discussion.book.id}`} className="user-link">{discussion.book.title}</Link> · {discussion.book.author}</p>
-          <p className="muted small"><Link to={`/users/${discussion.owner.id}`} className="user-link">{displayName(discussion.owner)}</Link>님이 열었어요 · {formatDateTime(discussion.createdAt)}</p>
+          <p className="muted context-label">
+            📖{' '}
+            <Link to={`/books/${discussion.book.id}`} className="user-link">
+              {discussion.book.title}
+            </Link>{' '}
+            · {discussion.book.author}
+          </p>
+          <p className="muted small">
+            <Link to={`/users/${discussion.owner.id}`} className="user-link">
+              {displayName(discussion.owner)}
+            </Link>
+            님이 열었어요 · {formatDateTime(discussion.createdAt)}
+          </p>
         </div>
       </div>
       {discussion.description && (
@@ -73,7 +95,11 @@ const DiscussionDetailPage = () => {
         {discussion.comments.map((comment) => (
           <li key={comment.id} className="comment-item">
             <div className="comment-top">
-              <Link to={`/users/${comment.user.id}`} className="user-link"><strong>{comment.user.avatar} {displayName(comment.user)}</strong></Link>
+              <Link to={`/users/${comment.user.id}`} className="user-link">
+                <strong>
+                  {comment.user.avatar} {displayName(comment.user)}
+                </strong>
+              </Link>
               <span className="muted small">{formatDateTime(comment.createdAt)}</span>
             </div>
             <p>{comment.text}</p>
@@ -84,12 +110,27 @@ const DiscussionDetailPage = () => {
 
       {user ? (
         <form className="comment-form" onSubmit={handleComment}>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="댓글을 입력하세요…" required aria-label="댓글 입력" />
-          {error && <p className="error" role="alert">{error}</p>}
-          <button type="submit" className="btn" disabled={submitting}>{submitting ? '등록 중…' : '댓글 달기'}</button>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={2}
+            placeholder="댓글을 입력하세요…"
+            required
+            aria-label="댓글 입력"
+          />
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          <button type="submit" className="btn" disabled={submitting}>
+            {submitting ? '등록 중…' : '댓글 달기'}
+          </button>
         </form>
       ) : (
-        <p className="muted"><Link to="/login">로그인</Link>하면 토론에 참여할 수 있어요.</p>
+        <p className="muted">
+          <Link to="/login">로그인</Link>하면 토론에 참여할 수 있어요.
+        </p>
       )}
     </section>
   );

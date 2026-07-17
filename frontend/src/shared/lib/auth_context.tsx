@@ -66,7 +66,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 인증 생략 모드(EMAIL_VERIFICATION=off)면 { skipped:true, user } 반환 → 바로 로그인 처리
   const startRegister = async (data: RegisterInput) => {
     const res = await apiPost<{ dev?: boolean; devCode?: string; skipped?: boolean; user?: User; token?: string }>(
-      '/auth/register/start', data
+      '/auth/register/start',
+      data
     );
     if (res.skipped && res.user) await applyAuth({ ...res.user, token: res.token });
     return res;

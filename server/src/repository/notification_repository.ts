@@ -1,11 +1,7 @@
 import prisma from '../lib/prisma.ts';
 
-export const insertNotification = (data: {
-  userId: string;
-  type: string;
-  message: string;
-  link: string;
-}) => prisma.notification.create({ data });
+export const insertNotification = (data: { userId: string; type: string; message: string; link: string }) =>
+  prisma.notification.create({ data });
 
 export const findNotificationsByUser = (userId: string) =>
   prisma.notification.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } });

@@ -20,50 +20,76 @@ const AdminPage = () => {
   const [nPinned, setNPinned] = useState(false);
 
   const load = () => {
-    apiGet<AdminStats>('/admin/stats').then(setStats).catch(() => setStats(null));
-    apiGet<ReportedPost[]>('/admin/reports').then(setReports).catch(() => setReports([]));
-    apiGet<Progress[]>('/admin/reviews').then(setReviews).catch(() => setReviews([]));
-    apiGet<Member[]>('/admin/members').then(setMembers).catch(() => setMembers([]));
-    apiGet<Feedback[]>('/admin/feedback').then(setFeedback).catch(() => setFeedback([]));
-    apiGet<Notice[]>('/notices').then(setNotices).catch(() => setNotices([]));
+    apiGet<AdminStats>('/admin/stats')
+      .then(setStats)
+      .catch(() => setStats(null));
+    apiGet<ReportedPost[]>('/admin/reports')
+      .then(setReports)
+      .catch(() => setReports([]));
+    apiGet<Progress[]>('/admin/reviews')
+      .then(setReviews)
+      .catch(() => setReviews([]));
+    apiGet<Member[]>('/admin/members')
+      .then(setMembers)
+      .catch(() => setMembers([]));
+    apiGet<Feedback[]>('/admin/feedback')
+      .then(setFeedback)
+      .catch(() => setFeedback([]));
+    apiGet<Notice[]>('/notices')
+      .then(setNotices)
+      .catch(() => setNotices([]));
   };
 
-  useEffect(() => { if (user?.isAdmin) load(); }, [user]);
+  useEffect(() => {
+    if (user?.isAdmin) load();
+  }, [user]);
 
   if (loading) return <p className="muted">불러오는 중…</p>;
   if (!user || !user.isAdmin) return <Navigate to="/" replace />;
 
   // 실패 메시지를 alert로 보여주는 공통 처리
   const run = async (fn: () => Promise<unknown>) => {
-    try { await fn(); load(); }
-    catch (err) { window.alert((err as Error).message); }
+    try {
+      await fn();
+      load();
+    } catch (err) {
+      window.alert((err as Error).message);
+    }
   };
-  const toggleAdmin = (m: Member) =>
-    run(() => apiPatch(`/admin/members/${m.id}/admin`, { isAdmin: !m.isAdmin }));
+  const toggleAdmin = (m: Member) => run(() => apiPatch(`/admin/members/${m.id}/admin`, { isAdmin: !m.isAdmin }));
   const toggleSuspend = (m: Member) =>
     run(() => apiPatch(`/admin/members/${m.id}/suspend`, { suspended: !m.suspended }));
   const deleteMember = (m: Member) => {
-    if (!window.confirm(`'${m.name}(@${m.username})' 회원을 삭제할까요? 관련 데이터가 모두 지워지며 되돌릴 수 없어요.`)) return;
+    if (!window.confirm(`'${m.name}(@${m.username})' 회원을 삭제할까요? 관련 데이터가 모두 지워지며 되돌릴 수 없어요.`))
+      return;
     run(() => apiDelete(`/admin/members/${m.id}`));
   };
   const toggleResolved = (f: Feedback) =>
     run(() => apiPatch(`/admin/feedback/${f.id}/resolve`, { resolved: !f.resolved }));
-  const deleteFeedback = (f: Feedback) =>
-    run(() => apiDelete(`/admin/feedback/${f.id}`));
+  const deleteFeedback = (f: Feedback) => run(() => apiDelete(`/admin/feedback/${f.id}`));
 
   // 공지사항 관리 — 변경 후 공용 SWR 캐시(홈 배너·목록)도 갱신
   const createNotice = (e: FormEvent) => {
     e.preventDefault();
     run(async () => {
       await apiPost('/notices', { title: nTitle, body: nBody, pinned: nPinned });
-      setNTitle(''); setNBody(''); setNPinned(false);
+      setNTitle('');
+      setNBody('');
+      setNPinned(false);
       mutate(KEY.notices);
     });
   };
-  const togglePin = (n: Notice) => run(async () => { await apiPatch(`/notices/${n.id}`, { pinned: !n.pinned }); mutate(KEY.notices); });
+  const togglePin = (n: Notice) =>
+    run(async () => {
+      await apiPatch(`/notices/${n.id}`, { pinned: !n.pinned });
+      mutate(KEY.notices);
+    });
   const deleteNotice = (n: Notice) => {
     if (!window.confirm(`공지 '${n.title}'을(를) 삭제할까요?`)) return;
-    run(async () => { await apiDelete(`/notices/${n.id}`); mutate(KEY.notices); });
+    run(async () => {
+      await apiDelete(`/notices/${n.id}`);
+      mutate(KEY.notices);
+    });
   };
 
   const removePost = async (p: ReportedPost) => {
@@ -102,22 +128,46 @@ const AdminPage = () => {
 
       <h2 className="section-title">공지사항 관리 ({notices.length})</h2>
       <form className="notice-form" onSubmit={createNotice}>
-        <input value={nTitle} onChange={(e) => setNTitle(e.target.value)} placeholder="공지 제목" required minLength={2} />
-        <textarea value={nBody} onChange={(e) => setNBody(e.target.value)} rows={3} placeholder="공지 내용" required minLength={5} />
-        <label className="consent-row"><input type="checkbox" checked={nPinned} onChange={(e) => setNPinned(e.target.checked)} /> 상단 고정</label>
-        <button className="btn small" type="submit">공지 등록</button>
+        <input
+          value={nTitle}
+          onChange={(e) => setNTitle(e.target.value)}
+          placeholder="공지 제목"
+          required
+          minLength={2}
+        />
+        <textarea
+          value={nBody}
+          onChange={(e) => setNBody(e.target.value)}
+          rows={3}
+          placeholder="공지 내용"
+          required
+          minLength={5}
+        />
+        <label className="consent-row">
+          <input type="checkbox" checked={nPinned} onChange={(e) => setNPinned(e.target.checked)} /> 상단 고정
+        </label>
+        <button className="btn small" type="submit">
+          공지 등록
+        </button>
       </form>
       {notices.length > 0 && (
         <ul className="notice-admin-list">
           {notices.map((n) => (
             <li key={n.id} className="notice-admin-item">
               <div className="notice-admin-main">
-                <p className="notice-admin-title">{n.pinned && '📌 '}{n.title}</p>
+                <p className="notice-admin-title">
+                  {n.pinned && '📌 '}
+                  {n.title}
+                </p>
                 <p className="muted small">{new Date(n.createdAt).toLocaleDateString('ko-KR')}</p>
               </div>
               <div className="notice-admin-actions">
-                <button className="btn ghost small" onClick={() => togglePin(n)}>{n.pinned ? '고정 해제' : '고정'}</button>
-                <button className="btn danger small" onClick={() => deleteNotice(n)}>삭제</button>
+                <button className="btn ghost small" onClick={() => togglePin(n)}>
+                  {n.pinned ? '고정 해제' : '고정'}
+                </button>
+                <button className="btn danger small" onClick={() => deleteNotice(n)}>
+                  삭제
+                </button>
               </div>
             </li>
           ))}
@@ -136,7 +186,9 @@ const AdminPage = () => {
                 {p.link === '#' ? (
                   <span className="report-title">{p.title}</span>
                 ) : (
-                  <Link to={p.link} className="report-title">{p.title}</Link>
+                  <Link to={p.link} className="report-title">
+                    {p.title}
+                  </Link>
                 )}
                 <p className="muted small">
                   {p.targetType === 'review' ? '서평' : p.targetType === 'discussion' ? '토론' : '사용자'} · {p.author}
@@ -173,7 +225,9 @@ const AdminPage = () => {
                 <button className="btn ghost small" onClick={() => toggleResolved(f)}>
                   {f.resolved ? '미처리로' : '처리 완료'}
                 </button>
-                <button className="btn danger small" onClick={() => deleteFeedback(f)}>삭제</button>
+                <button className="btn danger small" onClick={() => deleteFeedback(f)}>
+                  삭제
+                </button>
               </div>
             </li>
           ))}
@@ -187,10 +241,14 @@ const AdminPage = () => {
         <ul className="member-list">
           {members.map((m) => (
             <li key={m.id} className={`member-item ${m.suspended ? 'suspended' : ''}`}>
-              <span className="member-avatar" aria-hidden="true">{m.avatar}</span>
+              <span className="member-avatar" aria-hidden="true">
+                {m.avatar}
+              </span>
               <div className="member-main">
                 <p className="member-name">
-                  <Link to={`/users/${m.id}`} className="user-link">{m.name}</Link>
+                  <Link to={`/users/${m.id}`} className="user-link">
+                    {m.name}
+                  </Link>
                   <span className="muted small"> @{m.username}</span>
                   {m.isAdmin && <span className="member-badge admin">관리자</span>}
                   {m.suspended && <span className="member-badge suspended">정지됨</span>}
@@ -207,7 +265,9 @@ const AdminPage = () => {
                   <button className="btn ghost small" onClick={() => toggleSuspend(m)} disabled={m.isAdmin}>
                     {m.suspended ? '정지 해제' : '활동 정지'}
                   </button>
-                  <button className="btn danger small" onClick={() => deleteMember(m)} disabled={m.isAdmin}>삭제</button>
+                  <button className="btn danger small" onClick={() => deleteMember(m)} disabled={m.isAdmin}>
+                    삭제
+                  </button>
                 </div>
               )}
             </li>
@@ -222,15 +282,26 @@ const AdminPage = () => {
         <ul className="record-list">
           {reviews.map((r) => (
             <li key={r.id} className="record-item">
-              <img src={r.book.cover} alt={r.book.title} className="record-cover" width={54} height={76} loading="lazy" />
+              <img
+                src={r.book.cover}
+                alt={r.book.title}
+                className="record-cover"
+                width={54}
+                height={76}
+                loading="lazy"
+              />
               <div className="record-main">
-                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}><strong>{r.book.title}</strong></Link>
+                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}>
+                  <strong>{r.book.title}</strong>
+                </Link>
                 <p className="muted small">
                   {r.user.avatar} {r.user.name} · {r.startPage}~{r.endPage}쪽 · ♥ {r.likes.length}
                 </p>
                 {r.note && <p className="record-note">{r.note.length > 120 ? `${r.note.slice(0, 120)}…` : r.note}</p>}
               </div>
-              <button className="btn danger small" onClick={() => removeReview(r)}>삭제</button>
+              <button className="btn danger small" onClick={() => removeReview(r)}>
+                삭제
+              </button>
             </li>
           ))}
         </ul>

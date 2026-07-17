@@ -40,19 +40,43 @@ const LoginPage = () => {
       <form onSubmit={handleSubmit}>
         <label>
           아이디
-          <input name="username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required />
+          <input
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            required
+          />
         </label>
         <label>
           비밀번호
-          <input name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+          <input
+            name="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
         </label>
-        {error && <p className="error" role="alert">{error}</p>}
-        <button type="submit" className="btn full" disabled={submitting}>{submitting ? '로그인 중…' : '로그인'}</button>
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="btn full" disabled={submitting}>
+          {submitting ? '로그인 중…' : '로그인'}
+        </button>
       </form>
 
       {!NATIVE && (
         <>
-          <div className="oauth-divider"><span>또는</span></div>
+          <div className="oauth-divider">
+            <span>또는</span>
+          </div>
           <a className="btn full kakao-btn" href={`${API_BASE}/api/auth/oauth/kakao`}>
             <span aria-hidden="true">💬</span> 카카오로 로그인
           </a>
@@ -62,7 +86,9 @@ const LoginPage = () => {
         </>
       )}
 
-      <p className="muted">계정이 없나요? <Link to="/register">회원가입</Link></p>
+      <p className="muted">
+        계정이 없나요? <Link to="/register">회원가입</Link>
+      </p>
     </div>
   );
 };

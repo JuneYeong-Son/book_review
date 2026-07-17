@@ -56,12 +56,25 @@ const BookImportPanel = ({ onImported }: Props) => {
             </button>
           </form>
 
-          {error && <p className="error" role="alert">{error}</p>}
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
 
           <ul className="import-results">
             {results.map((book, idx) => (
               <li key={`${book.isbn}-${idx}`} className="import-item">
-                {book.cover && <img src={book.cover} alt={book.title} className="import-cover" width={44} height={62} loading="lazy" />}
+                {book.cover && (
+                  <img
+                    src={book.cover}
+                    alt={book.title}
+                    className="import-cover"
+                    width={44}
+                    height={62}
+                    loading="lazy"
+                  />
+                )}
                 <div className="import-info">
                   <strong>{book.title}</strong>
                   <p className="muted small">{book.author}</p>
@@ -70,11 +83,7 @@ const BookImportPanel = ({ onImported }: Props) => {
                     {book.category && <span className="tag">{book.category}</span>}
                   </div>
                 </div>
-                <button
-                  className="btn small"
-                  onClick={() => handleImport(book)}
-                  disabled={addedIsbns.has(book.isbn)}
-                >
+                <button className="btn small" onClick={() => handleImport(book)} disabled={addedIsbns.has(book.isbn)}>
                   {addedIsbns.has(book.isbn) ? '추가됨' : '추가'}
                 </button>
               </li>

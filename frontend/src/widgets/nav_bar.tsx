@@ -18,7 +18,9 @@ const NavBar = () => {
 
   const loadNotifications = () => {
     if (!user) return;
-    apiGet<Notification[]>('/notifications').then(setNotifications).catch(() => setNotifications([]));
+    apiGet<Notification[]>('/notifications')
+      .then(setNotifications)
+      .catch(() => setNotifications([]));
   };
 
   useEffect(() => {
@@ -45,8 +47,14 @@ const NavBar = () => {
     if (!notiOpen && !menuOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      if (notiOpen) { setNotiOpen(false); notiBtnRef.current?.focus(); }
-      if (menuOpen) { setMenuOpen(false); menuBtnRef.current?.focus(); }
+      if (notiOpen) {
+        setNotiOpen(false);
+        notiBtnRef.current?.focus();
+      }
+      if (menuOpen) {
+        setMenuOpen(false);
+        menuBtnRef.current?.focus();
+      }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
@@ -76,7 +84,9 @@ const NavBar = () => {
 
   return (
     <header className="navbar">
-      <Link to="/" className="brand">📖 책갈피</Link>
+      <Link to="/" className="brand">
+        📖 책갈피
+      </Link>
       <div className="nav-user">
         {user ? (
           <>
@@ -94,7 +104,9 @@ const NavBar = () => {
               </button>
               {notiOpen && (
                 <div className="dropdown noti-dropdown" role="menu">
-                  <div className="dropdown-head"><span className="dropdown-name">알림</span></div>
+                  <div className="dropdown-head">
+                    <span className="dropdown-name">알림</span>
+                  </div>
                   {notifications.length === 0 ? (
                     <p className="muted small noti-empty">알림이 없어요.</p>
                   ) : (
@@ -131,16 +143,28 @@ const NavBar = () => {
                     <span className="dropdown-avatar">{user.avatar}</span>
                     <span className="dropdown-name">{displayName(user)}</span>
                   </div>
-                  <button role="menuitem" className="dropdown-item" onClick={() => go('/mypage')}>마이페이지</button>
-                  <button role="menuitem" className="dropdown-item" onClick={() => go('/settings')}>내 정보 수정</button>
-                  {user.isAdmin && <button role="menuitem" className="dropdown-item" onClick={() => go('/admin')}>관리자</button>}
-                  <button role="menuitem" className="dropdown-item logout" onClick={handleLogout}>로그아웃</button>
+                  <button role="menuitem" className="dropdown-item" onClick={() => go('/mypage')}>
+                    마이페이지
+                  </button>
+                  <button role="menuitem" className="dropdown-item" onClick={() => go('/settings')}>
+                    내 정보 수정
+                  </button>
+                  {user.isAdmin && (
+                    <button role="menuitem" className="dropdown-item" onClick={() => go('/admin')}>
+                      관리자
+                    </button>
+                  )}
+                  <button role="menuitem" className="dropdown-item logout" onClick={handleLogout}>
+                    로그아웃
+                  </button>
                 </div>
               )}
             </div>
           </>
         ) : (
-          <Link to="/login" className="btn">로그인</Link>
+          <Link to="/login" className="btn">
+            로그인
+          </Link>
         )}
       </div>
     </header>

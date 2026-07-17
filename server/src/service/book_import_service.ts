@@ -47,7 +47,10 @@ type AladinItem = {
 
 // "국내도서>소설/시/희곡>고전" → { category: '소설/시/희곡', genre: '고전' }
 const parseCategory = (categoryName?: string) => {
-  const parts = (categoryName ?? '').split('>').map((s) => s.trim()).filter(Boolean);
+  const parts = (categoryName ?? '')
+    .split('>')
+    .map((s) => s.trim())
+    .filter(Boolean);
   if (parts.length === 0) return { category: '', genre: '' };
   const genre = parts[parts.length - 1];
   const category = parts.length >= 2 ? parts[1] : parts[0];

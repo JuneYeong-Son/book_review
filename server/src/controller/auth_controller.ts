@@ -1,11 +1,6 @@
 import { Router } from 'express';
 import { loginUser, getUser } from '../service/auth_service.ts';
-import {
-  startRegistration,
-  verifyRegistration,
-  checkNickname,
-  checkEmail
-} from '../service/registration_service.ts';
+import { startRegistration, verifyRegistration, checkNickname, checkEmail } from '../service/registration_service.ts';
 import { updateProfile, changePassword, deleteAccount } from '../service/account_service.ts';
 import { kakaoAuthorizeUrl, loginWithKakao, googleAuthorizeUrl, loginWithGoogle } from '../service/oauth_service.ts';
 import { randomBytes } from 'node:crypto';
@@ -36,7 +31,10 @@ router.post('/register/start', authLimiter, async (req, res) => {
     return res.status(400).json({ message: '아이디, 이메일, 이름, 닉네임, 휴대폰 번호, 비밀번호를 모두 입력하세요.' });
   }
   const result = await startRegistration({
-    username, email, name, nickname,
+    username,
+    email,
+    name,
+    nickname,
     phone: String(phone),
     password,
     avatar: avatar ?? '📚',
@@ -95,10 +93,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
 // --- 소셜 로그인 ---
 // 콜백 성공/실패 공통 처리
-const finishOauth = (
-  res: Response,
-  result: { user: { id: string } } | { error: string }
-) => {
+const finishOauth = (res: Response, result: { user: { id: string } } | { error: string }) => {
   if ('error' in result) {
     // 실패 단계를 그대로 전달(token/profile/unconfigured/suspended)해 진단 쉽게
     return res.redirect(`${frontendUrl()}/login?error=${result.error}`);
@@ -158,7 +153,9 @@ router.patch('/me', requireAuth, async (req, res) => {
   const { name, nickname, avatar, birthYear } = req.body ?? {};
   const by = birthYear === null ? null : typeof birthYear === 'number' ? birthYear : undefined;
   const result = await updateProfile(res.locals.user, {
-    name, avatar, birthYear: by,
+    name,
+    avatar,
+    birthYear: by,
     nickname: typeof nickname === 'string' ? nickname : undefined
   });
   if ('error' in result) return res.status(400).json({ message: result.error });

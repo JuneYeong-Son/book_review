@@ -66,18 +66,31 @@ export const startRegistration = async (input: {
   // 코드 단계 없이 바로 가입을 확정한다. (휴대폰 번호는 계속 수집.)
   if (process.env.EMAIL_VERIFICATION === 'off') {
     const user = await insertUser({
-      username, email, name, nickname, phone,
-      agreedAt: new Date(), passwordHash,
-      avatar: avatar || '📚', birthYear
+      username,
+      email,
+      name,
+      nickname,
+      phone,
+      agreedAt: new Date(),
+      passwordHash,
+      avatar: avatar || '📚',
+      birthYear
     });
     return { skipped: true as const, user: toPublicUser(user) };
   }
 
   const code = genCode();
   await upsertEmailVerification({
-    email, username, name, nickname, phone, passwordHash,
-    avatar: avatar || '📚', birthYear,
-    code, expiresAt: new Date(Date.now() + CODE_TTL_MS)
+    email,
+    username,
+    name,
+    nickname,
+    phone,
+    passwordHash,
+    avatar: avatar || '📚',
+    birthYear,
+    code,
+    expiresAt: new Date(Date.now() + CODE_TTL_MS)
   });
 
   let sent: { dev: boolean };

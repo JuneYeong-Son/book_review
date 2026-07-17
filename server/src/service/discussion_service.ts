@@ -19,12 +19,7 @@ export const listMyDiscussions = (userId: string) => findDiscussionsByParticipan
 export const getDiscussion = (id: string) => findDiscussionById(id);
 
 // 자신이 읽거나 읽는 중인(=진행 기록이 있는) 책에 대해서만 토론을 열 수 있음
-export const openDiscussion = async (
-  userId: string,
-  bookId: string,
-  title: string,
-  description: string
-) => {
+export const openDiscussion = async (userId: string, bookId: string, title: string, description: string) => {
   const book = await findBookById(bookId);
   if (!book) return { error: '책을 찾을 수 없습니다.' as const };
 

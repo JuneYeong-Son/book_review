@@ -51,7 +51,9 @@ const MyPage = () => {
     <section>
       <div className="page-head">
         <h1>마이페이지</h1>
-        <p className="muted">{user.avatar} {displayName(user)}님의 기록</p>
+        <p className="muted">
+          {user.avatar} {displayName(user)}님의 기록
+        </p>
       </div>
 
       {/* 마이페이지를 열면 달력이 바로 보임 */}
@@ -70,14 +72,23 @@ const MyPage = () => {
       </div>
 
       {/* 내 서평 = 내가 기록한 책 (클릭 → 책별 서평 수정/삭제) */}
-      {tab === 'reviews' && (
-        bookGroups.length === 0 ? (
-          <p className="muted">아직 남긴 서평이 없어요. <Link to="/">책을 기록해보세요.</Link></p>
+      {tab === 'reviews' &&
+        (bookGroups.length === 0 ? (
+          <p className="muted">
+            아직 남긴 서평이 없어요. <Link to="/">책을 기록해보세요.</Link>
+          </p>
         ) : (
           <div className="book-grid">
             {bookGroups.map((group) => (
               <Link key={group.book.id} to={`/mypage/book/${group.book.id}`} className="mybook-card">
-                <img src={group.book.cover} alt={group.book.title} className="cover" width={140} height={200} loading="lazy" />
+                <img
+                  src={group.book.cover}
+                  alt={group.book.title}
+                  className="cover"
+                  width={140}
+                  height={200}
+                  loading="lazy"
+                />
                 <div className="book-body">
                   <h3>{group.book.title}</h3>
                   <p className="author">{group.book.author}</p>
@@ -88,8 +99,7 @@ const MyPage = () => {
               </Link>
             ))}
           </div>
-        )
-      )}
+        ))}
 
       {/* 내 책 = 관심 책 관리 (♥ 눌러 해제, ♡ 눌러 지정) */}
       {tab === 'books' && (
@@ -101,8 +111,17 @@ const MyPage = () => {
               {interests.map((it) => (
                 <Link key={it.id} to={`/books/${it.bookId}`} className="mybook-card">
                   <div className="cover-wrap">
-                    <img src={it.book.cover} alt={it.book.title} className="cover" width={140} height={200} loading="lazy" />
-                    <button className="remove-btn" onClick={(e) => toggleInterest(e, it.bookId)} title="관심에서 제거">✕ 제거</button>
+                    <img
+                      src={it.book.cover}
+                      alt={it.book.title}
+                      className="cover"
+                      width={140}
+                      height={200}
+                      loading="lazy"
+                    />
+                    <button className="remove-btn" onClick={(e) => toggleInterest(e, it.bookId)} title="관심에서 제거">
+                      ✕ 제거
+                    </button>
                   </div>
                   <div className="book-body">
                     <h3>{it.book.title}</h3>
@@ -115,7 +134,7 @@ const MyPage = () => {
         </>
       )}
 
-      {tab === 'quotes' && (
+      {tab === 'quotes' &&
         (() => {
           const quotes = reviews.filter((r) => r.quote.trim());
           return quotes.length === 0 ? (
@@ -126,25 +145,36 @@ const MyPage = () => {
                 <li key={r.id} className="quote-card-item">
                   <blockquote className="record-quote">“{r.quote}”</blockquote>
                   <p className="muted small">
-                    <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}>{r.book.title}</Link> · {formatDate(r.createdAt)}
+                    <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}>{r.book.title}</Link> ·{' '}
+                    {formatDate(r.createdAt)}
                   </p>
                 </li>
               ))}
             </ul>
           );
-        })()
-      )}
+        })()}
 
-      {tab === 'discussions' && (
-        discussions.length === 0 ? (
-          <p className="muted">아직 참여한 토론이 없어요. <Link to="/discussions">토론에 참여해보세요.</Link></p>
+      {tab === 'discussions' &&
+        (discussions.length === 0 ? (
+          <p className="muted">
+            아직 참여한 토론이 없어요. <Link to="/discussions">토론에 참여해보세요.</Link>
+          </p>
         ) : (
           <ul className="discussion-list">
             {discussions.map((d) => (
               <li key={d.id} className="discussion-item">
-                <img src={d.book.cover} alt={d.book.title} className="record-cover" width={54} height={76} loading="lazy" />
+                <img
+                  src={d.book.cover}
+                  alt={d.book.title}
+                  className="record-cover"
+                  width={54}
+                  height={76}
+                  loading="lazy"
+                />
                 <div className="discussion-main">
-                  <Link to={`/discussions/${d.id}`} className="discussion-title">{d.title}</Link>
+                  <Link to={`/discussions/${d.id}`} className="discussion-title">
+                    {d.title}
+                  </Link>
                   <p className="muted small">
                     {d.book.title} · {d.owner.id === user.id ? '내가 연 토론' : '댓글 참여'} · 댓글 {d._count.comments}
                   </p>
@@ -152,8 +182,7 @@ const MyPage = () => {
               </li>
             ))}
           </ul>
-        )
-      )}
+        ))}
     </section>
   );
 };

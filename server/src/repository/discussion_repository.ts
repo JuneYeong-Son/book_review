@@ -42,20 +42,14 @@ export const findDiscussionById = (id: string) =>
     }
   });
 
-export const insertDiscussion = (data: {
-  bookId: string;
-  ownerId: string;
-  title: string;
-  description: string;
-}) =>
+export const insertDiscussion = (data: { bookId: string; ownerId: string; title: string; description: string }) =>
   prisma.discussion.create({
     data,
     include: { book: true, owner: ownerSelect }
   });
 
 // 토론 삭제 (댓글은 cascade)
-export const deleteDiscussionById = (id: string) =>
-  prisma.discussion.delete({ where: { id } });
+export const deleteDiscussionById = (id: string) => prisma.discussion.delete({ where: { id } });
 
 export const insertComment = (discussionId: string, userId: string, text: string) =>
   prisma.comment.create({

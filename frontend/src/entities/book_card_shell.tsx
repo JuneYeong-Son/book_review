@@ -19,16 +19,30 @@ const BookCardShell = ({ book, reason, to, onOpen, dismiss, children }: Props) =
   return (
     <article className="book-card">
       <div className="cover-wrap">
-        {to
-          ? <Link to={to}>{cover}</Link>
-          : <button className="cover-link" onClick={onOpen} aria-label={`${book.title} 담고 서평 보러가기`}>{cover}</button>}
-        {dismiss && <button className="dismiss-btn" onClick={dismiss.onClick} aria-label={dismiss.label}>✕</button>}
+        {to ? (
+          <Link to={to}>{cover}</Link>
+        ) : (
+          <button className="cover-link" onClick={onOpen} aria-label={`${book.title} 담고 서평 보러가기`}>
+            {cover}
+          </button>
+        )}
+        {dismiss && (
+          <button className="dismiss-btn" onClick={dismiss.onClick} aria-label={dismiss.label}>
+            ✕
+          </button>
+        )}
       </div>
       <div className="book-body">
         {reason && <p className="reason">{reason}</p>}
-        {to
-          ? <Link to={to} className="book-title-link"><h3>{book.title}</h3></Link>
-          : <button className="book-title-btn" onClick={onOpen}><h3>{book.title}</h3></button>}
+        {to ? (
+          <Link to={to} className="book-title-link">
+            <h3>{book.title}</h3>
+          </Link>
+        ) : (
+          <button className="book-title-btn" onClick={onOpen}>
+            <h3>{book.title}</h3>
+          </button>
+        )}
         <p className="author">{book.author}</p>
         <div className="tags">
           {book.genre && <span className="tag">{book.genre}</span>}

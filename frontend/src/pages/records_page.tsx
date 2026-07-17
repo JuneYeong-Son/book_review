@@ -28,8 +28,9 @@ const RecordsPage = () => {
   const query = keyword.trim().toLowerCase();
   const filtered = query
     ? records.filter((record) =>
-        [record.book.title, record.book.author, displayName(record.user)]
-          .some((field) => field.toLowerCase().includes(query))
+        [record.book.title, record.book.author, displayName(record.user)].some((field) =>
+          field.toLowerCase().includes(query)
+        )
       )
     : records;
 
@@ -51,22 +52,33 @@ const RecordsPage = () => {
       />
 
       {records.length === 0 && <p className="muted">아직 기록이 없어요.</p>}
-      {records.length > 0 && filtered.length === 0 && (
-        <p className="muted">“{keyword}”에 대한 검색 결과가 없어요.</p>
-      )}
+      {records.length > 0 && filtered.length === 0 && <p className="muted">“{keyword}”에 대한 검색 결과가 없어요.</p>}
 
       <ul className="record-list">
         {filtered.map((record) => (
           <li key={record.id} className="record-item">
-            <img src={record.book.cover} alt={record.book.title} className="record-cover" width={54} height={76} loading="lazy" />
+            <img
+              src={record.book.cover}
+              alt={record.book.title}
+              className="record-cover"
+              width={54}
+              height={76}
+              loading="lazy"
+            />
             <div className="record-main">
               <div className="record-top">
-                <Link to={`/books/${record.bookId}/reviews/${record.bookSeq}`}><strong>{record.book.title}</strong></Link>
+                <Link to={`/books/${record.bookId}/reviews/${record.bookSeq}`}>
+                  <strong>{record.book.title}</strong>
+                </Link>
                 <span className="muted"> · {record.user.avatar} </span>
-                <Link to={`/users/${record.user.id}`} className="user-link">{displayName(record.user)}</Link>
+                <Link to={`/users/${record.user.id}`} className="user-link">
+                  {displayName(record.user)}
+                </Link>
               </div>
               <div className="record-meta">
-                <span className="page-badge">{record.startPage}~{record.endPage}쪽</span>
+                <span className="page-badge">
+                  {record.startPage}~{record.endPage}쪽
+                </span>
                 <span className="muted small">{formatDate(record.createdAt)}</span>
               </div>
               {record.note && <p className="record-note">{record.note}</p>}

@@ -17,10 +17,7 @@ const QuickActions = ({ onChange }: Props) => {
   // 공용 SWR 훅(홈·마이페이지와 캐시 공유). 모달을 열고 닫을 때마다 전체를 재fetch하던 문제 제거.
   const { data: interests = [] } = useMyInterests();
   const { data: myProgress = [] } = useMyProgress();
-  const myBooks = useMemo(
-    () => [...new Map(myProgress.map((r) => [r.bookId, r.book])).values()],
-    [myProgress]
-  );
+  const myBooks = useMemo(() => [...new Map(myProgress.map((r) => [r.bookId, r.book])).values()], [myProgress]);
   const interestedIds = useMemo(() => new Set(interests.map((i) => i.bookId)), [interests]);
   // 서평은 "내 서재(관심)에 담은 책"에만 쓸 수 있다. 서재에 담긴 책 목록.
   const libraryBooks = useMemo(() => interests.map((i) => i.book), [interests]);
@@ -39,12 +36,21 @@ const QuickActions = ({ onChange }: Props) => {
     setSubmitting(true);
     try {
       await apiPost('/progress', {
-        bookId: rBook, startPage: Number(rStart), endPage: Number(rEnd),
-        note: rNote, quote: rQuote, rating: 0
+        bookId: rBook,
+        startPage: Number(rStart),
+        endPage: Number(rEnd),
+        note: rNote,
+        quote: rQuote,
+        rating: 0
       });
       setWhich(null);
-      setRBook(''); setRStart(0); setREnd(0); setRNote(''); setRQuote('');
-      mutate(KEY.progressMe); mutate(KEY.interestsMe);
+      setRBook('');
+      setRStart(0);
+      setREnd(0);
+      setRNote('');
+      setRQuote('');
+      mutate(KEY.progressMe);
+      mutate(KEY.interestsMe);
       onChange();
     } catch (err) {
       setRErr((err as Error).message);
@@ -66,7 +72,9 @@ const QuickActions = ({ onChange }: Props) => {
     try {
       await apiPost('/discussions', { bookId: dBook, title: dTitle, description: dDesc });
       setWhich(null);
-      setDBook(''); setDTitle(''); setDDesc('');
+      setDBook('');
+      setDTitle('');
+      setDDesc('');
       mutate(KEY.discussionsMe);
       onChange();
     } catch (err) {
@@ -106,9 +114,15 @@ const QuickActions = ({ onChange }: Props) => {
 
   return (
     <div className="quick-actions">
-      <button className="btn" onClick={() => setWhich('review')}>✍️ 서평 쓰기</button>
-      <button className="btn ghost" onClick={() => setWhich('book')}>📚 내 서재에 추가</button>
-      <button className="btn ghost" onClick={() => setWhich('discussion')}>💬 토론 열기</button>
+      <button className="btn" onClick={() => setWhich('review')}>
+        ✍️ 서평 쓰기
+      </button>
+      <button className="btn ghost" onClick={() => setWhich('book')}>
+        📚 내 서재에 추가
+      </button>
+      <button className="btn ghost" onClick={() => setWhich('discussion')}>
+        💬 토론 열기
+      </button>
 
       {which === 'review' && (
         <Modal title="서평 쓰기" onClose={() => setWhich(null)}>
@@ -118,28 +132,62 @@ const QuickActions = ({ onChange }: Props) => {
               책을 담은 뒤 다시 서평을 써주세요.
             </p>
           ) : (
-          <form className="modal-form" onSubmit={submitReview}>
-            <p className="muted small picker-hint">내 서재에 담은 책만 서평을 쓸 수 있어요.</p>
-            <label>책
-              <select value={rBook} onChange={(e) => setRBook(e.target.value)} required>
-                <option value="">책 선택</option>
-                {libraryBooks.map((b) => <option key={b.id} value={b.id}>{b.title}</option>)}
-              </select>
-            </label>
-            <label>어디부터 어디까지 읽었나요? (쪽)
-              <span className="page-range">
-                <input type="number" min={0} value={rStart} onChange={(e) => setRStart(Number(e.target.value))} aria-label="시작 쪽" />
-                <span>~</span>
-                <input type="number" min={0} value={rEnd} onChange={(e) => setREnd(Number(e.target.value))} aria-label="끝 쪽" />
-              </span>
-            </label>
-            <label>서평 <textarea value={rNote} onChange={(e) => setRNote(e.target.value)} rows={3} minLength={10} placeholder="10자 이상 적어주세요 (비워두면 쪽수만 기록돼요)" /></label>
-            <label>인상깊은 글귀 <em className="optional">(선택)</em>
-              <textarea value={rQuote} onChange={(e) => setRQuote(e.target.value)} rows={2} />
-            </label>
-            {rErr && <p className="error" role="alert">{rErr}</p>}
-            <button type="submit" className="btn full" disabled={submitting}>{submitting ? '저장 중…' : '저장'}</button>
-          </form>
+            <form className="modal-form" onSubmit={submitReview}>
+              <p className="muted small picker-hint">내 서재에 담은 책만 서평을 쓸 수 있어요.</p>
+              <label>
+                책
+                <select value={rBook} onChange={(e) => setRBook(e.target.value)} required>
+                  <option value="">책 선택</option>
+                  {libraryBooks.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                어디부터 어디까지 읽었나요? (쪽)
+                <span className="page-range">
+                  <input
+                    type="number"
+                    min={0}
+                    value={rStart}
+                    onChange={(e) => setRStart(Number(e.target.value))}
+                    aria-label="시작 쪽"
+                  />
+                  <span>~</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={rEnd}
+                    onChange={(e) => setREnd(Number(e.target.value))}
+                    aria-label="끝 쪽"
+                  />
+                </span>
+              </label>
+              <label>
+                서평{' '}
+                <textarea
+                  value={rNote}
+                  onChange={(e) => setRNote(e.target.value)}
+                  rows={3}
+                  minLength={10}
+                  placeholder="10자 이상 적어주세요 (비워두면 쪽수만 기록돼요)"
+                />
+              </label>
+              <label>
+                인상깊은 글귀 <em className="optional">(선택)</em>
+                <textarea value={rQuote} onChange={(e) => setRQuote(e.target.value)} rows={2} />
+              </label>
+              {rErr && (
+                <p className="error" role="alert">
+                  {rErr}
+                </p>
+              )}
+              <button type="submit" className="btn full" disabled={submitting}>
+                {submitting ? '저장 중…' : '저장'}
+              </button>
+            </form>
           )}
         </Modal>
       )}
@@ -147,20 +195,37 @@ const QuickActions = ({ onChange }: Props) => {
       {which === 'book' && (
         <Modal title="내 서재에 추가" onClose={() => setWhich(null)}>
           <form className="import-search" onSubmit={searchAladin}>
-            <input type="search" name="q" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="알라딘에서 책 검색 (제목·저자)" aria-label="알라딘에서 책 검색" />
-            <button type="submit" className="btn" disabled={searching}>{searching ? '검색 중' : '검색'}</button>
+            <input
+              type="search"
+              name="q"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="알라딘에서 책 검색 (제목·저자)"
+              aria-label="알라딘에서 책 검색"
+            />
+            <button type="submit" className="btn" disabled={searching}>
+              {searching ? '검색 중' : '검색'}
+            </button>
           </form>
-          {searchErr && <p className="error" role="alert">{searchErr}</p>}
+          {searchErr && (
+            <p className="error" role="alert">
+              {searchErr}
+            </p>
+          )}
           {results.length > 0 && (
             <ul className="import-results">
               {results.map((b, i) => (
                 <li key={`${b.isbn}-${i}`} className="import-item">
-                  {b.cover && <img src={b.cover} alt={b.title} className="import-cover" width={44} height={62} loading="lazy" />}
+                  {b.cover && (
+                    <img src={b.cover} alt={b.title} className="import-cover" width={44} height={62} loading="lazy" />
+                  )}
                   <div className="import-info">
                     <strong>{b.title}</strong>
                     <p className="muted small">{b.author}</p>
                   </div>
-                  <button className="btn small" onClick={() => addAndInterest(b)}>내 서재에 담기</button>
+                  <button className="btn small" onClick={() => addAndInterest(b)}>
+                    내 서재에 담기
+                  </button>
                 </li>
               ))}
             </ul>
@@ -178,16 +243,39 @@ const QuickActions = ({ onChange }: Props) => {
             <p className="muted">먼저 책의 독서 기록(서평)을 남기면 그 책으로 토론을 열 수 있어요.</p>
           ) : (
             <form className="modal-form" onSubmit={submitDiscussion}>
-              <label>책 (내가 읽은 책)
+              <label>
+                책 (내가 읽은 책)
                 <select value={dBook} onChange={(e) => setDBook(e.target.value)} required>
                   <option value="">책 선택</option>
-                  {myBooks.map((b) => <option key={b.id} value={b.id}>{b.title}</option>)}
+                  {myBooks.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.title}
+                    </option>
+                  ))}
                 </select>
               </label>
-              <label>제목 <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required minLength={2} /></label>
-              <label>내용 <textarea value={dDesc} onChange={(e) => setDDesc(e.target.value)} rows={3} required minLength={10} placeholder="토론 내용을 10자 이상 적어주세요" /></label>
-              {dErr && <p className="error" role="alert">{dErr}</p>}
-              <button type="submit" className="btn full" disabled={submitting}>{submitting ? '여는 중…' : '토론 열기'}</button>
+              <label>
+                제목 <input value={dTitle} onChange={(e) => setDTitle(e.target.value)} required minLength={2} />
+              </label>
+              <label>
+                내용{' '}
+                <textarea
+                  value={dDesc}
+                  onChange={(e) => setDDesc(e.target.value)}
+                  rows={3}
+                  required
+                  minLength={10}
+                  placeholder="토론 내용을 10자 이상 적어주세요"
+                />
+              </label>
+              {dErr && (
+                <p className="error" role="alert">
+                  {dErr}
+                </p>
+              )}
+              <button type="submit" className="btn full" disabled={submitting}>
+                {submitting ? '여는 중…' : '토론 열기'}
+              </button>
             </form>
           )}
         </Modal>

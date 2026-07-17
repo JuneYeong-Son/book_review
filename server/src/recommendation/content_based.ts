@@ -36,9 +36,7 @@ const toRecoBook = (book: {
 
 export const contentBasedRecommend = async (userId?: string): Promise<RecoItem[]> => {
   const exclude = new Set(userId ? await findRecoExclusionIds(userId) : []);
-  const books = (await findAllBooks()).filter(
-    (b) => !isExcludedTitle(b.title) && !exclude.has(b.id)
-  );
+  const books = (await findAllBooks()).filter((b) => !isExcludedTitle(b.title) && !exclude.has(b.id));
   const allProgress = await findAllProgress();
 
   // 플랫폼 인기도: 읽은 사람 수 + 좋아요 수
@@ -49,8 +47,7 @@ export const contentBasedRecommend = async (userId?: string): Promise<RecoItem[]
     readers.get(p.bookId)!.add(p.userId);
     likes.set(p.bookId, (likes.get(p.bookId) ?? 0) + (p.likes?.length ?? 0));
   }
-  const popularity = (bookId: string) =>
-    (readers.get(bookId)?.size ?? 0) + (likes.get(bookId) ?? 0) * 2;
+  const popularity = (bookId: string) => (readers.get(bookId)?.size ?? 0) + (likes.get(bookId) ?? 0) * 2;
 
   const popularFallback = (): RecoItem[] =>
     [...books]
@@ -66,10 +63,7 @@ export const contentBasedRecommend = async (userId?: string): Promise<RecoItem[]
   const genreF: Feature = new Map();
   const categoryF: Feature = new Map();
   const authorF: Feature = new Map();
-  const addBook = (
-    book: { genre: string; category: string; author: string },
-    weight: number
-  ) => {
+  const addBook = (book: { genre: string; category: string; author: string }, weight: number) => {
     inc(genreF, book.genre, weight);
     inc(categoryF, book.category, weight);
     inc(authorF, book.author, weight);
@@ -117,9 +111,7 @@ export const contentBasedRecommend = async (userId?: string): Promise<RecoItem[]
 
   if (scored.length < 4) {
     const already = new Set(scored.map((r) => r.book.id));
-    const fillers = popularFallback().filter(
-      (r) => r.book.id && !excluded.has(r.book.id) && !already.has(r.book.id)
-    );
+    const fillers = popularFallback().filter((r) => r.book.id && !excluded.has(r.book.id) && !already.has(r.book.id));
     return [...scored, ...fillers].slice(0, 8);
   }
 

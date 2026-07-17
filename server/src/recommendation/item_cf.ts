@@ -14,18 +14,26 @@ import type { RecoBook, RecoItem } from './types.ts';
 // 데이터가 희소하면(공통 사용자 없음) 인기순으로 보충한다.
 
 const toRecoBook = (b: {
-  id: string; title: string; author: string; cover: string;
-  genre: string; category: string; isbn: string | null;
+  id: string;
+  title: string;
+  author: string;
+  cover: string;
+  genre: string;
+  category: string;
+  isbn: string | null;
 }): RecoBook => ({
-  id: b.id, title: b.title, author: b.author, cover: b.cover,
-  genre: b.genre, category: b.category, isbn: b.isbn
+  id: b.id,
+  title: b.title,
+  author: b.author,
+  cover: b.cover,
+  genre: b.genre,
+  category: b.category,
+  isbn: b.isbn
 });
 
 export const itemCfRecommend = async (userId?: string): Promise<RecoItem[]> => {
   const exclude = new Set(userId ? await findRecoExclusionIds(userId) : []);
-  const books = (await findAllBooks()).filter(
-    (b) => !isExcludedTitle(b.title) && !exclude.has(b.id)
-  );
+  const books = (await findAllBooks()).filter((b) => !isExcludedTitle(b.title) && !exclude.has(b.id));
   const progress = await findAllProgress();
 
   // 책별 상호작용 사용자 집합 (읽음 + 좋아요), 사용자별 소비한 책 집합
@@ -50,7 +58,7 @@ export const itemCfRecommend = async (userId?: string): Promise<RecoItem[]> => {
       .map((b) => ({ book: toRecoBook(b), reason: '많이 읽고 있는 책', inLibrary: true }));
 
   // 비로그인 또는 이력 없음 → 인기순
-  const mine = userId ? userBooks.get(userId) ?? new Set<string>() : new Set<string>();
+  const mine = userId ? (userBooks.get(userId) ?? new Set<string>()) : new Set<string>();
   if (mine.size === 0) return popularFallback(new Set()).slice(0, 8);
 
   // 코사인 유사도
@@ -84,9 +92,7 @@ export const itemCfRecommend = async (userId?: string): Promise<RecoItem[]> => {
   // 협업 신호가 부족하면 콘텐츠 기반(장르·작가 유사도)으로 보충
   if (scored.length < 4) {
     const already = new Set<string>([...mine, ...scored.map((r) => r.book.id!)]);
-    const content = (await contentBasedRecommend(userId)).filter(
-      (r) => r.book.id && !already.has(r.book.id)
-    );
+    const content = (await contentBasedRecommend(userId)).filter((r) => r.book.id && !already.has(r.book.id));
     const merged = [...scored, ...content];
     return merged.length > 0 ? merged.slice(0, 8) : popularFallback(mine).slice(0, 8);
   }

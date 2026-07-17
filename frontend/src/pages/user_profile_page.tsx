@@ -11,7 +11,10 @@ const UserProfilePage = () => {
 
   useEffect(() => {
     if (!id) return;
-    apiGet<UserProfile>(`/users/${id}`).then(setProfile).catch(() => setProfile(null)).finally(() => setLoaded(true));
+    apiGet<UserProfile>(`/users/${id}`)
+      .then(setProfile)
+      .catch(() => setProfile(null))
+      .finally(() => setLoaded(true));
   }, [id]);
 
   if (!loaded) return <p className="muted">불러오는 중…</p>;
@@ -33,11 +36,22 @@ const UserProfilePage = () => {
         <ul className="record-list">
           {reviews.map((r) => (
             <li key={r.id} className="record-item">
-              <img src={r.book.cover} alt={r.book.title} className="record-cover" width={54} height={76} loading="lazy" />
+              <img
+                src={r.book.cover}
+                alt={r.book.title}
+                className="record-cover"
+                width={54}
+                height={76}
+                loading="lazy"
+              />
               <div className="record-main">
-                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}><strong>{r.book.title}</strong></Link>
+                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`}>
+                  <strong>{r.book.title}</strong>
+                </Link>
                 <div className="record-meta">
-                  <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
+                  <span className="page-badge">
+                    {r.startPage}~{r.endPage}쪽
+                  </span>
                   <span className="like-count">♥ {r.likes.length}</span>
                 </div>
                 {r.note && <p className="record-note">{r.note}</p>}
@@ -71,10 +85,21 @@ const UserProfilePage = () => {
         <ul className="discussion-list">
           {discussions.map((d) => (
             <li key={d.id} className="discussion-item">
-              <img src={d.book.cover} alt={d.book.title} className="record-cover" width={54} height={76} loading="lazy" />
+              <img
+                src={d.book.cover}
+                alt={d.book.title}
+                className="record-cover"
+                width={54}
+                height={76}
+                loading="lazy"
+              />
               <div className="discussion-main">
-                <Link to={`/discussions/${d.id}`} className="discussion-title">{d.title}</Link>
-                <p className="muted small">{d.book.title} · 댓글 {d._count.comments}</p>
+                <Link to={`/discussions/${d.id}`} className="discussion-title">
+                  {d.title}
+                </Link>
+                <p className="muted small">
+                  {d.book.title} · 댓글 {d._count.comments}
+                </p>
               </div>
             </li>
           ))}

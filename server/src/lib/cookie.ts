@@ -8,8 +8,7 @@ const isProd = process.env.NODE_ENV === 'production';
 // 세션 쿠키 서명용 시크릿. 이 시크릿이 없으면 쿠키(userId)를 위조할 수 있으므로 필수.
 // prod에서 미설정 시 부팅마다 랜덤값을 써서(재시작하면 로그인 풀림) SESSION_SECRET 설정을 유도.
 export const SESSION_SECRET =
-  process.env.SESSION_SECRET ||
-  (isProd ? crypto.randomBytes(32).toString('hex') : 'dev-insecure-session-secret');
+  process.env.SESSION_SECRET || (isProd ? crypto.randomBytes(32).toString('hex') : 'dev-insecure-session-secret');
 
 if (isProd && !process.env.SESSION_SECRET) {
   console.warn(

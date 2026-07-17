@@ -6,7 +6,8 @@ type Props = {
   children: ReactNode;
 };
 
-const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input:not([disabled]), select, [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'a[href], button:not([disabled]), textarea, input:not([disabled]), select, [tabindex]:not([tabindex="-1"])';
 
 const Modal = ({ title, onClose, children }: Props) => {
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -63,7 +64,9 @@ const Modal = ({ title, onClose, children }: Props) => {
       >
         <div className="modal-head">
           <h3 id={titleId}>{title}</h3>
-          <button className="modal-close" onClick={onClose} aria-label="닫기">✕</button>
+          <button className="modal-close" onClick={onClose} aria-label="닫기">
+            ✕
+          </button>
         </div>
         <div className="modal-body">{children}</div>
       </div>

@@ -15,14 +15,12 @@ export const findProgressById = (id: string) =>
 export const findLike = (userId: string, progressId: string) =>
   prisma.like.findUnique({ where: { userId_progressId: { userId, progressId } } });
 
-export const insertLike = (userId: string, progressId: string) =>
-  prisma.like.create({ data: { userId, progressId } });
+export const insertLike = (userId: string, progressId: string) => prisma.like.create({ data: { userId, progressId } });
 
 export const deleteLike = (userId: string, progressId: string) =>
   prisma.like.delete({ where: { userId_progressId: { userId, progressId } } });
 
-export const countLikes = (progressId: string) =>
-  prisma.like.count({ where: { progressId } });
+export const countLikes = (progressId: string) => prisma.like.count({ where: { progressId } });
 
 export const findAllProgress = (skip?: number, take?: number) =>
   prisma.progress.findMany({ ...withRelations, orderBy: { createdAt: 'desc' }, skip, take });
@@ -64,8 +62,7 @@ export const maxBookSeqByBook = async (bookId: string) => {
 };
 
 // 사용자가 그 책에 대한 기록을 하나라도 가지고 있는지 (토론 개설 자격 확인용)
-export const hasProgress = (userId: string, bookId: string) =>
-  prisma.progress.findFirst({ where: { userId, bookId } });
+export const hasProgress = (userId: string, bookId: string) => prisma.progress.findFirst({ where: { userId, bookId } });
 
 const userSelect = { select: { id: true, username: true, name: true, nickname: true, avatar: true } } as const;
 
@@ -77,8 +74,7 @@ const detailInclude = {
 } as const;
 
 // 서평 상세 (책·작성자·좋아요·댓글 포함)
-export const findProgressDetail = (id: string) =>
-  prisma.progress.findUnique({ where: { id }, include: detailInclude });
+export const findProgressDetail = (id: string) => prisma.progress.findUnique({ where: { id }, include: detailInclude });
 
 // 책별 순번으로 서평 상세 조회. (혹시 과거 데이터에 같은 순번이 중복돼 있어도
 // 항상 가장 먼저 쓰인 것을 일관되게 반환하도록 createdAt 오름차순 고정.)

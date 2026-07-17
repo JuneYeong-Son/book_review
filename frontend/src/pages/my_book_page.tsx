@@ -16,13 +16,18 @@ const MyBookPage = () => {
 
   const load = () => {
     if (!user || !bookId) return;
-    apiGet<Progress[]>(`/progress/me/book/${bookId}`).then(setRecords).catch(() => setRecords([])).finally(() => setLoaded(true));
+    apiGet<Progress[]>(`/progress/me/book/${bookId}`)
+      .then(setRecords)
+      .catch(() => setRecords([]))
+      .finally(() => setLoaded(true));
     apiGet<Interest[]>('/books/interests/me')
       .then((list) => setInterested(list.some((i) => i.bookId === bookId)))
       .catch(() => setInterested(false));
   };
 
-  useEffect(() => { load(); }, [user, bookId]);
+  useEffect(() => {
+    load();
+  }, [user, bookId]);
 
   if (!user) return <Navigate to="/login" replace />;
   if (!loaded) return <p className="muted">불러오는 중…</p>;
@@ -41,7 +46,9 @@ const MyBookPage = () => {
 
   return (
     <section>
-      <Link to="/mypage" className="muted small">← 마이페이지</Link>
+      <Link to="/mypage" className="muted small">
+        ← 마이페이지
+      </Link>
 
       {book ? (
         <div className="detail-head">
@@ -63,20 +70,33 @@ const MyBookPage = () => {
         {records.map((r) =>
           editing === r.id ? (
             <li key={r.id} className="timeline-item">
-              <EditForm record={r} onDone={() => { setEditing(null); load(); }} onCancel={() => setEditing(null)} />
+              <EditForm
+                record={r}
+                onDone={() => {
+                  setEditing(null);
+                  load();
+                }}
+                onCancel={() => setEditing(null)}
+              />
             </li>
           ) : (
             <li key={r.id} className="timeline-item">
               <div className="timeline-date">{formatDate(r.createdAt)}</div>
               <div className="timeline-body">
                 <div className="record-meta">
-                  <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
+                  <span className="page-badge">
+                    {r.startPage}~{r.endPage}쪽
+                  </span>
                 </div>
                 {r.note && <p className="record-note">{r.note}</p>}
                 {r.quote && <blockquote className="record-quote">“{r.quote}”</blockquote>}
                 <div className="edit-actions">
-                  <button className="btn ghost small" onClick={() => setEditing(r.id)}>수정</button>
-                  <button className="btn ghost small danger-text" onClick={() => remove(r.id)}>삭제</button>
+                  <button className="btn ghost small" onClick={() => setEditing(r.id)}>
+                    수정
+                  </button>
+                  <button className="btn ghost small danger-text" onClick={() => remove(r.id)}>
+                    삭제
+                  </button>
                 </div>
               </div>
             </li>
@@ -96,25 +116,51 @@ const EditForm = ({ record, onDone, onCancel }: { record: Progress; onDone: () =
 
   const save = async () => {
     await apiPatch(`/progress/${record.id}`, {
-      startPage: Number(startPage), endPage: Number(endPage), note, quote
+      startPage: Number(startPage),
+      endPage: Number(endPage),
+      note,
+      quote
     });
     onDone();
   };
 
   return (
     <div className="record-form" style={{ flex: 1 }}>
-      <label className="row"><span>쪽</span>
+      <label className="row">
+        <span>쪽</span>
         <span className="page-range">
-          <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} aria-label="시작 쪽" />
+          <input
+            type="number"
+            min={0}
+            value={startPage}
+            onChange={(e) => setStartPage(Number(e.target.value))}
+            aria-label="시작 쪽"
+          />
           <span>~</span>
-          <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} aria-label="끝 쪽" />
+          <input
+            type="number"
+            min={0}
+            value={endPage}
+            onChange={(e) => setEndPage(Number(e.target.value))}
+            aria-label="끝 쪽"
+          />
         </span>
       </label>
-      <label className="row"><span>서평</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} /></label>
-      <label className="row"><span>글귀</span><textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} /></label>
+      <label className="row">
+        <span>서평</span>
+        <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} />
+      </label>
+      <label className="row">
+        <span>글귀</span>
+        <textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} />
+      </label>
       <div className="edit-actions">
-        <button className="btn small" onClick={save}>저장</button>
-        <button className="btn ghost small" onClick={onCancel}>취소</button>
+        <button className="btn small" onClick={save}>
+          저장
+        </button>
+        <button className="btn ghost small" onClick={onCancel}>
+          취소
+        </button>
       </div>
     </div>
   );

@@ -23,11 +23,15 @@ const Carousel = ({ children, onLoadMore }: Props) => {
 
   return (
     <div className="carousel">
-      <button className="carousel-btn left" onClick={() => scroll(-1)} aria-label="이전">‹</button>
+      <button className="carousel-btn left" onClick={() => scroll(-1)} aria-label="이전">
+        ‹
+      </button>
       <div className="carousel-track" ref={trackRef}>
         {children}
       </div>
-      <button className="carousel-btn right" onClick={() => scroll(1)} aria-label="다음">›</button>
+      <button className="carousel-btn right" onClick={() => scroll(1)} aria-label="다음">
+        ›
+      </button>
     </div>
   );
 };

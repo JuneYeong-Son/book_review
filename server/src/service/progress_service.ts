@@ -26,9 +26,7 @@ const MIN_NOTE_LEN = 10;
 // 서평이 비어있지 않은데 너무 짧으면 안내 메시지, 아니면 null. (작성·수정 공용)
 const noteTooShortError = (note: string): string | null => {
   const t = note.trim();
-  return t.length > 0 && t.length < MIN_NOTE_LEN
-    ? `서평이 너무 짧아요. ${MIN_NOTE_LEN}자 이상 적어주세요.`
-    : null;
+  return t.length > 0 && t.length < MIN_NOTE_LEN ? `서평이 너무 짧아요. ${MIN_NOTE_LEN}자 이상 적어주세요.` : null;
 };
 
 // 모든 사용자의 독서 기록 (다른 사람 기록도 볼 수 있음, 페이지네이션 지원)
@@ -37,8 +35,7 @@ export const listProgress = (skip?: number, take?: number) => findAllProgress(sk
 export const listUserProgress = (userId: string) => findProgressByUser(userId);
 
 // 한 책에 대해 내가 남긴 기록들(날짜별)
-export const listUserBookProgress = (userId: string, bookId: string) =>
-  findProgressByUserAndBook(userId, bookId);
+export const listUserBookProgress = (userId: string, bookId: string) => findProgressByUserAndBook(userId, bookId);
 
 // 한 책에 대한 모든 사용자의 서평
 export const listBookProgress = (bookId: string) => findProgressByBook(bookId);
@@ -47,8 +44,7 @@ export const listBookProgress = (bookId: string) => findProgressByBook(bookId);
 export const getProgressDetail = (id: string) => findProgressDetail(id);
 
 // 책별 순번으로 서평 상세
-export const getProgressByBookSeq = (bookId: string, bookSeq: number) =>
-  findProgressByBookSeq(bookId, bookSeq);
+export const getProgressByBookSeq = (bookId: string, bookSeq: number) => findProgressByBookSeq(bookId, bookSeq);
 
 // 서평 수정 (본인만)
 export const editReview = async (

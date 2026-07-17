@@ -5,8 +5,7 @@ export const NATIVE = Capacitor.isNativePlatform();
 
 // 배포 시 백엔드 주소는 VITE_API_URL로 주입. 웹 로컬은 비우면 Vite 프록시(/api).
 // 네이티브 앱은 프록시가 없으므로 절대 주소가 필요하다(빌드시 VITE_API_URL 없으면 배포 백엔드로 폴백).
-export const API_BASE =
-  import.meta.env.VITE_API_URL ?? (NATIVE ? 'https://book-review-api-xsmv.onrender.com' : '');
+export const API_BASE = import.meta.env.VITE_API_URL ?? (NATIVE ? 'https://book-review-api-xsmv.onrender.com' : '');
 
 // --- 네이티브 앱 인증 토큰 (localStorage 보관) ---
 const TOKEN_KEY = 'auth_token';

@@ -53,14 +53,18 @@ const BookCard = ({ book, latest, interested, reason, onDismiss, onToggleInteres
     >
       {latest && (
         <div className="my-progress">
-          <span className="page-badge">{latest.startPage}~{latest.endPage}쪽</span>
+          <span className="page-badge">
+            {latest.startPage}~{latest.endPage}쪽
+          </span>
         </div>
       )}
 
       {/* 내 서재에 없으면 먼저 담기, 담은 뒤에야 서평 쓰기 노출.
           .card-action full 로 카드 하단에 폭 맞춰 정렬(카드마다 위치 통일). */}
       {loggedIn && !interested && (
-        <button className="btn small full card-action" onClick={() => onToggleInterest(book.id)}>＋ 내 서재에 추가</button>
+        <button className="btn small full card-action" onClick={() => onToggleInterest(book.id)}>
+          ＋ 내 서재에 추가
+        </button>
       )}
       {loggedIn && interested && (
         <button className="btn ghost small full card-action" onClick={() => setOpen((v) => !v)}>
@@ -73,18 +77,43 @@ const BookCard = ({ book, latest, interested, reason, onDismiss, onToggleInteres
           <label className="row">
             <span>어디부터 어디까지 읽었나요? (쪽)</span>
             <span className="page-range">
-              <input type="number" min={0} value={startPage} onChange={(e) => setStartPage(Number(e.target.value))} aria-label="시작 쪽" />
+              <input
+                type="number"
+                min={0}
+                value={startPage}
+                onChange={(e) => setStartPage(Number(e.target.value))}
+                aria-label="시작 쪽"
+              />
               <span>~</span>
-              <input type="number" min={0} value={endPage} onChange={(e) => setEndPage(Number(e.target.value))} aria-label="끝 쪽" />
+              <input
+                type="number"
+                min={0}
+                value={endPage}
+                onChange={(e) => setEndPage(Number(e.target.value))}
+                aria-label="끝 쪽"
+              />
             </span>
           </label>
           <label className="row">
             <span>서평</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} minLength={10} placeholder="이 책에 대한 생각을 남겨보세요 (10자 이상, 비우면 쪽수만 기록)" />
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+              minLength={10}
+              placeholder="이 책에 대한 생각을 남겨보세요 (10자 이상, 비우면 쪽수만 기록)"
+            />
           </label>
           <label className="row">
-            <span>인상깊은 글귀 <em className="optional">(선택)</em></span>
-            <textarea value={quote} onChange={(e) => setQuote(e.target.value)} rows={2} placeholder="마음에 남은 문장을 적어보세요" />
+            <span>
+              인상깊은 글귀 <em className="optional">(선택)</em>
+            </span>
+            <textarea
+              value={quote}
+              onChange={(e) => setQuote(e.target.value)}
+              rows={2}
+              placeholder="마음에 남은 문장을 적어보세요"
+            />
           </label>
           <button className="btn full" onClick={handleSave} disabled={saving}>
             {saving ? '저장 중…' : '기록 추가'}

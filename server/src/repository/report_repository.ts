@@ -1,11 +1,7 @@
 import prisma from '../lib/prisma.ts';
 
-export const insertReport = (data: {
-  reporterId: string;
-  targetType: string;
-  targetId: string;
-  reason: string;
-}) => prisma.report.create({ data });
+export const insertReport = (data: { reporterId: string; targetType: string; targetId: string; reason: string }) =>
+  prisma.report.create({ data });
 
 // 신고 대상별 신고 수 (많은 순)
 export const groupReports = () =>

@@ -19,12 +19,17 @@ const BookReviewsPage = () => {
   const [rating, setRating] = useState<RatingInfo>({ average: 0, count: 0, mine: 0 });
 
   const loadRating = () => {
-    if (bookId) apiGet<RatingInfo>(`/books/${bookId}/rating`).then(setRating).catch(() => {});
+    if (bookId)
+      apiGet<RatingInfo>(`/books/${bookId}/rating`)
+        .then(setRating)
+        .catch(() => {});
   };
 
   useEffect(() => {
     if (!bookId) return;
-    apiGet<Book>(`/books/${bookId}`).then(setBook).catch(() => setBook(null));
+    apiGet<Book>(`/books/${bookId}`)
+      .then(setBook)
+      .catch(() => setBook(null));
     apiGet<Progress[]>(`/progress/book/${bookId}`)
       .then((list) => setReviews([...list].sort((a, b) => b.likes.length - a.likes.length)))
       .catch(() => setReviews([]));
@@ -42,11 +47,20 @@ const BookReviewsPage = () => {
 
   return (
     <section>
-      <Link to="/" className="muted small">← 홈</Link>
+      <Link to="/" className="muted small">
+        ← 홈
+      </Link>
 
       {book && (
         <div className="book-detail-head">
-          <img src={book.cover} alt={book.title} className="book-detail-cover" width={220} height={300} fetchPriority="high" />
+          <img
+            src={book.cover}
+            alt={book.title}
+            className="book-detail-cover"
+            width={220}
+            height={300}
+            fetchPriority="high"
+          />
           <div className="book-detail-info">
             <h1>{book.title}</h1>
             <p className="author">{book.author}</p>
@@ -84,15 +98,21 @@ const BookReviewsPage = () => {
             <li key={r.id} className="record-item">
               <div className="record-main">
                 <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="record-top">
-                  <strong>{r.user.avatar} {displayName(r.user)}</strong>
+                  <strong>
+                    {r.user.avatar} {displayName(r.user)}
+                  </strong>
                 </Link>
                 <div className="record-meta">
-                  <span className="page-badge">{r.startPage}~{r.endPage}쪽</span>
+                  <span className="page-badge">
+                    {r.startPage}~{r.endPage}쪽
+                  </span>
                   <span className="like-count">♥ {r.likes.length}</span>
                   <span className="muted small">{formatDate(r.createdAt)}</span>
                 </div>
                 {r.note && <p className="record-note">{r.note}</p>}
-                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="muted small">서평 자세히 보기 →</Link>
+                <Link to={`/books/${r.bookId}/reviews/${r.bookSeq}`} className="muted small">
+                  서평 자세히 보기 →
+                </Link>
               </div>
             </li>
           ))}
@@ -107,8 +127,12 @@ const BookReviewsPage = () => {
           {discussions.map((d) => (
             <li key={d.id} className="discussion-item">
               <div className="discussion-main">
-                <Link to={`/discussions/${d.id}`} className="discussion-title">{d.title}</Link>
-                <p className="muted small">{d.owner.avatar} {displayName(d.owner)} · 댓글 {d._count.comments}</p>
+                <Link to={`/discussions/${d.id}`} className="discussion-title">
+                  {d.title}
+                </Link>
+                <p className="muted small">
+                  {d.owner.avatar} {displayName(d.owner)} · 댓글 {d._count.comments}
+                </p>
               </div>
             </li>
           ))}

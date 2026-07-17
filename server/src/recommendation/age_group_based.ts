@@ -7,11 +7,21 @@ import type { RecoBook, RecoItem } from './types.ts';
 // ageGroup: 10,20,30,40 = 해당 연령대 / 50 = 50대 이상
 
 const toRecoBook = (book: {
-  id: string; title: string; author: string; cover: string;
-  genre: string; category: string; isbn: string | null;
+  id: string;
+  title: string;
+  author: string;
+  cover: string;
+  genre: string;
+  category: string;
+  isbn: string | null;
 }): RecoBook => ({
-  id: book.id, title: book.title, author: book.author, cover: book.cover,
-  genre: book.genre, category: book.category, isbn: book.isbn
+  id: book.id,
+  title: book.title,
+  author: book.author,
+  cover: book.cover,
+  genre: book.genre,
+  category: book.category,
+  isbn: book.isbn
 });
 
 export const ageGroupBasedRecommend = async (ageGroup: number): Promise<RecoItem[]> => {

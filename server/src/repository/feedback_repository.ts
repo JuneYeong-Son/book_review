@@ -15,5 +15,4 @@ export const findAllFeedback = () =>
 export const updateFeedbackResolved = (id: string, resolved: boolean) =>
   prisma.feedback.update({ where: { id }, data: { resolved } });
 
-export const deleteFeedbackById = (id: string) =>
-  prisma.feedback.delete({ where: { id } });
+export const deleteFeedbackById = (id: string) => prisma.feedback.delete({ where: { id } });

@@ -35,18 +35,36 @@ const RegisterPage = () => {
   const submitForm = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
-    if (nickCheck.ok === false) { setError(nickCheck.message ?? '닉네임을 확인해주세요.'); return; }
-    if (emailCheck.ok === false) { setError(emailCheck.message ?? '이메일을 확인해주세요.'); return; }
-    if (password !== passwordConfirm) { setError('비밀번호가 일치하지 않습니다.'); return; }
+    if (nickCheck.ok === false) {
+      setError(nickCheck.message ?? '닉네임을 확인해주세요.');
+      return;
+    }
+    if (emailCheck.ok === false) {
+      setError(emailCheck.message ?? '이메일을 확인해주세요.');
+      return;
+    }
+    if (password !== passwordConfirm) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
     setSubmitting(true);
     try {
       const r = await startRegister({
-        username, email, name, nickname, phone, password, avatar,
+        username,
+        email,
+        name,
+        nickname,
+        phone,
+        password,
+        avatar,
         birthYear: birthYear ? Number(birthYear) : null,
         agreed
       });
       // 인증 생략 모드: startRegister가 이미 로그인 처리 → 바로 홈으로
-      if (r.skipped) { navigate('/'); return; }
+      if (r.skipped) {
+        navigate('/');
+        return;
+      }
       setDevCode(r.devCode ?? null); // 서버는 dev 모드에서만 devCode를 채워 보냄
       setStep('verify');
     } catch (err) {
@@ -74,19 +92,47 @@ const RegisterPage = () => {
     return (
       <div className="auth-card">
         <h1>이메일 인증</h1>
-        <p className="muted"><strong>{email}</strong>로 보낸 6자리 인증 코드를 입력해주세요.</p>
+        <p className="muted">
+          <strong>{email}</strong>로 보낸 6자리 인증 코드를 입력해주세요.
+        </p>
         {devCode && (
-          <p className="muted small">테스트 모드(메일 미설정): 인증 코드는 <strong>{devCode}</strong> 입니다.</p>
+          <p className="muted small">
+            테스트 모드(메일 미설정): 인증 코드는 <strong>{devCode}</strong> 입니다.
+          </p>
         )}
         <form onSubmit={submitCode}>
           <label>
             인증 코드
-            <input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" autoComplete="one-time-code" placeholder="6자리 숫자" required />
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="6자리 숫자"
+              required
+            />
           </label>
-          {error && <p className="error" role="alert">{error}</p>}
-          <button type="submit" className="btn full" disabled={submitting}>{submitting ? '확인 중…' : '가입 완료'}</button>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          <button type="submit" className="btn full" disabled={submitting}>
+            {submitting ? '확인 중…' : '가입 완료'}
+          </button>
         </form>
-        <p className="muted"><button type="button" className="link-btn" onClick={() => { setStep('form'); setError(''); }}>← 정보 다시 입력</button></p>
+        <p className="muted">
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => {
+              setStep('form');
+              setError('');
+            }}
+          >
+            ← 정보 다시 입력
+          </button>
+        </p>
       </div>
     );
   }
@@ -113,20 +159,61 @@ const RegisterPage = () => {
         </div>
         <label>
           아이디 <em className="optional">(로그인용)</em>
-          <input name="username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required />
+          <input
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            required
+          />
         </label>
         <label>
           이메일
-          <input name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" autoCapitalize="none" required aria-describedby="email-check" />
-          <small id="email-check" aria-live="polite" className={`field-hint ${emailCheck.ok === false ? 'bad' : emailCheck.ok ? 'ok' : ''}`}>
-            {emailCheck.checking ? '확인 중…' : emailCheck.ok ? '사용 가능한 이메일이에요.' : emailCheck.message ?? '인증 코드를 이 주소로 보냅니다.'}
+          <input
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            autoCapitalize="none"
+            required
+            aria-describedby="email-check"
+          />
+          <small
+            id="email-check"
+            aria-live="polite"
+            className={`field-hint ${emailCheck.ok === false ? 'bad' : emailCheck.ok ? 'ok' : ''}`}
+          >
+            {emailCheck.checking
+              ? '확인 중…'
+              : emailCheck.ok
+                ? '사용 가능한 이메일이에요.'
+                : (emailCheck.message ?? '인증 코드를 이 주소로 보냅니다.')}
           </small>
         </label>
         <label>
           닉네임 <em className="optional">(활동 표시명)</em>
-          <input name="nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="off" required aria-describedby="nick-check" />
-          <small id="nick-check" aria-live="polite" className={`field-hint ${nickCheck.ok === false ? 'bad' : nickCheck.ok ? 'ok' : ''}`}>
-            {nickCheck.checking ? '확인 중…' : nickCheck.ok ? '사용 가능한 닉네임이에요.' : nickCheck.message ?? '한글/영문/숫자/밑줄 2~16자'}
+          <input
+            name="nickname"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            autoComplete="off"
+            required
+            aria-describedby="nick-check"
+          />
+          <small
+            id="nick-check"
+            aria-live="polite"
+            className={`field-hint ${nickCheck.ok === false ? 'bad' : nickCheck.ok ? 'ok' : ''}`}
+          >
+            {nickCheck.checking
+              ? '확인 중…'
+              : nickCheck.ok
+                ? '사용 가능한 닉네임이에요.'
+                : (nickCheck.message ?? '한글/영문/숫자/밑줄 2~16자')}
           </small>
         </label>
         <label>
@@ -135,34 +222,90 @@ const RegisterPage = () => {
         </label>
         <label>
           휴대폰 번호
-          <input name="tel" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" inputMode="numeric" placeholder="010-1234-5678" required />
+          <input
+            name="tel"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            autoComplete="tel"
+            inputMode="numeric"
+            placeholder="010-1234-5678"
+            required
+          />
         </label>
         <label>
           비밀번호
-          <input name="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required minLength={8} aria-describedby="pw-hint" />
-          <small id="pw-hint" className="muted">8자 이상, 영문과 숫자를 모두 포함해주세요.</small>
+          <input
+            name="new-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+            minLength={8}
+            aria-describedby="pw-hint"
+          />
+          <small id="pw-hint" className="muted">
+            8자 이상, 영문과 숫자를 모두 포함해주세요.
+          </small>
         </label>
         <label>
           비밀번호 확인
-          <input name="confirm-password" type="password" value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} autoComplete="new-password" required aria-describedby="pw-confirm-hint" />
-          <small id="pw-confirm-hint" className={`field-hint ${passwordConfirm ? (password === passwordConfirm ? 'ok' : 'bad') : ''}`}>
-            {passwordConfirm ? (password === passwordConfirm ? '비밀번호가 일치해요.' : '비밀번호가 일치하지 않아요.') : '위에서 입력한 비밀번호를 다시 입력해주세요.'}
+          <input
+            name="confirm-password"
+            type="password"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+            autoComplete="new-password"
+            required
+            aria-describedby="pw-confirm-hint"
+          />
+          <small
+            id="pw-confirm-hint"
+            className={`field-hint ${passwordConfirm ? (password === passwordConfirm ? 'ok' : 'bad') : ''}`}
+          >
+            {passwordConfirm
+              ? password === passwordConfirm
+                ? '비밀번호가 일치해요.'
+                : '비밀번호가 일치하지 않아요.'
+              : '위에서 입력한 비밀번호를 다시 입력해주세요.'}
           </small>
         </label>
         <label className="consent-row">
           <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} required />
-          <span><Link to="/terms" target="_blank">개인정보 수집·이용</Link>에 동의합니다. (필수)</span>
+          <span>
+            <Link to="/terms" target="_blank">
+              개인정보 수집·이용
+            </Link>
+            에 동의합니다. (필수)
+          </span>
         </label>
         <label>
           출생연도 <em className="optional">(선택 · 연령대 추천에 사용)</em>
-          <input name="birthYear" type="number" inputMode="numeric" min={1900} max={2025} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} autoComplete="bday-year" placeholder="예: 2000" />
+          <input
+            name="birthYear"
+            type="number"
+            inputMode="numeric"
+            min={1900}
+            max={2025}
+            value={birthYear}
+            onChange={(e) => setBirthYear(e.target.value)}
+            autoComplete="bday-year"
+            placeholder="예: 2000"
+          />
         </label>
-        {error && <p className="error" role="alert">{error}</p>}
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
         <button type="submit" className="btn full" disabled={submitting || nickCheck.checking || emailCheck.checking}>
           {submitting ? '전송 중…' : '인증 메일 받기'}
         </button>
       </form>
-      <p className="muted">이미 계정이 있나요? <Link to="/login">로그인</Link></p>
+      <p className="muted">
+        이미 계정이 있나요? <Link to="/login">로그인</Link>
+      </p>
     </div>
   );
 };
