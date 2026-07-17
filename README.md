@@ -16,7 +16,6 @@
 - **꼭 기억할 것(gotcha)**:
   - 로컬은 **SQLite**(`server/prisma/dev.db`), 배포는 **PostgreSQL**. 빌드 때 `scripts/use-postgres.mjs`가 자동 전환하니 **`schema.prisma`의 provider는 `sqlite`로 두기**.
   - `server/.env` 키: `ALADIN_TTB_KEY`(알라딘), `RESEND_API_KEY`(이메일 인증), `KAKAO_REST_API_KEY`·`GOOGLE_CLIENT_ID/SECRET`(소셜 로그인). 없으면 해당 기능만 비활성.
-  - GitHub 원격은 `JuneYeong-Son/book_review`. (이 PC엔 자격증명이 저장돼 있어 push 가능)
   - **관리자 지정**: env `ADMIN_USERNAMES`(쉼표구분, **기본값 없음**). `ADMIN_PASSWORD` 설정 시 부팅마다 그 비번으로 재설정. (보안 감사로 과거 기본 `reader` 제거)
   - **이메일 인증**: `EMAIL_VERIFICATION=off` 면 코드 단계 생략(도메인 없을 때). 없으면 인증 필수.
 
@@ -84,8 +83,6 @@ book_review/
 - **안드로이드 앱**: Capacitor 번들 앱(토큰 인증). 앱에선 아이디 로그인 사용(소셜은 향후).
 
 ## 🚀 로컬 실행
-
-로컬은 **SQLite**를 사용해 별도 DB 설치가 필요 없습니다.
 
 ```bash
 # 1) 백엔드
