@@ -100,7 +100,7 @@ const QuickActions = ({ onChange }: Props) => {
   const addAndInterest = async (candidate: BookCandidate) => {
     const book = await apiPost<Book>('/books/import', candidate);
     if (!interestedIds.has(book.id)) await apiPost(`/books/${book.id}/interest`);
-    await Promise.all([mutate(KEY.books), mutate(KEY.interestsMe)]);
+    await mutate(KEY.interestsMe);
     onChange();
   };
 

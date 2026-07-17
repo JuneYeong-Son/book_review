@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-07-17 — YAGNI: 죽은 코드 제거
+
+정의만 있고 아무 데서도 안 쓰이는 export를 스캔해 제거(타입체크·빌드·부팅 스모크 통과).
+- `feedback_repository.countUnresolvedFeedback` — 투기적으로 작성 후 미사용.
+- `progress_repository.countProgressByBook` — bookSeq를 `max+1`로 바꾼 뒤 미사용.
+- 프론트 `useBooks` 훅 — 서평 게이팅 변경으로 구독자 사라짐 → 훅 + `KEY.books` + 죽은 `mutate(KEY.books)`(구독자 없어 무의미) 함께 제거.
+- (미사용 타입 export는 없음.)
+
+---
+
 ## 2026-07-17 — `auth_service` 분리 (SRP)
 
 SOLID 리뷰에서 지적한 "auth 갓 서비스"(223줄·10 export)를 책임별로 분리. 행동 불변, 타입체크 + 스모크(로그인·`/me`·중복확인·가입) 통과. **다른 파일 중 `auth_service`를 쓰던 건 `auth_controller` 하나뿐**이라 import 경로만 갱신.

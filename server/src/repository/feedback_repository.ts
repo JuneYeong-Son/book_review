@@ -17,6 +17,3 @@ export const updateFeedbackResolved = (id: string, resolved: boolean) =>
 
 export const deleteFeedbackById = (id: string) =>
   prisma.feedback.delete({ where: { id } });
-
-export const countUnresolvedFeedback = () =>
-  prisma.feedback.count({ where: { resolved: false } });

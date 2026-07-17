@@ -52,9 +52,6 @@ export const findProgressByUserAndBook = (userId: string, bookId: string) =>
     orderBy: { createdAt: 'desc' }
   });
 
-export const countProgressByBook = (bookId: string) =>
-  prisma.progress.count({ where: { bookId } });
-
 // 그 책에서 현재 가장 큰 서평 순번(bookSeq). 없으면 0.
 // 순번을 count가 아니라 max 기준으로 매겨, 서평을 삭제해도 번호가 재사용(충돌)되지 않게 한다.
 export const maxBookSeqByBook = async (bookId: string) => {
