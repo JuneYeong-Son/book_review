@@ -157,7 +157,7 @@ router.get('/me', requireAuth, async (_req, res) => {
 router.patch('/me', requireAuth, async (req, res) => {
   const { name, nickname, avatar, birthYear } = req.body ?? {};
   const by = birthYear === null ? null : typeof birthYear === 'number' ? birthYear : undefined;
-  const result = await updateProfile(res.locals.userId, {
+  const result = await updateProfile(res.locals.user, {
     name, avatar, birthYear: by,
     nickname: typeof nickname === 'string' ? nickname : undefined
   });
@@ -171,7 +171,7 @@ router.post('/change-password', authLimiter, requireAuth, async (req, res) => {
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ message: '현재/새 비밀번호를 입력하세요.' });
   }
-  const result = await changePassword(res.locals.userId, currentPassword, newPassword);
+  const result = await changePassword(res.locals.user, currentPassword, newPassword);
   if ('error' in result) return res.status(400).json({ message: result.error });
   return res.json({ message: '비밀번호가 변경되었습니다.' });
 });
@@ -180,7 +180,7 @@ router.post('/change-password', authLimiter, requireAuth, async (req, res) => {
 router.delete('/me', requireAuth, async (req, res) => {
   const { password } = req.body ?? {};
   if (!password) return res.status(400).json({ message: '비밀번호를 입력하세요.' });
-  const result = await deleteAccount(res.locals.userId, password);
+  const result = await deleteAccount(res.locals.user, password);
   if ('error' in result) return res.status(400).json({ message: result.error });
   res.clearCookie('userId', authCookieOptions);
   return res.json({ message: '회원 탈퇴가 완료되었습니다.' });

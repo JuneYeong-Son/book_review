@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-07-17 — current-user seam 깊게 하기 (improve-codebase-architecture 스킬)
+
+`improve-codebase-architecture` 스킬(mattpocock)로 인증 핫스팟을 리뷰 → 3후보 중 **"current-user seam"** 선택·구현.
+- **문제(낮은 locality):** requireAuth가 이미 로드한 유저를 `changePassword`·`deleteAccount`·`updateProfile`이 `id`로 재조회.
+- **깊게 함:** `AuthedUser` 타입(=requireAuth가 붙이는 유저 행) 신설. 세 서비스가 `id` 대신 **로드된 유저를 인자로 받음** → 로드가 requireAuth 한 지점에 집중, 재조회 및 "유저 없음" 방어 체크 제거.
+- **테스트 표면:** 유저 객체를 넘겨 테스트 가능(조회 목 불필요). interface가 `(id, …)` → `(user, …)`로.
+- 컨트롤러는 `res.locals.userId` → `res.locals.user` 전달. 타입체크 + E2E 스모크(프로필·비번변경·새비번 로그인·오답 차단·탈퇴) 통과.
+- 나머지 후보(result→HTTP adapter=Worth exploring / repository 얕은 seam=Speculative)는 보류. 리포트는 임시 HTML로 제시(저장소 미포함).
+
 ## 2026-07-17 — YAGNI: 안 쓰는 유연성 제거
 
 죽은 코드에 이어 "쓰지도 않는 유연성"까지 정리.

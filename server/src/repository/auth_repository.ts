@@ -3,6 +3,10 @@ import prisma from '../lib/prisma.ts';
 export const findUserByUsername = (username: string) =>
   prisma.user.findUnique({ where: { username } });
 
+// requireAuth가 조회해 res.locals.user에 붙여두는 인증된 유저 행 타입.
+// current-user seam: 하위 서비스는 이 유저를 재조회하지 않고 인자로 받는다.
+export type AuthedUser = NonNullable<Awaited<ReturnType<typeof findUserById>>>;
+
 export const findUserByEmail = (email: string) =>
   prisma.user.findUnique({ where: { email } });
 

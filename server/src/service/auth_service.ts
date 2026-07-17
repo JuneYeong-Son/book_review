@@ -1,4 +1,5 @@
 import { findUserByUsername, findUserById, touchLastSeen } from '../repository/auth_repository.ts';
+import type { AuthedUser } from '../repository/auth_repository.ts';
 import { hashPassword, verifyPassword } from '../lib/password.ts';
 import { toPublicUser } from './public_user.ts';
 
@@ -15,10 +16,7 @@ export const loginUser = async (username: string, password: string) => {
 };
 
 // preloaded: requireAuth가 이미 조회해 둔 유저 행이 있으면 재조회를 생략(핫패스 /me 쿼리 절감).
-export const getUser = async (
-  id: string,
-  preloaded?: NonNullable<Awaited<ReturnType<typeof findUserById>>>
-) => {
+export const getUser = async (id: string, preloaded?: AuthedUser) => {
   const user = preloaded ?? (await findUserById(id));
   if (!user) return null;
   await touchLastSeen(id); // 오늘의 접속자 집계
