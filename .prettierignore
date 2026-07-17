@@ -1,0 +1,7 @@
+node_modules
+dist
+build
+frontend/android
+server/prisma/dev.db
+*.md
+package-lock.json

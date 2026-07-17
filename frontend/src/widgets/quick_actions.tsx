@@ -104,12 +104,6 @@ const QuickActions = ({ onChange }: Props) => {
     onChange();
   };
 
-  const toggleInterest = async (bookId: string) => {
-    await apiPost(`/books/${bookId}/interest`);
-    await mutate(KEY.interestsMe);
-    onChange();
-  };
-
   return (
     <div className="quick-actions">
       <button className="btn" onClick={() => setWhich('review')}>✍️ 서평 쓰기</button>

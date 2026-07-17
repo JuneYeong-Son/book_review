@@ -80,14 +80,14 @@ export const startRegistration = async (input: {
     code, expiresAt: new Date(Date.now() + CODE_TTL_MS)
   });
 
-  let dev = false;
+  let sent: { dev: boolean };
   try {
-    ({ dev } = await sendVerificationEmail(email, code));
+    sent = await sendVerificationEmail(email, code);
   } catch {
     return { error: '인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.' as const };
   }
   // devCode는 로컬/개발(dev=true)에서만 반환된다. 프로덕션에서는 절대 코드가 노출되지 않는다.
-  return { ok: true as const, dev, devCode: dev ? code : undefined };
+  return { ok: true as const, dev: sent.dev, devCode: sent.dev ? code : undefined };
 };
 
 // 회원가입 2단계: 이메일+코드 검증 → User 생성.

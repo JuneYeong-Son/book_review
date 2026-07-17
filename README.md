@@ -37,6 +37,7 @@
 - **외부 API/서비스**: 알라딘 OpenAPI(책·베스트셀러), Resend(메일), Kakao/Google(로그인)
 - **모바일**: **Capacitor** 안드로이드 앱(번들 + 토큰 인증) — `frontend/android/`, 가이드 `docs/android/`
 - **디자인**: "종이 위에 쓴 느낌" — 종이 질감 + **을유1945** 폰트(self-host). 규칙은 `docs/design/design.md`
+- **코드 품질**: ESLint(flat config) + Prettier — 각 패키지에서 `npm run lint` / `npm run format`(`src`만).
 - **배포**: Render (Blueprint: `render.yaml`)
 
 ## 📁 구조
